@@ -51,7 +51,7 @@
     }
 
     .control-btn {
-      background: rgba(0,0,0,0.72);
+      background: rgba(0,0,0,0.7);
       color: white;
       border: 0;
       padding: 8px 10px;
@@ -92,177 +92,173 @@
     .card p {
       font-size: 14px;
       margin-top: 6px;
-      line-height: 1.35;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
 
-    <h1>DJ LIVE TV</h1>
+  <h1>DJ LIVE TV</h1>
 
-    <div class="player" id="playerWrap">
-      <iframe
-        id="livePlayer"
-        src="https://player.kick.com/DJLIVETV"
-        allow="autoplay; fullscreen"
-        allowfullscreen>
-      </iframe>
+  <div class="player" id="playerWrap">
+    <iframe
+      id="livePlayer"
+      src="https://player.kick.com/DJLIVETV"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
 
-      <div class="controls">
-        <button class="control-btn" id="fullscreenBtn">⛶</button>
-        <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
-      </div>
+    <div class="controls">
+      <button class="control-btn" id="fullscreenBtn">⛶</button>
+      <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
     </div>
-
-    <h2 style="margin-top:40px;">REPLAYS</h2>
-    <div id="videos" class="grid"></div>
-
   </div>
 
-  <script>
-    let hls = null;
-    let currentMode = "live";
+  <h2 style="margin-top:40px;">REPLAYS</h2>
+  <div id="videos" class="grid"></div>
 
-    function requestPlayerFullscreen() {
-      const wrap = document.getElementById("playerWrap");
-      if (wrap.requestFullscreen) {
-        wrap.requestFullscreen();
-      } else if (wrap.webkitRequestFullscreen) {
-        wrap.webkitRequestFullscreen();
-      }
+</div>
+
+<script>
+let hls = null;
+
+/* FULLSCREEN MELHORADO */
+function requestPlayerFullscreen() {
+  const video = document.getElementById("replayVideo");
+  const wrap = document.getElementById("playerWrap");
+
+  if (video) {
+    if (video.requestFullscreen) {
+      video.requestFullscreen();
+    } else if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen(); // iPhone melhor
+    } else if (video.webkitRequestFullscreen) {
+      video.webkitRequestFullscreen();
     }
+    return;
+  }
 
-    function stopEverything() {
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
+  if (wrap.requestFullscreen) {
+    wrap.requestFullscreen();
+  } else if (wrap.webkitRequestFullscreen) {
+    wrap.webkitRequestFullscreen();
+  }
+}
 
-      const wrap = document.getElementById("playerWrap");
+/* PARAR TUDO */
+function stopEverything() {
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
 
-      const iframe = wrap.querySelector("iframe");
-      if (iframe) {
-        iframe.src = "about:blank";
-      }
+  const wrap = document.getElementById("playerWrap");
 
-      const video = wrap.querySelector("video");
-      if (video) {
-        video.pause();
-        video.removeAttribute("src");
-        video.load();
-      }
+  const iframe = wrap.querySelector("iframe");
+  if (iframe) {
+    iframe.src = "about:blank"; // corta som live
+  }
 
-      wrap.innerHTML = "";
-    }
+  const video = wrap.querySelector("video");
+  if (video) {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  }
 
-    function attachControls() {
-      const fs = document.getElementById("fullscreenBtn");
-      if (fs) {
-        fs.onclick = requestPlayerFullscreen;
-      }
+  wrap.innerHTML = "";
+}
 
-      const liveBtn = document.getElementById("backLiveBtn");
-      if (liveBtn) {
-        liveBtn.onclick = loadLive;
-      }
-    }
+/* CONTROLOS */
+function attachControls() {
+  const fs = document.getElementById("fullscreenBtn");
+  if (fs) fs.onclick = requestPlayerFullscreen;
 
-    function loadLive() {
-      stopEverything();
+  const liveBtn = document.getElementById("backLiveBtn");
+  if (liveBtn) liveBtn.onclick = loadLive;
+}
 
-      const wrap = document.getElementById("playerWrap");
+/* LOAD LIVE */
+function loadLive() {
+  stopEverything();
 
-      wrap.innerHTML = `
-        <iframe
-          id="livePlayer"
-          src="https://player.kick.com/DJLIVETV"
-          allow="autoplay; fullscreen"
-          allowfullscreen>
-        </iframe>
+  const wrap = document.getElementById("playerWrap");
 
-        <div class="controls">
-          <button class="control-btn" id="fullscreenBtn">⛶</button>
-          <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
-        </div>
+  wrap.innerHTML = `
+    <iframe
+      id="livePlayer"
+      src="https://player.kick.com/DJLIVETV"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
+
+    <div class="controls">
+      <button class="control-btn" id="fullscreenBtn">⛶</button>
+      <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
+    </div>
+  `;
+
+  attachControls();
+}
+
+/* LOAD REPLAY */
+function loadReplay(url) {
+  stopEverything();
+
+  const wrap = document.getElementById("playerWrap");
+
+  wrap.innerHTML = `
+    <video id="replayVideo" controls autoplay playsinline></video>
+
+    <div class="controls">
+      <button class="control-btn" id="fullscreenBtn">⛶</button>
+      <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
+    </div>
+  `;
+
+  const video = document.getElementById("replayVideo");
+
+  if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = url;
+  } else if (window.Hls && Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(url);
+    hls.attachMedia(video);
+  }
+
+  attachControls();
+}
+
+/* LOAD VIDEOS */
+async function loadVideos() {
+  const container = document.getElementById("videos");
+
+  try {
+    const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+    const data = await res.json();
+
+    data.forEach(v => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="${v.thumbnail?.src || ''}">
+        <p>${v.session_title || 'DJ Set'}</p>
       `;
 
-      currentMode = "live";
-      attachControls();
-    }
+      card.onclick = () => loadReplay(v.source);
+      container.appendChild(card);
+    });
 
-    function loadReplay(url) {
-      stopEverything();
+  } catch {
+    container.innerHTML = "Error loading videos";
+  }
+}
 
-      const wrap = document.getElementById("playerWrap");
+attachControls();
+loadVideos();
+</script>
 
-      wrap.innerHTML = `
-        <video id="replayVideo" controls autoplay playsinline></video>
-
-        <div class="controls">
-          <button class="control-btn" id="fullscreenBtn">⛶</button>
-          <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
-        </div>
-      `;
-
-      const video = document.getElementById("replayVideo");
-
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = url;
-      } else if (window.Hls && Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-      }
-
-      currentMode = "replay";
-      attachControls();
-    }
-
-    async function loadVideos() {
-      const container = document.getElementById("videos");
-      container.innerHTML = "";
-
-      try {
-        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-        const data = await res.json();
-
-        if (!Array.isArray(data)) {
-          container.innerHTML = "Error loading videos";
-          return;
-        }
-
-        data.forEach(v => {
-          const card = document.createElement("div");
-          card.className = "card";
-
-          const thumb = v.thumbnail && v.thumbnail.src ? v.thumbnail.src : "";
-          const title = v.session_title || "DJ Set";
-          const source = v.source || "";
-
-          card.innerHTML = `
-            <img src="${thumb}" alt="">
-            <p>${title}</p>
-          `;
-
-          card.onclick = () => {
-            if (source) {
-              loadReplay(source);
-            }
-          };
-
-          container.appendChild(card);
-        });
-
-      } catch (e) {
-        container.innerHTML = "Error loading videos";
-        console.log(e);
-      }
-    }
-
-    attachControls();
-    loadVideos();
-  </script>
 </body>
 </html>
