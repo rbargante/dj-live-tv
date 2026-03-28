@@ -1,10 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ LIVE TV</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+body {
+  margin:0;
+  background:black;
+  color:white;
+  font-family:Arial;
+}
+
+.container {
+  max-width:1100px;
+  margin:auto;
+  padding:10px;
+}
+
+h1 {
+  text-align:center;
+}
+
+.player {
+  position:relative;
+  padding-top:56.25%;
+  background:black;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.player iframe,
+.player video {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:black;
+}
+
+.button {
+  display:block;
+  text-align:center;
+  margin-top:15px;
+  padding:12px;
+  background:#00ff88;
+  color:black;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:8px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+  padding:20px 0;
+}
+
+.card {
+  cursor:pointer;
+}
+
+.card img {
+  width:100%;
+  border-radius:10px;
+  display:block;
+  background:#111;
+}
+
+.card p {
+  font-size:14px;
+  margin-top:5px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>DJ LIVE TV</h1>
+
+  <div class="player" id="mainPlayer">
+    <iframe src="https://player.kick.com/DJLIVETV"></iframe>
+  </div>
+
+  <a class="button" href="https://kick.com/djlivetv" target="_blank">
+    OPEN FULL SCREEN (BEST QUALITY)
+  </a>
+
+  <h2 style="text-align:center;margin-top:40px;">REPLAYS</h2>
+
+  <div id="videos" class="grid"></div>
+
+</div>
+
 <script>
+let hlsInstance = null;
+
+function playReplay(sourceUrl) {
+  const player = document.getElementById("mainPlayer");
+
+  if (hlsInstance) {
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
+
+  player.innerHTML = '<video id="replayVideo" controls autoplay playsinline></video>';
+
+  const video = document.getElementById("replayVideo");
+
+  if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = sourceUrl;
+  } else if (window.Hls && Hls.isSupported()) {
+    hlsInstance = new Hls();
+    hlsInstance.loadSource(sourceUrl);
+    hlsInstance.attachMedia(video);
+  } else {
+    player.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;background:#111;">Replay not supported on this browser.</div>';
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 async function loadVideos() {
   try {
     const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
     const data = await res.json();
 
     const container = document.getElementById("videos");
+    container.innerHTML = "";
 
     data.forEach(video => {
       const el = document.createElement("div");
@@ -12,31 +140,30 @@ async function loadVideos() {
 
       const thumb = video.thumbnail?.src || "";
       const title = video.session_title || "DJ Set";
+      const source = video.source || "";
 
       el.innerHTML = `
-        <div onclick="playVideo('${video.id}')" style="cursor:pointer;">
-          <img src="${thumb}">
+        <div style="cursor:pointer;">
+          <img src="${thumb}" alt="">
           <p>${title}</p>
         </div>
       `;
+
+      el.addEventListener("click", () => {
+        if (source) {
+          playReplay(source);
+        }
+      });
 
       container.appendChild(el);
     });
 
   } catch (err) {
-    console.log("Erro a carregar vídeos");
+    console.log("Erro a carregar vídeos", err);
   }
-}
-
-function playVideo(id) {
-  const player = document.querySelector(".player");
-
-  player.innerHTML = `
-    <iframe src="https://player.kick.com/video/${id}" allowfullscreen></iframe>
-  `;
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 loadVideos();
 </script>
+</body>
+</html>
