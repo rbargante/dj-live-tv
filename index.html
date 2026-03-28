@@ -23,10 +23,16 @@
       text-align: center;
     }
 
+    .player-area {
+      position: relative;
+      margin-top: 10px;
+    }
+
     .badge-wrap {
-      display: flex;
-      justify-content: center;
-      margin: 6px 0 14px 0;
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 20;
     }
 
     .player {
@@ -53,7 +59,7 @@
       right: 10px;
       display: flex;
       gap: 8px;
-      z-index: 10;
+      z-index: 20;
     }
 
     .control-btn {
@@ -100,6 +106,18 @@
       margin-top: 6px;
       line-height: 1.35;
     }
+
+    @media (max-width: 700px) {
+      .badge-wrap {
+        top: 10px;
+        left: 10px;
+      }
+
+      .control-btn {
+        padding: 7px 9px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 
@@ -108,45 +126,49 @@
 
     <h1>DJ LIVE TV</h1>
 
-    <!-- LIVE STATUS BADGE -->
-    <div class="badge-wrap">
-      <div id="live-status-badge" style="
-        display:inline-flex;
-        align-items:center;
-        gap:10px;
-        padding:10px 16px;
-        border-radius:999px;
-        font-family:Arial,sans-serif;
-        font-size:14px;
-        font-weight:700;
-        letter-spacing:.5px;
-        background:#2b2b2b;
-        color:#d7d7d7;
-        border:1px solid rgba(255,255,255,.12);
-      ">
-        <span id="live-status-dot" style="
-          width:10px;
-          height:10px;
-          border-radius:50%;
-          background:#666;
-          display:inline-block;
-        "></span>
-        <span id="live-status-text">CHECKING...</span>
+    <div class="player-area">
+      <!-- BADGE -->
+      <div class="badge-wrap">
+        <div id="live-status-badge" style="
+          display:inline-flex;
+          align-items:center;
+          gap:10px;
+          padding:10px 16px;
+          border-radius:999px;
+          font-family:Arial,sans-serif;
+          font-size:14px;
+          font-weight:700;
+          letter-spacing:.5px;
+          background:#2b2b2b;
+          color:#d7d7d7;
+          border:1px solid rgba(255,255,255,.12);
+          backdrop-filter: blur(6px);
+        ">
+          <span id="live-status-dot" style="
+            width:10px;
+            height:10px;
+            border-radius:50%;
+            background:#666;
+            display:inline-block;
+          "></span>
+          <span id="live-status-text">CHECKING...</span>
+        </div>
       </div>
-    </div>
 
-    <!-- PLAYER -->
-    <div class="player" id="playerWrap">
-      <iframe
-        id="livePlayer"
-        src="https://player.kick.com/DJLIVETV"
-        allow="autoplay; fullscreen"
-        allowfullscreen>
-      </iframe>
+      <!-- PLAYER -->
+      <div class="player" id="playerWrap">
+        <iframe
+          id="livePlayer"
+          src="https://player.kick.com/DJLIVETV?muted=true"
+          allow="autoplay; fullscreen"
+          allowfullscreen>
+        </iframe>
 
-      <div class="controls">
-        <button class="control-btn" id="fullscreenBtn">⛶</button>
-        <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
+        <div class="controls">
+          <button class="control-btn" id="unmuteBtn">🔊</button>
+          <button class="control-btn" id="fullscreenBtn">⛶</button>
+          <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
+        </div>
       </div>
     </div>
 
@@ -158,7 +180,6 @@
   <script>
     let hls = null;
 
-    /* FULLSCREEN MELHORADO */
     function requestPlayerFullscreen() {
       const video = document.getElementById("replayVideo");
       const wrap = document.getElementById("playerWrap");
@@ -181,7 +202,6 @@
       }
     }
 
-    /* PARAR TUDO */
     function stopEverything() {
       if (hls) {
         hls.destroy();
@@ -205,16 +225,24 @@
       wrap.innerHTML = "";
     }
 
-    /* CONTROLOS */
     function attachControls() {
       const fs = document.getElementById("fullscreenBtn");
       if (fs) fs.onclick = requestPlayerFullscreen;
 
       const liveBtn = document.getElementById("backLiveBtn");
       if (liveBtn) liveBtn.onclick = loadLive;
+
+      const unmuteBtn = document.getElementById("unmuteBtn");
+      if (unmuteBtn) {
+        unmuteBtn.onclick = function () {
+          const iframe = document.getElementById("livePlayer");
+          if (iframe) {
+            iframe.src = "https://player.kick.com/DJLIVETV";
+          }
+        };
+      }
     }
 
-    /* LOAD LIVE */
     function loadLive() {
       stopEverything();
 
@@ -223,12 +251,13 @@
       wrap.innerHTML = `
         <iframe
           id="livePlayer"
-          src="https://player.kick.com/DJLIVETV"
+          src="https://player.kick.com/DJLIVETV?muted=true"
           allow="autoplay; fullscreen"
           allowfullscreen>
         </iframe>
 
         <div class="controls">
+          <button class="control-btn" id="unmuteBtn">🔊</button>
           <button class="control-btn" id="fullscreenBtn">⛶</button>
           <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
         </div>
@@ -237,7 +266,6 @@
       attachControls();
     }
 
-    /* LOAD REPLAY */
     function loadReplay(url) {
       stopEverything();
 
@@ -265,7 +293,6 @@
       attachControls();
     }
 
-    /* LOAD VIDEOS */
     async function loadVideos() {
       const container = document.getElementById("videos");
 
@@ -296,15 +323,14 @@
       }
     }
 
-    /* LIVE STATUS */
     async function updateLiveStatus() {
+      const badge = document.getElementById("live-status-badge");
+      const dot = document.getElementById("live-status-dot");
+      const text = document.getElementById("live-status-text");
+
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status&t=" + Date.now());
         const status = (await res.text()).trim().toLowerCase();
-
-        const badge = document.getElementById("live-status-badge");
-        const dot = document.getElementById("live-status-dot");
-        const text = document.getElementById("live-status-text");
 
         if (status === "live") {
           badge.style.background = "rgba(255,59,59,.15)";
@@ -320,7 +346,11 @@
           text.textContent = "OFFLINE";
         }
       } catch (e) {
-        document.getElementById("live-status-text").textContent = "OFFLINE";
+        badge.style.background = "rgba(255,255,255,.08)";
+        badge.style.color = "#cfcfcf";
+        badge.style.border = "1px solid rgba(255,255,255,.12)";
+        dot.style.background = "#666";
+        text.textContent = "OFFLINE";
       }
     }
 
