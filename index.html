@@ -21,20 +21,21 @@
 
     h1, h2 {
       text-align: center;
+      margin: 0;
     }
 
-    .player-area {
-      position: relative;
-      margin-top: 10px;
+    h1 {
+      margin-bottom: 14px;
     }
 
+    /* BADGE EM CIMA DO PLAYER */
     .badge-wrap {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      z-index: 20;
+      display: flex;
+      justify-content: center;
+      margin: 0 0 12px 0;
     }
 
+    /* PLAYER */
     .player {
       position: relative;
       padding-top: 56.25%;
@@ -53,31 +54,38 @@
       background: black;
     }
 
+    /* BOTÕES */
     .controls {
       position: absolute;
-      bottom: 10px;
-      right: 10px;
+      top: 12px;
+      right: 12px;
       display: flex;
       gap: 8px;
-      z-index: 20;
+      z-index: 30;
     }
 
     .control-btn {
-      background: rgba(0,0,0,0.72);
+      background: rgba(0,0,0,0.78);
       color: white;
-      border: 0;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 15px;
       cursor: pointer;
+      line-height: 1;
+      min-width: 42px;
+      min-height: 42px;
     }
 
     .live-btn {
-      background: red;
+      background: rgba(255,0,0,.9);
       color: white;
       font-weight: bold;
+      min-width: auto;
+      padding: 10px 14px;
     }
 
+    /* GRID */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -99,6 +107,8 @@
       border-radius: 10px;
       display: block;
       background: #111;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
     }
 
     .card p {
@@ -108,14 +118,34 @@
     }
 
     @media (max-width: 700px) {
+      .container {
+        padding: 8px;
+      }
+
+      h1 {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+
       .badge-wrap {
+        margin-bottom: 10px;
+      }
+
+      .controls {
         top: 10px;
-        left: 10px;
+        right: 10px;
+        gap: 6px;
       }
 
       .control-btn {
-        padding: 7px 9px;
-        font-size: 13px;
+        padding: 10px 12px;
+        font-size: 14px;
+        min-width: 44px;
+        min-height: 44px;
+      }
+
+      .live-btn {
+        padding: 10px 12px;
       }
     }
   </style>
@@ -126,49 +156,46 @@
 
     <h1>DJ LIVE TV</h1>
 
-    <div class="player-area">
-      <!-- BADGE -->
-      <div class="badge-wrap">
-        <div id="live-status-badge" style="
-          display:inline-flex;
-          align-items:center;
-          gap:10px;
-          padding:10px 16px;
-          border-radius:999px;
-          font-family:Arial,sans-serif;
-          font-size:14px;
-          font-weight:700;
-          letter-spacing:.5px;
-          background:#2b2b2b;
-          color:#d7d7d7;
-          border:1px solid rgba(255,255,255,.12);
-          backdrop-filter: blur(6px);
-        ">
-          <span id="live-status-dot" style="
-            width:10px;
-            height:10px;
-            border-radius:50%;
-            background:#666;
-            display:inline-block;
-          "></span>
-          <span id="live-status-text">CHECKING...</span>
-        </div>
+    <!-- BADGE -->
+    <div class="badge-wrap">
+      <div id="live-status-badge" style="
+        display:inline-flex;
+        align-items:center;
+        gap:10px;
+        padding:10px 16px;
+        border-radius:999px;
+        font-family:Arial,sans-serif;
+        font-size:14px;
+        font-weight:700;
+        letter-spacing:.5px;
+        background:#2b2b2b;
+        color:#d7d7d7;
+        border:1px solid rgba(255,255,255,.12);
+      ">
+        <span id="live-status-dot" style="
+          width:10px;
+          height:10px;
+          border-radius:50%;
+          background:#666;
+          display:inline-block;
+        "></span>
+        <span id="live-status-text">CHECKING...</span>
       </div>
+    </div>
 
-      <!-- PLAYER -->
-      <div class="player" id="playerWrap">
-        <iframe
-          id="livePlayer"
-          src="https://player.kick.com/DJLIVETV?muted=true"
-          allow="autoplay; fullscreen"
-          allowfullscreen>
-        </iframe>
+    <!-- PLAYER -->
+    <div class="player" id="playerWrap">
+      <iframe
+        id="livePlayer"
+        src="https://player.kick.com/DJLIVETV?muted=true"
+        allow="autoplay; fullscreen"
+        allowfullscreen>
+      </iframe>
 
-        <div class="controls">
-          <button class="control-btn" id="unmuteBtn">🔊</button>
-          <button class="control-btn" id="fullscreenBtn">⛶</button>
-          <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
-        </div>
+      <div class="controls">
+        <button class="control-btn" id="unmuteBtn" aria-label="Unmute">🔊</button>
+        <button class="control-btn" id="fullscreenBtn" aria-label="Fullscreen">⛶</button>
+        <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
       </div>
     </div>
 
@@ -225,7 +252,7 @@
       wrap.innerHTML = "";
     }
 
-    function attachControls() {
+    function attachControls(mode) {
       const fs = document.getElementById("fullscreenBtn");
       if (fs) fs.onclick = requestPlayerFullscreen;
 
@@ -234,12 +261,21 @@
 
       const unmuteBtn = document.getElementById("unmuteBtn");
       if (unmuteBtn) {
-        unmuteBtn.onclick = function () {
-          const iframe = document.getElementById("livePlayer");
-          if (iframe) {
-            iframe.src = "https://player.kick.com/DJLIVETV";
-          }
-        };
+        if (mode === "live") {
+          unmuteBtn.style.display = "inline-flex";
+          unmuteBtn.onclick = function () {
+            const iframe = document.getElementById("livePlayer");
+            if (iframe) {
+              iframe.src = "https://player.kick.com/DJLIVETV";
+            }
+          };
+        } else {
+          unmuteBtn.style.display = "none";
+        }
+      }
+
+      if (liveBtn) {
+        liveBtn.style.display = mode === "replay" ? "inline-flex" : "none";
       }
     }
 
@@ -257,13 +293,13 @@
         </iframe>
 
         <div class="controls">
-          <button class="control-btn" id="unmuteBtn">🔊</button>
-          <button class="control-btn" id="fullscreenBtn">⛶</button>
-          <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
+          <button class="control-btn" id="unmuteBtn" aria-label="Unmute">🔊</button>
+          <button class="control-btn" id="fullscreenBtn" aria-label="Fullscreen">⛶</button>
+          <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
         </div>
       `;
 
-      attachControls();
+      attachControls("live");
     }
 
     function loadReplay(url) {
@@ -275,7 +311,7 @@
         <video id="replayVideo" controls autoplay playsinline></video>
 
         <div class="controls">
-          <button class="control-btn" id="fullscreenBtn">⛶</button>
+          <button class="control-btn" id="fullscreenBtn" aria-label="Fullscreen">⛶</button>
           <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
         </div>
       `;
@@ -290,11 +326,12 @@
         hls.attachMedia(video);
       }
 
-      attachControls();
+      attachControls("replay");
     }
 
     async function loadVideos() {
       const container = document.getElementById("videos");
+      container.innerHTML = "";
 
       try {
         const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
@@ -310,7 +347,7 @@
           card.className = "card";
 
           card.innerHTML = `
-            <img src="${v.thumbnail?.src || ''}">
+            <img src="${v.thumbnail?.src || ''}" alt="">
             <p>${v.session_title || 'DJ Set'}</p>
           `;
 
@@ -354,7 +391,7 @@
       }
     }
 
-    attachControls();
+    attachControls("live");
     loadVideos();
     updateLiveStatus();
     setInterval(updateLiveStatus, 5000);
