@@ -23,33 +23,20 @@ h1, h2 {
   text-align: center;
 }
 
-.player-wrap {
+.player {
   position: relative;
-  width: 100%;
   padding-top: 56.25%;
   background: black;
   border-radius: 12px;
   overflow: hidden;
 }
 
-.player-wrap iframe,
-.player-wrap video,
-.player-wrap .fallback {
+.player iframe {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border: 0;
-  background: black;
-}
-
-.fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  padding: 20px;
-  text-align: center;
 }
 
 .button {
@@ -87,6 +74,80 @@ h1, h2 {
   margin-top: 6px;
   line-height: 1.35;
 }
+
+/* MODAL REPLAYS */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 9999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  max-width: 1000px;
+  margin: 40px auto 0 auto;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: -46px;
+  right: 0;
+  background: #00ff88;
+  color: black;
+  border: 0;
+  padding: 10px 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.replay-player-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background: black;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.replay-player-wrap video,
+.replay-player-wrap .fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  border: 0;
+}
+
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+  .modal {
+    padding: 12px;
+  }
+
+  .modal-content {
+    margin-top: 50px;
+  }
+
+  .close-btn {
+    top: -42px;
+    padding: 9px 12px;
+  }
+}
 </style>
 </head>
 
@@ -95,7 +156,8 @@ h1, h2 {
 
   <h1>DJ LIVE TV</h1>
 
-  <div id="mainPlayer" class="player-wrap">
+  <!-- PLAYER PRINCIPAL LIVE -->
+  <div class="player">
     <iframe
       src="https://player.kick.com/DJLIVETV"
       allow="autoplay; fullscreen"
@@ -112,51 +174,72 @@ h1, h2 {
 
 </div>
 
+<!-- PLAYER PRÓPRIO DOS REPLAYS -->
+<div id="replayModal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeReplay()">CLOSE</button>
+    <div class="replay-player-wrap" id="replayPlayerWrap">
+      <div class="fallback">Loading replay...</div>
+    </div>
+  </div>
+</div>
+
 <script>
-let hls = null;
+let replayHls = null;
 
-function resetToLivePlayer() {
-  const mainPlayer = document.getElementById("mainPlayer");
-  mainPlayer.innerHTML = `
-    <iframe
-      src="https://player.kick.com/DJLIVETV"
-      allow="autoplay; fullscreen"
-      allowfullscreen>
-    </iframe>
-  `;
-}
+function openReplay(sourceUrl) {
+  const modal = document.getElementById("replayModal");
+  const wrap = document.getElementById("replayPlayerWrap");
 
-function playReplayInMainPlayer(sourceUrl) {
-  const mainPlayer = document.getElementById("mainPlayer");
+  modal.style.display = "block";
+  wrap.innerHTML = '<video id="replayVideo" controls autoplay playsinline></video>';
+
+  const video = document.getElementById("replayVideo");
+
+  if (replayHls) {
+    replayHls.destroy();
+    replayHls = null;
+  }
 
   if (!sourceUrl) {
-    resetToLivePlayer();
+    wrap.innerHTML = '<div class="fallback">Replay not available.</div>';
     return;
   }
-
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-
-  mainPlayer.innerHTML = `<video id="replayVideo" controls autoplay playsinline></video>`;
-  const video = document.getElementById("replayVideo");
 
   if (video.canPlayType("application/vnd.apple.mpegurl")) {
     video.src = sourceUrl;
   } else if (window.Hls && Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(sourceUrl);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.ERROR, function () {
-      mainPlayer.innerHTML = `<div class="fallback">This replay could not be loaded here. Try another replay or use the Kick full screen button.</div>`;
+    replayHls = new Hls();
+    replayHls.loadSource(sourceUrl);
+    replayHls.attachMedia(video);
+
+    replayHls.on(Hls.Events.ERROR, function () {
+      wrap.innerHTML = '<div class="fallback">This replay could not be loaded.</div>';
     });
   } else {
-    mainPlayer.innerHTML = `<div class="fallback">This browser does not support replay playback here.</div>`;
+    wrap.innerHTML = '<div class="fallback">This browser does not support replay playback here.</div>';
+  }
+}
+
+function closeReplay() {
+  const modal = document.getElementById("replayModal");
+  const wrap = document.getElementById("replayPlayerWrap");
+
+  if (replayHls) {
+    replayHls.destroy();
+    replayHls = null;
   }
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  wrap.innerHTML = '<div class="fallback">Loading replay...</div>';
+  modal.style.display = "none";
 }
+
+window.addEventListener("click", function (e) {
+  const modal = document.getElementById("replayModal");
+  if (e.target === modal) {
+    closeReplay();
+  }
+});
 
 async function loadVideos() {
   const container = document.getElementById("videos");
@@ -167,17 +250,17 @@ async function loadVideos() {
     const data = await res.json();
 
     if (!Array.isArray(data)) {
-      container.innerHTML = `<p>Could not load replays.</p>`;
+      container.innerHTML = "<p>Could not load replays.</p>";
       return;
     }
 
     data.forEach((video) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
       const thumb = video.thumbnail && video.thumbnail.src ? video.thumbnail.src : "";
       const title = video.session_title || "DJ Set";
       const source = video.source || "";
-
-      const card = document.createElement("div");
-      card.className = "card";
 
       card.innerHTML = `
         <img src="${thumb}" alt="">
@@ -185,13 +268,13 @@ async function loadVideos() {
       `;
 
       card.addEventListener("click", function () {
-        playReplayInMainPlayer(source);
+        openReplay(source);
       });
 
       container.appendChild(card);
     });
   } catch (error) {
-    container.innerHTML = `<p>Could not load replays.</p>`;
+    container.innerHTML = "<p>Could not load replays.</p>";
     console.log(error);
   }
 }
