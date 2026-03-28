@@ -39,7 +39,6 @@
       border: 0;
     }
 
-    /* CONTROLS */
     .controls {
       position: absolute;
       bottom: 10px;
@@ -50,11 +49,11 @@
     }
 
     .control-btn {
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.72);
       color: white;
       border: 0;
       padding: 8px 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
     }
@@ -63,7 +62,6 @@
       background: rgba(0,0,0,0.9);
     }
 
-    /* GRID */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -73,7 +71,7 @@
 
     .card {
       cursor: pointer;
-      transition: 0.2s;
+      transition: transform 0.2s ease;
     }
 
     .card:hover {
@@ -90,9 +88,9 @@
     .card p {
       font-size: 14px;
       margin-top: 6px;
+      line-height: 1.35;
     }
 
-    /* MODAL */
     .modal {
       display: none;
       position: fixed;
@@ -100,153 +98,217 @@
       background: rgba(0,0,0,0.95);
       z-index: 9999;
       padding: 20px;
+      box-sizing: border-box;
     }
 
     .modal-content {
       max-width: 1000px;
-      margin: 40px auto;
+      margin: 40px auto 0 auto;
       position: relative;
     }
 
     .close-btn {
       position: absolute;
-      top: -45px;
+      top: -46px;
       right: 0;
       background: #00ff88;
       color: black;
       border: 0;
-      padding: 10px;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 10px 14px;
       font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
-    .replay-player {
+    .replay-player-wrap {
       position: relative;
+      width: 100%;
       padding-top: 56.25%;
       background: black;
       border-radius: 12px;
       overflow: hidden;
     }
 
-    .replay-player video {
+    .replay-player-wrap video,
+    .replay-player-wrap .fallback {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+      background: black;
+      border: 0;
+    }
+
+    .fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 700px) {
+      .modal {
+        padding: 12px;
+      }
+
+      .modal-content {
+        margin-top: 50px;
+      }
+
+      .close-btn {
+        top: -42px;
+        padding: 9px 12px;
+      }
     }
   </style>
 </head>
 
 <body>
-<div class="container">
+  <div class="container">
 
-  <h1>DJ LIVE TV</h1>
+    <h1>DJ LIVE TV</h1>
 
-  <!-- PLAYER -->
-  <div class="player">
-    <iframe id="kickPlayer"
-      src="https://player.kick.com/DJLIVETV?muted=true"
-      allow="autoplay; fullscreen"
-      allowfullscreen>
-    </iframe>
+    <div class="player">
+      <iframe
+        id="kickPlayer"
+        src="https://player.kick.com/DJLIVETV?muted=true"
+        allow="autoplay; fullscreen"
+        allowfullscreen>
+      </iframe>
 
-    <!-- BOTÕES -->
-    <div class="controls">
-      <button class="control-btn" id="unmuteBtn">🔊</button>
-      <button class="control-btn" id="fullscreenBtn">⛶</button>
+      <div class="controls">
+        <button class="control-btn" id="unmuteBtn">🔊</button>
+        <button class="control-btn" id="fullscreenBtn">⛶</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:40px;">REPLAYS</h2>
+    <div id="videos" class="grid"></div>
+
+  </div>
+
+  <div id="replayModal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeReplay()">CLOSE</button>
+      <div class="replay-player-wrap" id="replayPlayerWrap">
+        <div class="fallback">Loading replay...</div>
+      </div>
     </div>
   </div>
 
-  <h2 style="margin-top:40px;">REPLAYS</h2>
-  <div id="videos" class="grid"></div>
+  <script>
+    let replayHls = null;
 
-</div>
-
-<!-- MODAL -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <button class="close-btn" onclick="closeReplay()">CLOSE</button>
-    <div class="replay-player" id="replayWrap"></div>
-  </div>
-</div>
-
-<script>
-let hls = null;
-
-/* FULLSCREEN */
-document.getElementById("fullscreenBtn").onclick = function() {
-  const player = document.querySelector(".player");
-  if (player.requestFullscreen) player.requestFullscreen();
-};
-
-/* UNMUTE */
-document.getElementById("unmuteBtn").onclick = function() {
-  const iframe = document.getElementById("kickPlayer");
-  iframe.src = "https://player.kick.com/DJLIVETV";
-};
-
-/* OPEN REPLAY */
-function openReplay(url) {
-  const modal = document.getElementById("modal");
-  const wrap = document.getElementById("replayWrap");
-
-  modal.style.display = "block";
-  wrap.innerHTML = '<video id="video" controls autoplay></video>';
-
-  const video = document.getElementById("video");
-
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-
-  if (video.canPlayType("application/vnd.apple.mpegurl")) {
-    video.src = url;
-  } else if (Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-  }
-}
-
-/* CLOSE */
-function closeReplay() {
-  document.getElementById("modal").style.display = "none";
-  document.getElementById("replayWrap").innerHTML = "";
-}
-
-/* LOAD VIDEOS */
-async function loadVideos() {
-  const container = document.getElementById("videos");
-
-  try {
-    const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-    const data = await res.json();
-
-    data.forEach(v => {
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const thumb = v.thumbnail?.src || "";
-      const title = v.session_title || "DJ Set";
-
-      card.innerHTML = `
-        <img src="${thumb}">
-        <p>${title}</p>
-      `;
-
-      card.onclick = () => openReplay(v.source);
-      container.appendChild(card);
+    document.getElementById("fullscreenBtn").addEventListener("click", function () {
+      const player = document.querySelector(".player");
+      if (player.requestFullscreen) {
+        player.requestFullscreen();
+      } else if (player.webkitRequestFullscreen) {
+        player.webkitRequestFullscreen();
+      }
     });
 
-  } catch(e) {
-    container.innerHTML = "Error loading videos";
-  }
-}
+    document.getElementById("unmuteBtn").addEventListener("click", function () {
+      const iframe = document.getElementById("kickPlayer");
+      iframe.src = "https://player.kick.com/DJLIVETV";
+    });
 
-loadVideos();
-</script>
+    function openReplay(sourceUrl) {
+      const modal = document.getElementById("replayModal");
+      const wrap = document.getElementById("replayPlayerWrap");
 
+      modal.style.display = "block";
+      wrap.innerHTML = '<video id="replayVideo" controls autoplay playsinline></video>';
+
+      const video = document.getElementById("replayVideo");
+
+      if (replayHls) {
+        replayHls.destroy();
+        replayHls = null;
+      }
+
+      if (!sourceUrl) {
+        wrap.innerHTML = '<div class="fallback">Replay not available.</div>';
+        return;
+      }
+
+      if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = sourceUrl;
+      } else if (window.Hls && Hls.isSupported()) {
+        replayHls = new Hls();
+        replayHls.loadSource(sourceUrl);
+        replayHls.attachMedia(video);
+
+        replayHls.on(Hls.Events.ERROR, function () {
+          wrap.innerHTML = '<div class="fallback">This replay could not be loaded.</div>';
+        });
+      } else {
+        wrap.innerHTML = '<div class="fallback">This browser does not support replay playback here.</div>';
+      }
+    }
+
+    function closeReplay() {
+      const modal = document.getElementById("replayModal");
+      const wrap = document.getElementById("replayPlayerWrap");
+
+      if (replayHls) {
+        replayHls.destroy();
+        replayHls = null;
+      }
+
+      wrap.innerHTML = '<div class="fallback">Loading replay...</div>';
+      modal.style.display = "none";
+    }
+
+    window.addEventListener("click", function (e) {
+      const modal = document.getElementById("replayModal");
+      if (e.target === modal) {
+        closeReplay();
+      }
+    });
+
+    async function loadVideos() {
+      const container = document.getElementById("videos");
+      container.innerHTML = "";
+
+      try {
+        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          container.innerHTML = "<p>Could not load replays.</p>";
+          return;
+        }
+
+        data.forEach((video) => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          const thumb = video.thumbnail && video.thumbnail.src ? video.thumbnail.src : "";
+          const title = video.session_title || "DJ Set";
+          const source = video.source || "";
+
+          card.innerHTML = `
+            <img src="${thumb}" alt="">
+            <p>${title}</p>
+          `;
+
+          card.addEventListener("click", function () {
+            openReplay(source);
+          });
+
+          container.appendChild(card);
+        });
+      } catch (error) {
+        container.innerHTML = "<p>Could not load replays.</p>";
+        console.log(error);
+      }
+    }
+
+    loadVideos();
+  </script>
 </body>
 </html>
