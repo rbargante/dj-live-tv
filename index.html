@@ -48,6 +48,28 @@ h1 {
   text-decoration:none;
   border-radius:8px;
 }
+
+/* LIBRARY */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+  padding:20px 0;
+}
+
+.card {
+  cursor:pointer;
+}
+
+.card img {
+  width:100%;
+  border-radius:10px;
+}
+
+.card p {
+  font-size:14px;
+  margin-top:5px;
+}
 </style>
 
 </head>
@@ -66,7 +88,44 @@ h1 {
 OPEN FULL SCREEN (BEST QUALITY)
 </a>
 
+<h2 style="text-align:center;margin-top:40px;">REPLAYS</h2>
+
+<div id="videos" class="grid"></div>
+
 </div>
+
+<script>
+async function loadVideos() {
+  try {
+    const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+    const data = await res.json();
+
+    const container = document.getElementById("videos");
+
+    data.forEach(video => {
+      const el = document.createElement("div");
+      el.className = "card";
+
+      const thumb = video.thumbnail?.src || "";
+      const title = video.session_title || "DJ Set";
+
+      el.innerHTML = `
+        <div onclick="window.open('https://kick.com/video/${video.id}', '_blank')">
+          <img src="${thumb}">
+          <p>${title}</p>
+        </div>
+      `;
+
+      container.appendChild(el);
+    });
+
+  } catch (err) {
+    console.log("Erro a carregar vídeos");
+  }
+}
+
+loadVideos();
+</script>
 
 </body>
 </html>
