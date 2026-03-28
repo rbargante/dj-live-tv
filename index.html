@@ -7,74 +7,85 @@
 
 <style>
 body {
-  margin:0;
-  background:black;
-  color:white;
-  font-family:Arial;
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial, sans-serif;
 }
 
 .container {
-  max-width:1100px;
-  margin:auto;
-  padding:10px;
+  max-width: 1100px;
+  margin: auto;
+  padding: 10px;
 }
 
-h1 {
-  text-align:center;
+h1, h2 {
+  text-align: center;
 }
 
-.player {
-  position:relative;
-  padding-top:56.25%;
-  background:black;
-  border-radius:12px;
-  overflow:hidden;
+.player-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background: black;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.player iframe,
-.player video {
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  border:0;
-  background:black;
+.player-wrap iframe,
+.player-wrap video,
+.player-wrap .fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: black;
+}
+
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  padding: 20px;
+  text-align: center;
 }
 
 .button {
-  display:block;
-  text-align:center;
-  margin-top:15px;
-  padding:12px;
-  background:#00ff88;
-  color:black;
-  font-weight:bold;
-  text-decoration:none;
-  border-radius:8px;
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  padding: 12px;
+  background: #00ff88;
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 8px;
 }
 
 .grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:16px;
-  padding:20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 20px 0;
 }
 
 .card {
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .card img {
-  width:100%;
-  border-radius:10px;
-  display:block;
-  background:#111;
+  width: 100%;
+  border-radius: 10px;
+  display: block;
+  background: #111;
 }
 
 .card p {
-  font-size:14px;
-  margin-top:5px;
+  font-size: 14px;
+  margin-top: 6px;
+  line-height: 1.35;
 }
 </style>
 </head>
@@ -84,82 +95,104 @@ h1 {
 
   <h1>DJ LIVE TV</h1>
 
-  <div class="player" id="mainPlayer">
-    <iframe src="https://player.kick.com/DJLIVETV"></iframe>
+  <div id="mainPlayer" class="player-wrap">
+    <iframe
+      src="https://player.kick.com/DJLIVETV"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
   </div>
 
   <a class="button" href="https://kick.com/djlivetv" target="_blank">
     OPEN FULL SCREEN (BEST QUALITY)
   </a>
 
-  <h2 style="text-align:center;margin-top:40px;">REPLAYS</h2>
-
+  <h2 style="margin-top:40px;">REPLAYS</h2>
   <div id="videos" class="grid"></div>
 
 </div>
 
 <script>
-let hlsInstance = null;
+let hls = null;
 
-function playReplay(sourceUrl) {
-  const player = document.getElementById("mainPlayer");
+function resetToLivePlayer() {
+  const mainPlayer = document.getElementById("mainPlayer");
+  mainPlayer.innerHTML = `
+    <iframe
+      src="https://player.kick.com/DJLIVETV"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
+  `;
+}
 
-  if (hlsInstance) {
-    hlsInstance.destroy();
-    hlsInstance = null;
+function playReplayInMainPlayer(sourceUrl) {
+  const mainPlayer = document.getElementById("mainPlayer");
+
+  if (!sourceUrl) {
+    resetToLivePlayer();
+    return;
   }
 
-  player.innerHTML = '<video id="replayVideo" controls autoplay playsinline></video>';
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
 
+  mainPlayer.innerHTML = `<video id="replayVideo" controls autoplay playsinline></video>`;
   const video = document.getElementById("replayVideo");
 
-  if (video.canPlayType('application/vnd.apple.mpegurl')) {
+  if (video.canPlayType("application/vnd.apple.mpegurl")) {
     video.src = sourceUrl;
   } else if (window.Hls && Hls.isSupported()) {
-    hlsInstance = new Hls();
-    hlsInstance.loadSource(sourceUrl);
-    hlsInstance.attachMedia(video);
+    hls = new Hls();
+    hls.loadSource(sourceUrl);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.ERROR, function () {
+      mainPlayer.innerHTML = `<div class="fallback">This replay could not be loaded here. Try another replay or use the Kick full screen button.</div>`;
+    });
   } else {
-    player.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;background:#111;">Replay not supported on this browser.</div>';
+    mainPlayer.innerHTML = `<div class="fallback">This browser does not support replay playback here.</div>`;
   }
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function loadVideos() {
+  const container = document.getElementById("videos");
+  container.innerHTML = "";
+
   try {
     const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
     const data = await res.json();
 
-    const container = document.getElementById("videos");
-    container.innerHTML = "";
+    if (!Array.isArray(data)) {
+      container.innerHTML = `<p>Could not load replays.</p>`;
+      return;
+    }
 
-    data.forEach(video => {
-      const el = document.createElement("div");
-      el.className = "card";
-
-      const thumb = video.thumbnail?.src || "";
+    data.forEach((video) => {
+      const thumb = video.thumbnail && video.thumbnail.src ? video.thumbnail.src : "";
       const title = video.session_title || "DJ Set";
       const source = video.source || "";
 
-      el.innerHTML = `
-        <div style="cursor:pointer;">
-          <img src="${thumb}" alt="">
-          <p>${title}</p>
-        </div>
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="${thumb}" alt="">
+        <p>${title}</p>
       `;
 
-      el.addEventListener("click", () => {
-        if (source) {
-          playReplay(source);
-        }
+      card.addEventListener("click", function () {
+        playReplayInMainPlayer(source);
       });
 
-      container.appendChild(el);
+      container.appendChild(card);
     });
-
-  } catch (err) {
-    console.log("Erro a carregar vídeos", err);
+  } catch (error) {
+    container.innerHTML = `<p>Could not load replays.</p>`;
+    console.log(error);
   }
 }
 
