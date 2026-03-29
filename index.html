@@ -7,85 +7,98 @@
 
 <style>
 body {
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family:Arial;
+  background: #000;
+  color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
 }
 
 .container {
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
 }
 
-h1 {text-align:center;}
+h1 {
+  text-align: center;
+}
 
 .player {
-  width:100%;
-  aspect-ratio:16/9;
-  background:#000;
-  border-radius:12px;
-  overflow:hidden;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: black;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
 }
 
-.player iframe {
-  width:100%;
-  height:100%;
-  border:0;
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
-/* NOW NEXT */
-.now-next {
-  margin-top:10px;
-  padding:10px;
-  border:1px solid #222;
-  border-radius:10px;
-  display:flex;
-  justify-content:space-between;
+/* OFFLINE OVERLAY */
+#offlineOverlay {
+  position: absolute;
+  inset: 0;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
-.now {color:red;}
-.next {color:#aaa;}
-
-/* DJ */
-.grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:10px;
+#offlineOverlay h2 {
+  font-size: 28px;
 }
 
-.dj {
-  background:#111;
-  padding:10px;
-  border-radius:10px;
-  text-align:center;
+#offlineOverlay p {
+  color: red;
 }
 
-.dj.live {
-  border:2px solid red;
+/* NOW BAR */
+.nowBar {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #222;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
 }
 
-.badge {
-  background:red;
-  padding:4px 6px;
-  font-size:12px;
-  border-radius:6px;
+.section {
+  margin-top: 30px;
+}
+
+.hidden {
+  display: none;
 }
 
 /* ADMIN */
-.admin {
-  margin-top:30px;
-  background:#111;
-  padding:15px;
-  border-radius:10px;
+#adminPanel {
+  display: none;
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid #222;
+  border-radius: 10px;
 }
 
-.hidden {display:none;}
-
-.fade {
-  transition:0.3s;
+/* BUTTONS */
+button {
+  padding: 8px 12px;
+  background: red;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
 }
+
+select, input {
+  padding: 6px;
+  margin: 5px;
+}
+
 </style>
 </head>
 
@@ -95,52 +108,61 @@ h1 {text-align:center;}
 
 <h1>DJ LIVE TV</h1>
 
+<!-- PLAYER -->
 <div class="player">
-<iframe src="https://player.kick.com/DJLIVETV?muted=true"></iframe>
+  <iframe src="https://player.kick.com/DJLIVETV?muted=true"></iframe>
+
+  <div id="offlineOverlay">
+    <h2>DJ LIVE TV</h2>
+    <p>Currently Offline</p>
+  </div>
 </div>
 
-<div class="now-next">
-<div class="now" id="now">NOW: ---</div>
-<div class="next" id="next">NEXT: ---</div>
+<!-- NOW / NEXT -->
+<div class="nowBar">
+  <div id="nowText">NOW: OFFLINE</div>
+  <div id="nextText">NEXT: ---</div>
 </div>
 
 <!-- DJs -->
-<div id="djSection">
-<h2>DJs</h2>
-<div id="djList" class="grid"></div>
+<div id="djSection" class="section">
+  <h2>DJs</h2>
+  <div id="djList"></div>
 </div>
 
 <!-- Schedule -->
-<div id="scheduleSection">
-<h2>Schedule</h2>
-<div id="schedule"></div>
+<div id="scheduleSection" class="section">
+  <h2>Schedule</h2>
+  <div id="scheduleList"></div>
 </div>
 
 <!-- ADMIN -->
-<div class="admin">
+<div id="adminPanel">
 
-<div id="login">
-<input id="user" placeholder="user">
-<input id="pass" placeholder="pass">
-<button onclick="login()">login</button>
-</div>
+<h2>Admin</h2>
 
-<div id="panel" class="hidden">
+<!-- TOGGLES -->
+<label>
+<input type="checkbox" checked onchange="toggleSection('scheduleSection')">
+ Show Schedule
+</label>
 
-<button onclick="logout()">logout</button>
-<button onclick="toggleLiveMode()" id="liveBtn">LIVE MODE</button>
+<label>
+<input type="checkbox" checked onchange="toggleSection('djSection')">
+ Show DJs
+</label>
 
-<h3>Layout</h3>
-<label><input type="checkbox" id="toggleDJ" checked onchange="saveLayout()"> DJs</label>
-<label><input type="checkbox" id="toggleSchedule" checked onchange="saveLayout()"> Schedule</label>
+<hr>
 
-<h3>Add DJ</h3>
-<input id="djName" placeholder="name">
-<input id="djImg" placeholder="image url">
-<button onclick="addDJ()">add</button>
+<!-- ADD DJ -->
+<input id="djName" placeholder="DJ name">
+<button onclick="addDJ()">Add DJ</button>
 
-<h3>Add Schedule</h3>
-<select id="day">
+<hr>
+
+<!-- SCHEDULE -->
+<select id="scheduleDay">
+<option value="Everyday">Everyday</option>
 <option>Monday</option>
 <option>Tuesday</option>
 <option>Wednesday</option>
@@ -150,12 +172,10 @@ h1 {text-align:center;}
 <option>Sunday</option>
 </select>
 
-<select id="time"></select>
+<select id="startTime"></select>
+<select id="endTime"></select>
 
-<input id="djSelect" placeholder="dj name">
-<button onclick="addSchedule()">add</button>
-
-</div>
+<button onclick="saveSchedule()">Save</button>
 
 </div>
 
@@ -163,132 +183,174 @@ h1 {text-align:center;}
 
 <script>
 
-/* INIT TIME */
-const t = document.getElementById("time");
-for(let i=0;i<24;i++){
-let h=i.toString().padStart(2,"0")+":00";
-let o=document.createElement("option");
-o.value=h;o.textContent=h;
-t.appendChild(o);
-}
-
-/* DATA */
-function getDJs(){return JSON.parse(localStorage.getItem("djs")||"[]")}
-function saveDJs(d){localStorage.setItem("djs",JSON.stringify(d))}
-
-function getSchedule(){return JSON.parse(localStorage.getItem("schedule")||"[]")}
-function saveScheduleData(s){localStorage.setItem("schedule",JSON.stringify(s))}
-
-/* LOGIN */
-function login(){
-if(user.value=="admin" && pass.value=="1234"){
-loginDiv.style.display="none";
-panel.classList.remove("hidden");
-render();
-}
-}
-function logout(){
-loginDiv.style.display="block";
-panel.classList.add("hidden");
-}
-
-/* DJ */
-function addDJ(){
-let d=getDJs();
-d.push({name:djName.value,img:djImg.value});
-saveDJs(d);
-render();
-}
-
-/* SCHEDULE */
-function addSchedule(){
-let s=getSchedule();
-s.push({day:day.value,time:time.value,dj:djSelect.value});
-saveScheduleData(s);
-render();
-}
-
-/* LIVE DETECT */
-function getLive(){
-let s=getSchedule();
-let now=new Date();
-let days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-let d=days[now.getDay()];
-let h=now.getHours().toString().padStart(2,"0")+":00";
-return s.find(x=>x.day==d && x.time==h);
-}
-
-/* NEXT */
-function getNext(){
-let s=getSchedule();
-let h=new Date().getHours();
-return s.find(x=>parseInt(x.time)>h);
-}
-
-/* RENDER */
-function render(){
-
-let djs=getDJs();
-let live=getLive();
-
-djList.innerHTML="";
-djs.forEach(d=>{
-let div=document.createElement("div");
-div.className="dj "+(live && live.dj==d.name?"live":"");
-div.innerHTML=`
-<img src="${d.img}" width="100%">
-<p>${d.name}</p>
-${live && live.dj==d.name?'<span class="badge">LIVE</span>':''}
-`;
-djList.appendChild(div);
+/* ======================
+   ADMIN TOGGLE (CTRL+A)
+====================== */
+document.addEventListener("keydown", function(e) {
+  if (e.ctrlKey && e.key === "a") {
+    const panel = document.getElementById("adminPanel");
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+  }
 });
 
-/* schedule */
-schedule.innerHTML="";
-getSchedule().forEach(s=>{
-schedule.innerHTML+=`${s.day} ${s.time} - ${s.dj}<br>`;
-});
+/* ======================
+   GENERATE HOURS
+====================== */
+function generateTimes() {
+  const start = document.getElementById("startTime");
+  const end = document.getElementById("endTime");
 
-/* now next */
-now.textContent=live?`NOW: ${live.dj}`:"NOW: OFFLINE";
-let n=getNext();
-next.textContent=n?`NEXT: ${n.dj} ${n.time}`:"NEXT: ---";
+  for (let i = 0; i < 24; i++) {
+    let h = i.toString().padStart(2, "0") + ":00";
+    start.add(new Option(h, h));
+    end.add(new Option(h, h));
+  }
+}
+generateTimes();
 
-applyLayout();
+/* ======================
+   STORAGE
+====================== */
+function getDJs() {
+  return JSON.parse(localStorage.getItem("djs") || "[]");
 }
 
-/* LAYOUT */
-function saveLayout(){
-localStorage.setItem("layout",JSON.stringify({
-dj:toggleDJ.checked,
-schedule:toggleSchedule.checked
-}));
-applyLayout();
+function getSchedule() {
+  return JSON.parse(localStorage.getItem("schedule") || "[]");
 }
 
-function applyLayout(){
-let l=JSON.parse(localStorage.getItem("layout")||"{}");
+/* ======================
+   DJ ADD
+====================== */
+function addDJ() {
+  const name = document.getElementById("djName").value;
+  if (!name) return;
 
-djSection.style.display=l.dj===false?"none":"block";
-scheduleSection.style.display=l.schedule===false?"none":"block";
+  const djs = getDJs();
+  djs.push(name);
 
-if(liveMode){
-djSection.style.display="none";
-scheduleSection.style.display="none";
+  localStorage.setItem("djs", JSON.stringify(djs));
+  renderDJs();
 }
+
+/* ======================
+   RENDER DJs
+====================== */
+function renderDJs() {
+  const list = document.getElementById("djList");
+  const djs = getDJs();
+
+  list.innerHTML = "";
+
+  if (!djs.length) {
+    document.getElementById("djSection").style.display = "none";
+    return;
+  }
+
+  document.getElementById("djSection").style.display = "block";
+
+  djs.forEach(dj => {
+    const div = document.createElement("div");
+    div.innerText = dj;
+    list.appendChild(div);
+  });
 }
 
-/* LIVE MODE */
-let liveMode=false;
-function toggleLiveMode(){
-liveMode=!liveMode;
-liveBtn.textContent=liveMode?"EXIT LIVE":"LIVE MODE";
-applyLayout();
+/* ======================
+   SAVE SCHEDULE
+====================== */
+function saveSchedule() {
+  const day = document.getElementById("scheduleDay").value;
+  const start = document.getElementById("startTime").value;
+  const end = document.getElementById("endTime").value;
+  const dj = document.getElementById("djName").value;
+
+  if (!dj) return;
+
+  const schedule = getSchedule();
+
+  schedule.push({ dj, day, start, end });
+
+  localStorage.setItem("schedule", JSON.stringify(schedule));
+
+  renderSchedule();
+}
+
+/* ======================
+   RENDER SCHEDULE
+====================== */
+function renderSchedule() {
+  const list = document.getElementById("scheduleList");
+  const schedule = getSchedule();
+
+  list.innerHTML = "";
+
+  if (!schedule.length) {
+    document.getElementById("scheduleSection").style.display = "none";
+    return;
+  }
+
+  document.getElementById("scheduleSection").style.display = "block";
+
+  schedule.forEach(item => {
+    const div = document.createElement("div");
+    div.innerText = `${item.day} ${item.start} - ${item.end} | ${item.dj}`;
+    list.appendChild(div);
+  });
+}
+
+/* ======================
+   LIVE DETECTION
+====================== */
+function getLiveDJ() {
+  const schedule = getSchedule();
+  const now = new Date();
+
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const currentDay = days[now.getDay()];
+  const currentHour = now.getHours();
+
+  return schedule.find(item => {
+    const start = parseInt(item.start);
+    const end = parseInt(item.end);
+
+    return (
+      (item.day === currentDay || item.day === "Everyday") &&
+      currentHour >= start &&
+      currentHour < end
+    );
+  });
+}
+
+/* ======================
+   UPDATE NOW/NEXT
+====================== */
+function updateNow() {
+  const live = getLiveDJ();
+
+  if (live) {
+    document.getElementById("nowText").innerText = "NOW: " + live.dj;
+    document.getElementById("offlineOverlay").style.display = "none";
+  } else {
+    document.getElementById("nowText").innerText = "NOW: OFFLINE";
+    document.getElementById("offlineOverlay").style.display = "flex";
+  }
+}
+
+setInterval(updateNow, 10000);
+
+/* ======================
+   TOGGLE SECTIONS
+====================== */
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === "none" ? "block" : "none";
 }
 
 /* INIT */
-render();
-setInterval(render,30000);
+renderDJs();
+renderSchedule();
+updateNow();
 
 </script>
 
