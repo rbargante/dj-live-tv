@@ -82,10 +82,6 @@ h1 {text-align:center;}
 }
 
 .hidden {display:none;}
-
-.fade {
-  transition:0.3s;
-}
 </style>
 </head>
 
@@ -104,19 +100,16 @@ h1 {text-align:center;}
 <div class="next" id="next">NEXT: ---</div>
 </div>
 
-<!-- DJs -->
 <div id="djSection">
 <h2>DJs</h2>
 <div id="djList" class="grid"></div>
 </div>
 
-<!-- Schedule -->
 <div id="scheduleSection">
 <h2>Schedule</h2>
 <div id="schedule"></div>
 </div>
 
-<!-- ADMIN -->
 <div class="admin">
 
 <div id="login">
@@ -152,7 +145,7 @@ h1 {text-align:center;}
 
 <select id="time"></select>
 
-<input id="djSelect" placeholder="dj name">
+<select id="djSelect"></select>
 <button onclick="addSchedule()">add</button>
 
 </div>
@@ -163,13 +156,12 @@ h1 {text-align:center;}
 
 <script>
 
-/* INIT TIME */
-const t = document.getElementById("time");
+/* TIME */
 for(let i=0;i<24;i++){
 let h=i.toString().padStart(2,"0")+":00";
 let o=document.createElement("option");
 o.value=h;o.textContent=h;
-t.appendChild(o);
+time.appendChild(o);
 }
 
 /* DATA */
@@ -182,33 +174,43 @@ function saveScheduleData(s){localStorage.setItem("schedule",JSON.stringify(s))}
 /* LOGIN */
 function login(){
 if(user.value=="admin" && pass.value=="1234"){
-loginDiv.style.display="none";
+document.getElementById("login").style.display="none";
 panel.classList.remove("hidden");
 render();
 }
 }
+
 function logout(){
-loginDiv.style.display="block";
+document.getElementById("login").style.display="block";
 panel.classList.add("hidden");
 }
 
 /* DJ */
 function addDJ(){
+if(!djName.value || !djImg.value) return;
+
 let d=getDJs();
 d.push({name:djName.value,img:djImg.value});
 saveDJs(d);
+
+djName.value="";
+djImg.value="";
+
 render();
 }
 
 /* SCHEDULE */
 function addSchedule(){
+if(!djSelect.value) return;
+
 let s=getSchedule();
 s.push({day:day.value,time:time.value,dj:djSelect.value});
 saveScheduleData(s);
+
 render();
 }
 
-/* LIVE DETECT */
+/* LIVE */
 function getLive(){
 let s=getSchedule();
 let now=new Date();
@@ -221,7 +223,8 @@ return s.find(x=>x.day==d && x.time==h);
 /* NEXT */
 function getNext(){
 let s=getSchedule();
-let h=new Date().getHours();
+let now=new Date();
+let h=now.getHours();
 return s.find(x=>parseInt(x.time)>h);
 }
 
@@ -231,6 +234,16 @@ function render(){
 let djs=getDJs();
 let live=getLive();
 
+/* populate dropdown */
+djSelect.innerHTML="";
+djs.forEach(d=>{
+let o=document.createElement("option");
+o.value=d.name;
+o.textContent=d.name;
+djSelect.appendChild(o);
+});
+
+/* DJs */
 djList.innerHTML="";
 djs.forEach(d=>{
 let div=document.createElement("div");
@@ -255,6 +268,11 @@ let n=getNext();
 next.textContent=n?`NEXT: ${n.dj} ${n.time}`:"NEXT: ---";
 
 applyLayout();
+
+/* restore toggles */
+let l=JSON.parse(localStorage.getItem("layout")||"{}");
+toggleDJ.checked=l.dj!==false;
+toggleSchedule.checked=l.schedule!==false;
 }
 
 /* LAYOUT */
