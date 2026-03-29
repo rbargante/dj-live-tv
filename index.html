@@ -449,10 +449,6 @@
         font-size: 42px;
       }
 
-      .section-title {
-        font-size: 30px;
-      }
-
       .schedule-head {
         display: none;
       }
@@ -488,10 +484,6 @@
 
       h1 {
         font-size: 30px;
-      }
-
-      .section-title {
-        font-size: 26px;
       }
 
       .controls {
@@ -584,6 +576,10 @@
           <button class="tab-btn" data-tab="tab-settings" onclick="switchTab('tab-settings')">Settings</button>
         </div>
 
+        <div class="form-actions" style="margin-bottom:18px;">
+          <button class="secondary-btn" onclick="logoutAdmin()">LOG OUT</button>
+        </div>
+
         <div class="tab-panel active" id="tab-dj">
           <h3>Add or Edit DJ</h3>
           <div class="add-dj-wrap">
@@ -661,7 +657,9 @@
       { name: "DJ Luna", img: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80", style: "Afro House / Vocal", bio: "Uplifting vocals, percussion, and elegant club flow." },
       { name: "DJ Andre", img: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=80", style: "Old School / RnB", bio: "Throwback cuts and smooth late-set transitions." },
       { name: "DJ Maya", img: "https://images.unsplash.com/photo-1521336575822-6da63fb45455?auto=format&fit=crop&w=1200&q=80", style: "Melodic House", bio: "Deep melodic journeys and emotional warm-up sets." },
-      { name: "DJ Pedro", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80", style: "Latin / Party", bio: "Latin energy, open-format mixing, and peak-time edits." }
+      { name: "DJ Pedro", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80", style: "Latin / Party", bio: "Latin energy, open-format mixing, and peak-time edits." },
+      { name: "DJ Nina", img: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=1200&q=80", style: "Progressive / Melodic", bio: "Clean transitions, melodic builds, and emotional club sets." },
+      { name: "DJ Bruno", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80", style: "Open Format / Remixes", bio: "Club edits, crowd favourites, and high-energy remixes." }
     ];
 
     const defaultSchedule = [
@@ -808,6 +806,7 @@
       viewMoreWrap.innerHTML = "";
 
       const count = replayExpanded ? allVideos.length : Math.min(replayBaseCount, allVideos.length);
+
       allVideos.slice(0, count).forEach(v => {
         const card = document.createElement("div");
         card.className = "card replay-card";
@@ -843,6 +842,7 @@
       moreWrap.innerHTML = "";
 
       const count = djExpanded ? djs.length : Math.min(djBaseCount, djs.length);
+
       djs.slice(0, count).forEach((dj, index) => {
         const card = document.createElement("div");
         card.className = "card dj-card";
@@ -983,6 +983,11 @@
       } else {
         alert("Wrong login");
       }
+    }
+
+    function logoutAdmin() {
+      document.getElementById("adminPanel").style.display = "none";
+      document.getElementById("loginBox").style.display = "block";
     }
 
     function switchTab(tabId) {
