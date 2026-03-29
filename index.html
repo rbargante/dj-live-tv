@@ -780,23 +780,51 @@
 
     async function loadVideos() {
       const container = document.getElementById("videos");
-      container.innerHTML = "Loading...";
-      document.getElementById("viewMoreWrap").innerHTML = "";
+      const wrap = document.getElementById("viewMoreWrap");
+      container.innerHTML = "<p>Loading replays...</p>";
+      wrap.innerHTML = "";
+
+      const fallbackVideos = [
+        {
+          session_title: "Replay 1",
+          thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+1" },
+          source: ""
+        },
+        {
+          session_title: "Replay 2",
+          thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+2" },
+          source: ""
+        },
+        {
+          session_title: "Replay 3",
+          thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+3" },
+          source: ""
+        },
+        {
+          session_title: "Replay 4",
+          thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+4" },
+          source: ""
+        }
+      ];
 
       try {
-        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos", { cache: "no-store" });
+        if (!res.ok) throw new Error("Bad response");
         const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) throw new Error("No videos");
 
-        if (!Array.isArray(data)) {
-          container.innerHTML = "Error loading videos";
-          return;
-        }
-
-        allVideos = data;
-        renderVideos();
+        allVideos = data.map((v, i) => ({
+          session_title: v.session_title || `Replay ${i + 1}`,
+          thumbnail: {
+            src: v.thumbnail?.src || `https://via.placeholder.com/640x360?text=Replay+${i + 1}`
+          },
+          source: v.source || ""
+        }));
       } catch {
-        container.innerHTML = "Error loading videos";
+        allVideos = fallbackVideos;
       }
+
+      renderVideos();
     }
 
     function renderVideos() {
@@ -805,18 +833,32 @@
       container.innerHTML = "";
       viewMoreWrap.innerHTML = "";
 
+      if (!allVideos.length) {
+        container.innerHTML = "<p>No replays available right now.</p>";
+        return;
+      }
+
       const count = replayExpanded ? allVideos.length : Math.min(replayBaseCount, allVideos.length);
 
-      allVideos.slice(0, count).forEach(v => {
+      allVideos.slice(0, count).forEach((v, index) => {
         const card = document.createElement("div");
         card.className = "card replay-card";
 
+        const thumb = v.thumbnail?.src || `https://via.placeholder.com/640x360?text=Replay+${index + 1}`;
+        const source = v.source || "";
+
         card.innerHTML = `
-          <img src="${v.thumbnail?.src || ''}" alt="">
+          <img src="${thumb}" alt="${v.session_title || 'Replay'}" onerror="this.onerror=null;this.src='https://via.placeholder.com/640x360?text=Replay';">
           <p>${v.session_title || "DJ Set"}</p>
         `;
 
-        card.onclick = () => loadReplay(v.source);
+        if (source) {
+          card.onclick = () => loadReplay(source);
+        } else {
+          card.style.cursor = "default";
+          card.onclick = null;
+        }
+
         container.appendChild(card);
       });
 
