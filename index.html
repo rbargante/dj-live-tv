@@ -3,151 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DJ LIVE TV</title>
+<title>DJ Live TV</title>
 
 <style>
-body { margin:0; background:#000; color:#fff; font-family:Arial, sans-serif; }
-.container { max-width:1200px; margin:auto; padding:20px; }
-h1,h2 { text-align:center; }
-.player { width:100%; aspect-ratio:16/9; background:black; border-radius:12px; overflow:hidden; margin-bottom:40px; }
-iframe { width:100%; height:100%; border:none; }
+body{margin:0;font-family:Arial;background:#000;color:#fff}
+.container{max-width:1200px;margin:auto;padding:20px}
 
-.schedule-item { display:flex; justify-content:space-between; align-items:center; background:#111; margin-bottom:12px; padding:16px; border-radius:12px; border:1px solid #222; }
-.schedule-item.live { border:1px solid rgba(255,59,59,0.8); box-shadow:0 0 0 1px rgba(255,59,59,0.2); }
+.player{
+width:100%;
+aspect-ratio:16/9;
+background:#000;
+border-radius:16px;
+overflow:hidden;
+margin-bottom:20px;
+}
 
-.dj-live-wrap { display:flex; align-items:center; gap:14px; }
-.dj-live-photo { width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid transparent; }
-.dj-live-photo.live { border-color:#ff3b3b; box-shadow:0 0 0 4px rgba(255,59,59,0.2); }
+.schedule-card{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:16px;
+border-radius:14px;
+border:1px solid #222;
+margin-bottom:12px;
+transition:0.3s;
+}
 
-.schedule-left { display:flex; flex-direction:column; }
-.dj-main-line { display:flex; align-items:center; gap:10px; }
+.schedule-card.live{
+border:1px solid red;
+box-shadow:0 0 15px rgba(255,0,0,0.4);
+}
 
-.time { color:#ff3b3b; font-weight:bold; font-size:22px; }
+.dj-info{display:flex;align-items:center;gap:12px}
+.dj-img{
+width:50px;height:50px;border-radius:50%;
+background:#333;overflow:hidden;
+}
 
-.badge-live { background:red; padding:4px 8px; border-radius:6px; font-size:12px; }
-.badge-next { background:#444; padding:4px 8px; border-radius:6px; font-size:12px; }
+.dj-img.live{
+border:2px solid red;
+box-shadow:0 0 10px red;
+animation:pulse 1.5s infinite;
+}
 
-.button { display:block; margin:20px auto; padding:10px 20px; background:#222; color:white; border:none; border-radius:8px; cursor:pointer; }
+@keyframes pulse{
+0%{box-shadow:0 0 5px red}
+50%{box-shadow:0 0 20px red}
+100%{box-shadow:0 0 5px red}
+}
+
+.badge{
+padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;
+}
+.live-badge{background:red}
+.next-badge{background:#333}
+
+.footer{text-align:center;margin-top:40px;color:#777}
+
 </style>
 </head>
-
 <body>
+
 <div class="container">
+
 <h1>DJ LIVE TV</h1>
 
 <div class="player">
-<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
+<iframe src="https://player.kick.com/DJLIVETV" style="width:100%;height:100%;border:0"></iframe>
 </div>
 
-<h2>SCHEDULE</h2>
 <div id="schedule"></div>
-<button id="toggleBtn" class="button">View All</button>
+
+<p style="text-align:center;margin-top:20px">
+<a href="#" onclick="toggleAdmin()" style="color:#aaa">Admin login</a>
+</p>
+
+<div id="admin" style="display:none;text-align:center;margin-top:20px">
+<h2>ADMIN</h2>
+<p>Demo login</p>
+</div>
+
+<div class="footer">
+DJ Live TV © 2026
+</div>
+
 </div>
 
 <script>
-const djPhotos = {
-  "DJ Ricardo": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f",
-  "DJ Sofia": "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91",
-  "DJ Marco": "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff",
-  "DJ Luna": "https://images.unsplash.com/photo-1516280440614-37939bbacd81"
-};
+const schedule=[
+{dj:"DJ Sofia",time:"18:00",img:""},
+{dj:"DJ Marco",time:"20:00",img:""},
+{dj:"DJ Sofia",time:"21:00",img:""},
+{dj:"DJ Ricardo",time:"22:00",img:""},
+{dj:"DJ Ricardo",time:"23:00",img:""}
+]
 
-const scheduleData = [
-  { day:"Monday", dj:"DJ Ricardo", time:"18:00", show:"Warm Up" },
-  { day:"Monday", dj:"DJ Sofia", time:"21:00", show:"Late Set" },
-  { day:"Friday", dj:"DJ Marco", time:"20:00", show:"Prime Time" },
-  { day:"Friday", dj:"DJ Ricardo", time:"23:00", show:"Late Mix" },
-  { day:"Saturday", dj:"DJ Sofia", time:"18:00", show:"Early Vibes" },
-  { day:"Saturday", dj:"DJ Marco", time:"21:00", show:"Main Event" },
-  { day:"Sunday", dj:"DJ Luna", time:"17:00", show:"Sunset" }
-];
-
-let showAll=false;
-const duration=120; // minutos
-
-function getDay(){ return new Date().toLocaleDateString("en-GB",{weekday:"long"}); }
-function getTime(){ const d=new Date(); return d.getHours()*60+d.getMinutes(); }
-function toMin(t){ const[a,b]=t.split(":"); return +a*60+ +b; }
+function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes()}
+function toMin(t){const[h,m]=t.split(":");return h*60+Number(m)}
 
 function render(){
-  const el=document.getElementById("schedule");
-  el.innerHTML="";
+const now=nowMin()
+const sorted=[...schedule].sort((a,b)=>toMin(a.time)-toMin(b.time))
 
-  const day=getDay();
-  const now=getTime();
+let current=null
+let next=null
 
-  const today=scheduleData
-    .filter(x=>x.day===day)
-    .map(x=>({...x,start:toMin(x.time)}))
-    .sort((a,b)=>a.start-b.start);
-
-  let live=null;
-  let next=null;
-
-  for(let i=0;i<today.length;i++){
-    const cur=today[i];
-    const end=cur.start+duration;
-
-    if(now>=cur.start && now<end){
-      live=cur;
-      next=today[i+1]||null;
-      break;
-    }
-
-    if(now<cur.start && !next){
-      next=cur;
-    }
-  }
-
-  let ordered=[...scheduleData];
-
-  if(live){
-    ordered=ordered.filter(x=>x.dj!==live.dj);
-    ordered.unshift(live);
-    if(next){
-      ordered=ordered.filter(x=>x.dj!==next.dj);
-      ordered.splice(1,0,next);
-    }
-  } else if(next){
-    ordered=ordered.filter(x=>x.dj!==next.dj);
-    ordered.unshift(next);
-  }
-
-  const data=showAll?ordered:ordered.slice(0,5);
-
-  data.forEach(item=>{
-    const isLive=live && item.dj===live.dj;
-    const isNext=next && item.dj===next.dj && !isLive;
-
-    const div=document.createElement("div");
-    div.className="schedule-item"+(isLive?" live":"");
-
-    div.innerHTML=`
-    <div class="dj-live-wrap">
-      <img class="dj-live-photo ${isLive?'live':''}" src="${djPhotos[item.dj]||''}">
-      <div class="schedule-left">
-        <div class="dj-main-line">
-          <strong>${item.dj}</strong>
-          ${isLive?'<span class="badge-live">LIVE NOW</span>':''}
-          ${isNext?'<span class="badge-next">NEXT</span>':''}
-        </div>
-        <small>${item.day} • ${item.show}</small>
-      </div>
-    </div>
-    <div><span class="time">${item.time}</span></div>`;
-
-    el.appendChild(div);
-  });
+for(let i=0;i<sorted.length;i++){
+if(now>=toMin(sorted[i].time)) current=sorted[i]
+if(now<toMin(sorted[i].time)){next=sorted[i];break}
 }
 
-document.getElementById("toggleBtn").onclick=()=>{
-  showAll=!showAll;
-  document.getElementById("toggleBtn").innerText=showAll?"View Less":"View All";
-  render();
-};
+const list=[]
+if(current) list.push({...current,status:"live"})
+if(next) list.push({...next,status:"next"})
 
-render();
-setInterval(render,60000);
+sorted.forEach(s=>{
+if(s!==current && s!==next) list.push({...s,status:""})
+})
+
+const el=document.getElementById("schedule")
+el.innerHTML=""
+
+list.forEach(item=>{
+const div=document.createElement("div")
+div.className="schedule-card "+(item.status==="live"?"live":"")
+
+let badge=""
+if(item.status==="live") badge='<span class="badge live-badge">LIVE NOW</span>'
+if(item.status==="next") badge='<span class="badge next-badge">NEXT</span>'
+
+const imgClass=item.status==="live"?"dj-img live":"dj-img"
+
+
+div.innerHTML=`
+<div class="dj-info">
+<div class="${imgClass}"></div>
+<div>
+<strong>${item.dj}</strong><br>
+${item.time}
+</div>
+</div>
+<div>${badge}</div>
+`
+
+el.appendChild(div)
+})
+}
+
+function toggleAdmin(){
+const el=document.getElementById("admin")
+el.style.display=el.style.display==="none"?"block":"none"
+}
+
+render()
+setInterval(render,60000)
 </script>
+
 </body>
 </html>
