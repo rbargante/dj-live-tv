@@ -3,7 +3,6 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DJ LIVE TV</title>
-
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
@@ -11,7 +10,7 @@ body {
   margin: 0;
   background: black;
   color: white;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
 }
 
 .container {
@@ -22,12 +21,44 @@ body {
 
 h1, h2 {
   text-align: center;
+  margin: 0;
 }
 
-/* PLAYER */
+h1 {
+  margin-bottom: 14px;
+}
+
+.badge-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+#live-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  background: #2b2b2b;
+  color: #d7d7d7;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+#live-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #666;
+  display: inline-block;
+}
+
 .player {
   position: relative;
   padding-top: 56.25%;
+  background: black;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -35,47 +66,81 @@ h1, h2 {
 .player iframe,
 .player video {
   position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  border: 0;
+  background: black;
 }
 
-/* CONTROLS */
 .controls {
   position: absolute;
-  bottom: 15px;
-  right: 15px;
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  gap: 10px;
+  z-index: 30;
 }
 
 .control-btn {
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.8);
   color: white;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
+  border: 1px solid rgba(255,255,255,.15);
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  cursor: pointer;
+  min-height: 46px;
 }
 
-/* REPLAYS */
+.back-btn {
+  background: rgba(255,255,255,0.14);
+  font-weight: 700;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
+  padding: 20px 0;
+}
+
+.card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: scale(1.03);
 }
 
 .card img {
   width: 100%;
-  border-radius: 10px;
+  display: block;
+  background: #111;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 
-/* DJs */
+.card p {
+  font-size: 14px;
+  margin: 0;
+  padding: 10px 12px 14px 12px;
+}
+
 .dj-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
+  margin-top: 20px;
 }
 
 .dj-card {
   background: #111;
-  padding: 12px;
+  padding: 14px;
   border-radius: 12px;
   text-align: center;
 }
@@ -83,24 +148,24 @@ h1, h2 {
 .dj-card img {
   width: 100%;
   border-radius: 10px;
-  aspect-ratio: 1/1;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
+  margin-bottom: 10px;
 }
 
-/* SCHEDULE */
 .schedule {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
+  margin-top: 20px;
 }
 
 .day {
   background: #111;
-  padding: 12px;
+  padding: 14px;
   border-radius: 12px;
 }
 
-/* ADMIN */
 .admin {
   margin-top: 20px;
   display: flex;
@@ -109,7 +174,7 @@ h1, h2 {
 }
 
 .admin input {
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   border: none;
 }
@@ -120,6 +185,23 @@ h1, h2 {
   background: red;
   color: white;
   border: none;
+  cursor: pointer;
+}
+
+.section-title {
+  margin-top: 50px;
+}
+
+@media (max-width: 700px) {
+  .controls {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .control-btn {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
 }
 </style>
 </head>
@@ -128,89 +210,260 @@ h1, h2 {
 
 <div class="container">
 
-<h1>DJ LIVE TV</h1>
+  <h1>DJ LIVE TV</h1>
 
-<!-- PLAYER -->
-<div class="player" id="playerWrap">
-  <iframe src="https://player.kick.com/DJLIVETV?muted=true"></iframe>
-
-  <div class="controls">
-    <button class="control-btn">🔊</button>
+  <div class="badge-wrap" id="badgeWrap">
+    <div id="live-status-badge">
+      <span id="live-status-dot"></span>
+      <span id="live-status-text">CHECKING...</span>
+    </div>
   </div>
-</div>
 
-<!-- REPLAYS -->
-<h2>REPLAYS</h2>
-<div class="grid" id="videos"></div>
+  <!-- PLAYER -->
+  <div class="player" id="playerWrap">
+    <iframe
+      id="livePlayer"
+      src="https://player.kick.com/DJLIVETV?muted=true"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
 
-<!-- DJs -->
-<h2>OUR DJs</h2>
+    <div class="controls">
+      <button class="control-btn" id="unmuteBtn">🔊 SOUND</button>
+    </div>
+  </div>
 
-<div class="dj-grid" id="djGrid">
+  <!-- REPLAYS -->
+  <h2 class="section-title">REPLAYS</h2>
+  <div id="videos" class="grid"></div>
 
-<div class="dj-card">
-<img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30">
-<h3>DJ RICARDO</h3>
-<p>House / Tech House</p>
-</div>
+  <!-- DJs -->
+  <h2 class="section-title">OUR DJs</h2>
+  <div class="dj-grid" id="djGrid">
 
-<div class="dj-card">
-<img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91">
-<h3>DJ SOFIA</h3>
-<p>Deep House / Lounge</p>
-</div>
+    <div class="dj-card">
+      <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80">
+      <h3>DJ RICARDO</h3>
+      <p>House / Tech House</p>
+    </div>
 
-<div class="dj-card">
-<img src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff">
-<h3>DJ MARCO</h3>
-<p>EDM / Festival</p>
-</div>
+    <div class="dj-card">
+      <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=80">
+      <h3>DJ SOFIA</h3>
+      <p>Deep House / Lounge</p>
+    </div>
 
-</div>
+    <div class="dj-card">
+      <img src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=1200&q=80">
+      <h3>DJ MARCO</h3>
+      <p>EDM / Festival</p>
+    </div>
 
-<!-- SCHEDULE -->
-<h2>SCHEDULE</h2>
+  </div>
 
-<div class="schedule">
-<div class="day">
-<h3>MONDAY</h3>
-<p>18:00 DJ Ricardo</p>
-<p>21:00 DJ Sofia</p>
-</div>
+  <!-- SCHEDULE -->
+  <h2 class="section-title">SCHEDULE</h2>
+  <div class="schedule">
+    <div class="day">
+      <h3>MONDAY</h3>
+      <p>18:00 DJ Ricardo</p>
+      <p>21:00 DJ Sofia</p>
+    </div>
 
-<div class="day">
-<h3>FRIDAY</h3>
-<p>20:00 DJ Marco</p>
-<p>23:00 DJ Ricardo</p>
-</div>
+    <div class="day">
+      <h3>FRIDAY</h3>
+      <p>20:00 DJ Marco</p>
+      <p>23:00 DJ Ricardo</p>
+    </div>
 
-<div class="day">
-<h3>SATURDAY</h3>
-<p>18:00 DJ Sofia</p>
-<p>21:00 DJ Marco</p>
-</div>
-</div>
+    <div class="day">
+      <h3>SATURDAY</h3>
+      <p>18:00 DJ Sofia</p>
+      <p>21:00 DJ Marco</p>
+    </div>
+  </div>
 
-<!-- ADMIN -->
-<h2>ADD DJ (DEMO)</h2>
+  <!-- ADMIN LOGIN -->
+  <h2 class="section-title">ADMIN</h2>
 
-<div class="admin">
-<input id="name" placeholder="DJ Name">
-<input id="img" placeholder="Image URL">
-<input id="bio" placeholder="Bio">
-<button onclick="addDJ()">ADD</button>
-</div>
+  <div id="loginBox" class="admin">
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+    <button onclick="login()">LOGIN</button>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <h2 class="section-title">ADD DJ</h2>
+    <div class="admin">
+      <input id="name" placeholder="DJ Name">
+      <input id="img" placeholder="Image URL">
+      <input id="bio" placeholder="Bio">
+      <button onclick="addDJ()">ADD</button>
+    </div>
+  </div>
 
 </div>
 
 <script>
+let hls = null;
+let currentMode = "live";
+
+function showBadge() {
+  document.getElementById("badgeWrap").style.display = "flex";
+}
+
+function hideBadge() {
+  document.getElementById("badgeWrap").style.display = "none";
+}
+
+function stopEverything() {
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
+  document.getElementById("playerWrap").innerHTML = "";
+}
+
+function loadLive() {
+  stopEverything();
+  currentMode = "live";
+  showBadge();
+
+  const wrap = document.getElementById("playerWrap");
+  wrap.innerHTML = `
+    <iframe
+      id="livePlayer"
+      src="https://player.kick.com/DJLIVETV?muted=true"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
+
+    <div class="controls">
+      <button class="control-btn" id="unmuteBtn">🔊 SOUND</button>
+    </div>
+  `;
+
+  const unmuteBtn = document.getElementById("unmuteBtn");
+  if (unmuteBtn) {
+    unmuteBtn.onclick = () => {
+      const iframe = document.getElementById("livePlayer");
+      if (iframe) {
+        iframe.src = "https://player.kick.com/DJLIVETV";
+      }
+    };
+  }
+}
+
+function loadReplay(url) {
+  stopEverything();
+  currentMode = "replay";
+  hideBadge();
+
+  const wrap = document.getElementById("playerWrap");
+  wrap.innerHTML = `
+    <video id="replayVideo" controls autoplay playsinline></video>
+
+    <div class="controls">
+      <button class="control-btn back-btn" id="backChannelBtn">← BACK TO CHANNEL</button>
+    </div>
+  `;
+
+  const video = document.getElementById("replayVideo");
+
+  if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = url;
+  } else if (window.Hls && Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(url);
+    hls.attachMedia(video);
+  }
+
+  const backBtn = document.getElementById("backChannelBtn");
+  if (backBtn) {
+    backBtn.onclick = loadLive;
+  }
+}
+
+async function loadVideos() {
+  const container = document.getElementById("videos");
+  container.innerHTML = "";
+
+  try {
+    const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+    const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      container.innerHTML = "Error loading videos";
+      return;
+    }
+
+    data.forEach(v => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="${v.thumbnail?.src || ''}">
+        <p>${v.session_title || 'DJ Set'}</p>
+      `;
+
+      card.onclick = () => loadReplay(v.source);
+      container.appendChild(card);
+    });
+
+  } catch {
+    container.innerHTML = "Error loading videos";
+  }
+}
+
+async function updateLiveStatus() {
+  const badge = document.getElementById("live-status-badge");
+  const dot = document.getElementById("live-status-dot");
+  const text = document.getElementById("live-status-text");
+
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status&t=" + Date.now());
+    const status = (await res.text()).trim().toLowerCase();
+
+    if (status === "live") {
+      badge.style.background = "rgba(255,0,0,.15)";
+      badge.style.color = "#ff5a5a";
+      badge.style.border = "1px solid rgba(255,90,90,.35)";
+      dot.style.background = "#ff3b3b";
+      text.textContent = "LIVE NOW";
+    } else {
+      badge.style.background = "#2b2b2b";
+      badge.style.color = "#ccc";
+      badge.style.border = "1px solid rgba(255,255,255,.12)";
+      dot.style.background = "#666";
+      text.textContent = "OFFLINE";
+    }
+  } catch {
+    badge.style.background = "#2b2b2b";
+    badge.style.color = "#ccc";
+    badge.style.border = "1px solid rgba(255,255,255,.12)";
+    dot.style.background = "#666";
+    text.textContent = "OFFLINE";
+  }
+}
+
+function login() {
+  const user = document.getElementById("user").value;
+  const pass = document.getElementById("pass").value;
+
+  if (user === "admin" && pass === "1234") {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+  } else {
+    alert("Wrong login");
+  }
+}
+
 function addDJ() {
   const name = document.getElementById("name").value;
   const img = document.getElementById("img").value;
   const bio = document.getElementById("bio").value;
 
   const grid = document.getElementById("djGrid");
-
   const card = document.createElement("div");
   card.className = "dj-card";
 
@@ -222,6 +475,15 @@ function addDJ() {
 
   grid.appendChild(card);
 }
+
+loadLive();
+loadVideos();
+updateLiveStatus();
+setInterval(() => {
+  if (currentMode === "live") {
+    updateLiveStatus();
+  }
+}, 5000);
 </script>
 
 </body>
