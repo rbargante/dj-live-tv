@@ -187,66 +187,25 @@
 <script>
 let hls = null;
 
-/* tenta forçar landscape depois do fullscreen */
-async function tryLockLandscape() {
-  try {
-    if (screen.orientation && screen.orientation.lock) {
-      await screen.orientation.lock("landscape");
-    }
-  } catch (e) {
-    console.log("Landscape lock not supported");
-  }
-}
-
-async function requestPlayerFullscreen() {
+function requestPlayerFullscreen() {
   const video = document.getElementById("replayVideo");
-  const iframe = document.getElementById("livePlayer");
   const wrap = document.getElementById("playerWrap");
 
-  try {
-    if (video) {
-      if (video.requestFullscreen) {
-        await video.requestFullscreen();
-      } else if (video.webkitEnterFullscreen) {
-        video.webkitEnterFullscreen();
-        return;
-      } else if (video.webkitRequestFullscreen) {
-        await video.webkitRequestFullscreen();
-      }
-      await tryLockLandscape();
-      return;
+  if (video) {
+    if (video.requestFullscreen) {
+      video.requestFullscreen();
+    } else if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen();
+    } else if (video.webkitRequestFullscreen) {
+      video.webkitRequestFullscreen();
     }
-
-    if (iframe) {
-      if (iframe.requestFullscreen) {
-        await iframe.requestFullscreen();
-      } else if (wrap.requestFullscreen) {
-        await wrap.requestFullscreen();
-      } else if (wrap.webkitRequestFullscreen) {
-        await wrap.webkitRequestFullscreen();
-      }
-      await tryLockLandscape();
-      return;
-    }
-
-    if (wrap.requestFullscreen) {
-      await wrap.requestFullscreen();
-      await tryLockLandscape();
-    } else if (wrap.webkitRequestFullscreen) {
-      await wrap.webkitRequestFullscreen();
-    }
-  } catch (e) {
-    console.log("Fullscreen failed");
+    return;
   }
-}
 
-async function unlockLandscape() {
-  try {
-    if (screen.orientation && screen.orientation.unlock) {
-      screen.orientation.unlock();
-    }
-  } catch (e) {
-    console.log("Unlock not supported");
+  if (wrap.requestFullscreen) {
+    wrap.requestFullscreen();
+  } else if (wrap.webkitRequestFullscreen) {
+    wrap.webkitRequestFullscreen();
   }
 }
 
@@ -384,14 +343,11 @@ async function updateLiveStatus() {
   }
 }
 
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement) {
-    unlockLandscape();
-  }
-});
-
 attachControls("live");
 loadVideos();
 updateLiveStatus();
 setInterval(updateLiveStatus, 5000);
 </script>
+
+</body>
+</html>
