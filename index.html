@@ -43,39 +43,13 @@
     }
 
     .player iframe,
-    .player video,
-    .player .live-placeholder {
+    .player video {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       border: 0;
       background: black;
-    }
-
-    .live-placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 10px;
-      cursor: pointer;
-      text-align: center;
-      padding: 20px;
-      box-sizing: border-box;
-      background: linear-gradient(180deg, #050505 0%, #111 100%);
-    }
-
-    .live-placeholder-title {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: .5px;
-    }
-
-    .live-placeholder-subtitle {
-      font-size: 13px;
-      color: #cfcfcf;
-      line-height: 1.35;
     }
 
     .controls {
@@ -165,14 +139,6 @@
       .live-btn {
         padding: 10px 12px;
       }
-
-      .live-placeholder-title {
-        font-size: 17px;
-      }
-
-      .live-placeholder-subtitle {
-        font-size: 12px;
-      }
     }
   </style>
 </head>
@@ -209,12 +175,15 @@
     </div>
 
     <div class="player" id="playerWrap">
-      <div class="live-placeholder" id="livePlaceholder">
-        <div class="live-placeholder-title">TAP TO START LIVE</div>
-        <div class="live-placeholder-subtitle">Sound starts when you press play</div>
-      </div>
+      <iframe
+        id="livePlayer"
+        src="https://player.kick.com/DJLIVETV?muted=true"
+        allow="autoplay; fullscreen"
+        allowfullscreen>
+      </iframe>
 
       <div class="controls">
+        <button class="control-btn" id="unmuteBtn" aria-label="Sound">🔊</button>
         <button class="control-btn" id="fullscreenBtn" aria-label="Fullscreen">⛶</button>
         <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
       </div>
@@ -257,26 +226,20 @@
       }
 
       const wrap = document.getElementById("playerWrap");
-      const iframe = wrap.querySelector("iframe");
-      const video = wrap.querySelector("video");
 
+      const iframe = wrap.querySelector("iframe");
       if (iframe) {
         iframe.src = "about:blank";
       }
 
+      const video = wrap.querySelector("video");
       if (video) {
         video.pause();
         video.removeAttribute("src");
         video.load();
       }
 
-      const oldPlaceholder = document.getElementById("livePlaceholder");
-      if (oldPlaceholder) {
-        oldPlaceholder.remove();
-      }
-
-      if (iframe) iframe.remove();
-      if (video) video.remove();
+      wrap.innerHTML = "";
     }
 
     function attachControls(mode) {
@@ -285,41 +248,45 @@
 
       const liveBtn = document.getElementById("backLiveBtn");
       if (liveBtn) {
-        liveBtn.onclick = showLivePlaceholder;
+        liveBtn.onclick = loadLive;
         liveBtn.style.display = mode === "replay" ? "inline-flex" : "none";
+      }
+
+      const unmuteBtn = document.getElementById("unmuteBtn");
+      if (unmuteBtn) {
+        if (mode === "live") {
+          unmuteBtn.style.display = "inline-flex";
+          unmuteBtn.onclick = function () {
+            const iframe = document.getElementById("livePlayer");
+            if (iframe) {
+              iframe.src = "https://player.kick.com/DJLIVETV";
+            }
+          };
+        } else {
+          unmuteBtn.style.display = "none";
+        }
       }
     }
 
-    function renderLiveIframe() {
+    function loadLive() {
       stopEverything();
 
       const wrap = document.getElementById("playerWrap");
-      const iframe = document.createElement("iframe");
 
-      iframe.id = "livePlayer";
-      iframe.src = "https://player.kick.com/DJLIVETV";
-      iframe.setAttribute("allow", "fullscreen");
-      iframe.setAttribute("allowfullscreen", "");
+      wrap.innerHTML = `
+        <iframe
+          id="livePlayer"
+          src="https://player.kick.com/DJLIVETV?muted=true"
+          allow="autoplay; fullscreen"
+          allowfullscreen>
+        </iframe>
 
-      wrap.prepend(iframe);
-      attachControls("live");
-    }
-
-    function showLivePlaceholder() {
-      stopEverything();
-
-      const wrap = document.getElementById("playerWrap");
-      const placeholder = document.createElement("div");
-
-      placeholder.className = "live-placeholder";
-      placeholder.id = "livePlaceholder";
-      placeholder.innerHTML = `
-        <div class="live-placeholder-title">TAP TO START LIVE</div>
-        <div class="live-placeholder-subtitle">Sound starts when you press play</div>
+        <div class="controls">
+          <button class="control-btn" id="unmuteBtn" aria-label="Sound">🔊</button>
+          <button class="control-btn" id="fullscreenBtn" aria-label="Fullscreen">⛶</button>
+          <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
+        </div>
       `;
-
-      placeholder.addEventListener("click", renderLiveIframe);
-      wrap.prepend(placeholder);
 
       attachControls("live");
     }
@@ -328,14 +295,17 @@
       stopEverything();
 
       const wrap = document.getElementById("playerWrap");
-      const video = document.createElement("video");
 
-      video.id = "replayVideo";
-      video.controls = true;
-      video.autoplay = true;
-      video.playsInline = true;
+      wrap.innerHTML = `
+        <video id="replayVideo" controls autoplay playsinline></video>
 
-      wrap.prepend(video);
+        <div class="controls">
+          <button class="control-btn" id="fullscreenBtn" aria-label="Fullscreen">⛶</button>
+          <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
+        </div>
+      `;
+
+      const video = document.getElementById("replayVideo");
 
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = url;
@@ -409,8 +379,6 @@
         text.textContent = "OFFLINE";
       }
     }
-
-    document.getElementById("livePlaceholder").addEventListener("click", renderLiveIframe);
 
     attachControls("live");
     loadVideos();
