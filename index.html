@@ -34,6 +34,27 @@
       margin-bottom: 12px;
     }
 
+    #live-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      background: #2b2b2b;
+      color: #d7d7d7;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    #live-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #666;
+      display: inline-block;
+    }
+
     .player {
       position: relative;
       padding-top: 56.25%;
@@ -52,7 +73,6 @@
       background: black;
     }
 
-    /* CONTROLS */
     .controls {
       position: absolute;
       bottom: 14px;
@@ -91,16 +111,31 @@
       padding: 20px 0;
     }
 
+    .card {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
     .card img {
       width: 100%;
       border-radius: 10px;
+      display: block;
+      background: #111;
       aspect-ratio: 16/9;
       object-fit: cover;
     }
 
-    /* MOBILE */
-    @media (max-width: 700px) {
+    .card p {
+      font-size: 14px;
+      margin-top: 6px;
+      line-height: 1.35;
+    }
 
+    @media (max-width: 700px) {
       .controls {
         bottom: 16px;
         right: 16px;
@@ -119,58 +154,99 @@
 <body>
 <div class="container">
 
-<h1>DJ LIVE TV</h1>
+  <h1>DJ LIVE TV</h1>
 
-<div class="badge-wrap">
-  <div id="live-status-badge">
-    <span id="live-status-text">CHECKING...</span>
-  </div>
-</div>
-
-<!-- PLAYER -->
-<div class="player" id="playerWrap">
-
-  <iframe
-    id="livePlayer"
-    src="https://player.kick.com/DJLIVETV?muted=true"
-    allow="autoplay; fullscreen"
-    allowfullscreen>
-  </iframe>
-
-  <div class="controls">
-    <button class="control-btn" id="unmuteBtn">🔊</button>
-    <button class="control-btn" id="fullscreenBtn">⛶</button>
-    <button class="control-btn open-btn" id="openLiveBtn">↗</button>
-    <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
+  <div class="badge-wrap">
+    <div id="live-status-badge">
+      <span id="live-status-dot"></span>
+      <span id="live-status-text">CHECKING...</span>
+    </div>
   </div>
 
-</div>
+  <div class="player" id="playerWrap">
+    <iframe
+      id="livePlayer"
+      src="https://player.kick.com/DJLIVETV?muted=true"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
 
-<h2 style="margin-top:40px;">REPLAYS</h2>
-<div id="videos" class="grid"></div>
+    <div class="controls">
+      <button class="control-btn" id="unmuteBtn">🔊</button>
+      <button class="control-btn" id="fullscreenBtn">⛶</button>
+      <button class="control-btn open-btn" id="openLiveBtn">↗</button>
+      <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
+    </div>
+  </div>
+
+  <h2 style="margin-top:40px;">REPLAYS</h2>
+  <div id="videos" class="grid"></div>
 
 </div>
 
 <script>
 let hls = null;
 
-function requestPlayerFullscreen() {
+/* tenta forçar landscape depois do fullscreen */
+async function tryLockLandscape() {
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock("landscape");
+    }
+  } catch (e) {
+    console.log("Landscape lock not supported");
+  }
+}
+
+async function requestPlayerFullscreen() {
   const video = document.getElementById("replayVideo");
   const iframe = document.getElementById("livePlayer");
   const wrap = document.getElementById("playerWrap");
 
-  if (video) {
-    if (video.requestFullscreen) video.requestFullscreen();
-    else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-    else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
-    return;
-  }
+  try {
+    if (video) {
+      if (video.requestFullscreen) {
+        await video.requestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+        return;
+      } else if (video.webkitRequestFullscreen) {
+        await video.webkitRequestFullscreen();
+      }
+      await tryLockLandscape();
+      return;
+    }
 
-  if (iframe) {
-    if (iframe.requestFullscreen) iframe.requestFullscreen();
-    else if (wrap.requestFullscreen) wrap.requestFullscreen();
-    else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
-    return;
+    if (iframe) {
+      if (iframe.requestFullscreen) {
+        await iframe.requestFullscreen();
+      } else if (wrap.requestFullscreen) {
+        await wrap.requestFullscreen();
+      } else if (wrap.webkitRequestFullscreen) {
+        await wrap.webkitRequestFullscreen();
+      }
+      await tryLockLandscape();
+      return;
+    }
+
+    if (wrap.requestFullscreen) {
+      await wrap.requestFullscreen();
+      await tryLockLandscape();
+    } else if (wrap.webkitRequestFullscreen) {
+      await wrap.webkitRequestFullscreen();
+    }
+  } catch (e) {
+    console.log("Fullscreen failed");
+  }
+}
+
+async function unlockLandscape() {
+  try {
+    if (screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
+  } catch (e) {
+    console.log("Unlock not supported");
   }
 }
 
@@ -179,7 +255,9 @@ function stopEverything() {
     hls.destroy();
     hls = null;
   }
-  document.getElementById("playerWrap").innerHTML = "";
+
+  const wrap = document.getElementById("playerWrap");
+  wrap.innerHTML = "";
 }
 
 function attachControls(mode) {
@@ -204,7 +282,9 @@ function attachControls(mode) {
       unmuteBtn.style.display = "inline-flex";
       unmuteBtn.onclick = () => {
         const iframe = document.getElementById("livePlayer");
-        iframe.src = "https://player.kick.com/DJLIVETV";
+        if (iframe) {
+          iframe.src = "https://player.kick.com/DJLIVETV";
+        }
       };
     } else {
       unmuteBtn.style.display = "none";
@@ -276,9 +356,42 @@ async function loadVideos() {
   });
 }
 
+async function updateLiveStatus() {
+  const badge = document.getElementById("live-status-badge");
+  const dot = document.getElementById("live-status-dot");
+  const text = document.getElementById("live-status-text");
+
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status&t=" + Date.now());
+    const status = (await res.text()).trim().toLowerCase();
+
+    if (status === "live") {
+      badge.style.background = "rgba(255,0,0,.15)";
+      badge.style.color = "#ff5a5a";
+      dot.style.background = "#ff3b3b";
+      text.textContent = "LIVE NOW";
+    } else {
+      badge.style.background = "#2b2b2b";
+      badge.style.color = "#ccc";
+      dot.style.background = "#666";
+      text.textContent = "OFFLINE";
+    }
+  } catch {
+    badge.style.background = "#2b2b2b";
+    badge.style.color = "#ccc";
+    dot.style.background = "#666";
+    text.textContent = "OFFLINE";
+  }
+}
+
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement) {
+    unlockLandscape();
+  }
+});
+
 attachControls("live");
 loadVideos();
+updateLiveStatus();
+setInterval(updateLiveStatus, 5000);
 </script>
-
-</body>
-</html>
