@@ -7,15 +7,30 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <style>
+    :root{
+      --bg:#000;
+      --card:#0d0d0d;
+      --line:rgba(255,255,255,.08);
+      --text:#fff;
+      --muted:#bdbdbd;
+      --red:#f13a2c;
+      --red-soft:#ff6a6a;
+      --dark-btn:#2a2a2a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
       font-family: Arial, sans-serif;
     }
 
     .container {
-      max-width: 1120px;
+      max-width: 1160px;
       margin: 0 auto;
       padding: 14px;
     }
@@ -40,7 +55,7 @@
 
     .section-sub {
       text-align: center;
-      color: #bdbdbd;
+      color: var(--muted);
       margin: 0 0 18px 0;
       font-size: 15px;
     }
@@ -79,7 +94,7 @@
       background: #000;
       border-radius: 18px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid var(--line);
     }
 
     .player iframe,
@@ -125,10 +140,10 @@
     }
 
     .card {
-      background: #0d0d0d;
+      background: var(--card);
       border-radius: 16px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid var(--line);
     }
 
     .replay-card {
@@ -234,18 +249,19 @@
 
     .schedule-item {
       display: grid;
-      grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto;
+      grid-template-columns: 70px 110px 1.15fr 110px 1fr 1.15fr auto;
       gap: 14px;
       align-items: center;
-      background: #0d0d0d;
-      border: 1px solid rgba(255,255,255,.08);
+      background: var(--card);
+      border: 1px solid var(--line);
       border-radius: 16px;
       padding: 12px 14px;
+      transition: .2s ease;
     }
 
     .schedule-item.live-item {
       border: 1px solid rgba(255,90,90,.35);
-      box-shadow: 0 0 0 1px rgba(255,90,90,.12);
+      box-shadow: 0 0 0 1px rgba(255,90,90,.12), 0 0 24px rgba(255,59,59,.08);
     }
 
     .schedule-photo {
@@ -288,7 +304,7 @@
 
     .schedule-head {
       display: grid;
-      grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto;
+      grid-template-columns: 70px 110px 1.15fr 110px 1fr 1.15fr auto;
       gap: 14px;
       padding: 0 14px 8px 14px;
       color: #9c9c9c;
@@ -303,23 +319,24 @@
       padding: 8px 10px;
       border-radius: 999px;
       background: rgba(255,60,60,.14);
-      color: #ff6a6a;
+      color: var(--red-soft);
       border: 1px solid rgba(255,90,90,.35);
       font-size: 12px;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     .admin-shell {
       display: grid;
       grid-template-columns: 1fr;
       gap: 18px;
-      max-width: 940px;
+      max-width: 980px;
       margin: 0 auto;
     }
 
     .admin-card {
-      background: #0d0d0d;
-      border: 1px solid rgba(255,255,255,.08);
+      background: var(--card);
+      border: 1px solid var(--line);
       border-radius: 18px;
       padding: 20px;
     }
@@ -327,6 +344,15 @@
     .admin-card h3 {
       margin-bottom: 16px;
       font-size: 26px;
+    }
+
+    .admin-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
 
     .admin {
@@ -358,7 +384,7 @@
       padding: 14px;
       border-radius: 12px;
       border: none;
-      background: #f52a1f;
+      background: var(--red);
       color: white;
       font-weight: 700;
       font-size: 18px;
@@ -391,7 +417,7 @@
     }
 
     .tab-btn {
-      background: #2a2a2a;
+      background: var(--dark-btn);
       color: white;
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 10px;
@@ -401,7 +427,7 @@
     }
 
     .tab-btn.active {
-      background: #f13a2c;
+      background: var(--red);
       border-color: transparent;
     }
 
@@ -444,6 +470,36 @@
       background: #333 !important;
     }
 
+    .danger-btn {
+      background: #4a1818 !important;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .settings-box {
+      background: #080808;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .settings-box h4 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    .settings-label {
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
     @media (max-width: 900px) {
       h1 {
         font-size: 42px;
@@ -474,6 +530,10 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+      }
+
+      .settings-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -553,7 +613,7 @@
     <div class="schedule-list" id="scheduleList"></div>
 
     <h2 class="section-title">ADMIN</h2>
-    <p class="section-sub">Demo login for now, real backend can be added later.</p>
+    <p class="section-sub">Control DJs, schedule, and current live state.</p>
 
     <div class="admin-shell">
       <div id="loginBox" class="admin-card">
@@ -568,16 +628,15 @@
       </div>
 
       <div id="adminPanel" class="admin-card" style="display:none;">
-        <div class="status-pill">Admin panel demo</div>
+        <div class="admin-topbar">
+          <div class="status-pill">Admin panel</div>
+          <button class="small-btn" onclick="logoutAdmin()">LOG OUT</button>
+        </div>
 
         <div class="admin-tabs">
           <button class="tab-btn active" data-tab="tab-dj" onclick="switchTab('tab-dj')">DJs</button>
           <button class="tab-btn" data-tab="tab-schedule" onclick="switchTab('tab-schedule')">Schedule</button>
           <button class="tab-btn" data-tab="tab-settings" onclick="switchTab('tab-settings')">Settings</button>
-        </div>
-
-        <div class="form-actions" style="margin-bottom:18px;">
-          <button class="secondary-btn" onclick="logoutAdmin()">LOG OUT</button>
         </div>
 
         <div class="tab-panel active" id="tab-dj">
@@ -606,8 +665,31 @@
           <div class="add-schedule-wrap">
             <div class="admin">
               <select id="scheduleDjSelect"></select>
-              <input id="scheduleDay" placeholder="Day (ex: Friday)">
-              <input id="scheduleTime" placeholder="Time (ex: 21:00)">
+
+              <select id="scheduleDay">
+                <option value="">Select day</option>
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+              </select>
+
+              <select id="scheduleTime">
+                <option value="">Select time</option>
+                <option>16:00</option>
+                <option>17:00</option>
+                <option>18:00</option>
+                <option>19:00</option>
+                <option>20:00</option>
+                <option>21:00</option>
+                <option>22:00</option>
+                <option>23:00</option>
+                <option>00:00</option>
+              </select>
+
               <input id="scheduleStyle" placeholder="Style (ex: Deep House / Lounge)">
               <input id="scheduleShow" placeholder="Show name">
 
@@ -622,12 +704,24 @@
         <div class="tab-panel" id="tab-settings">
           <h3>Live Settings</h3>
           <div class="settings-wrap">
-            <div class="admin">
-              <select id="liveDjSelect"></select>
+            <div class="settings-grid">
+              <div class="settings-box">
+                <div class="settings-label">Current live DJ</div>
+                <select id="liveDjSelect"></select>
+                <div class="form-actions" style="margin-top:12px;">
+                  <button onclick="saveLiveDJ()">SAVE LIVE DJ</button>
+                  <button class="secondary-btn" onclick="clearLiveDJ()">CLEAR LIVE DJ</button>
+                </div>
+              </div>
 
-              <div class="form-actions">
-                <button onclick="saveLiveDJ()">SAVE LIVE DJ</button>
-                <button class="secondary-btn" onclick="clearLiveDJ()">CLEAR LIVE DJ</button>
+              <div class="settings-box">
+                <h4>Demo tools</h4>
+                <div class="admin-note" style="text-align:left;margin:0 0 12px 0;">
+                  Use this to reset browser-only demo data if needed.
+                </div>
+                <div class="form-actions">
+                  <button class="danger-btn" onclick="resetAllDemoData()">CLEAR ALL DEMO DATA</button>
+                </div>
               </div>
             </div>
           </div>
@@ -719,9 +813,7 @@
       if (unmuteBtn) {
         unmuteBtn.onclick = () => {
           const iframe = document.getElementById("livePlayer");
-          if (iframe) {
-            iframe.src = "https://player.kick.com/DJLIVETV";
-          }
+          if (iframe) iframe.src = "https://player.kick.com/DJLIVETV";
         };
       }
     }
@@ -739,12 +831,10 @@
           allow="autoplay; fullscreen"
           allowfullscreen>
         </iframe>
-
         <div class="controls">
           <button class="control-btn" id="unmuteBtn">🔊 SOUND</button>
         </div>
       `;
-
       attachLiveSoundButton();
     }
 
@@ -756,7 +846,6 @@
       const wrap = document.getElementById("playerWrap");
       wrap.innerHTML = `
         <video id="replayVideo" controls autoplay playsinline></video>
-
         <div class="controls">
           <button class="control-btn back-btn" id="backChannelBtn">← BACK TO CHANNEL</button>
         </div>
@@ -773,9 +862,7 @@
       }
 
       const backBtn = document.getElementById("backChannelBtn");
-      if (backBtn) {
-        backBtn.onclick = loadLive;
-      }
+      if (backBtn) backBtn.onclick = loadLive;
     }
 
     async function loadVideos() {
@@ -810,12 +897,10 @@
       allVideos.slice(0, count).forEach(v => {
         const card = document.createElement("div");
         card.className = "card replay-card";
-
         card.innerHTML = `
           <img src="${v.thumbnail?.src || ''}" alt="">
           <p>${v.session_title || "DJ Set"}</p>
         `;
-
         card.onclick = () => loadReplay(v.source);
         container.appendChild(card);
       });
@@ -846,7 +931,6 @@
       djs.slice(0, count).forEach((dj, index) => {
         const card = document.createElement("div");
         card.className = "card dj-card";
-
         card.innerHTML = `
           <img src="${dj.img}" alt="">
           <h3>${dj.name}</h3>
@@ -859,7 +943,6 @@
             </div>
           ` : ``}
         `;
-
         grid.appendChild(card);
       });
 
@@ -911,7 +994,6 @@
 
         const row = document.createElement("div");
         row.className = "schedule-item" + (isLiveRow ? " live-item" : "");
-
         row.innerHTML = `
           <img class="schedule-photo ${isLiveRow ? 'live-photo' : ''}" src="${photo}" alt="">
           <div class="schedule-day">${item.day || ""}</div>
@@ -930,7 +1012,6 @@
             ` : ``}
           </div>
         `;
-
         container.appendChild(row);
       });
     }
@@ -1077,13 +1158,9 @@
       const filteredSchedule = getSchedule().filter(item => item.djName !== removed.name);
       saveScheduleData(filteredSchedule);
 
-      if (getLiveDJ() === removed.name) {
-        setLiveDJ("");
-      }
+      if (getLiveDJ() === removed.name) setLiveDJ("");
 
-      if (editDJIndex === index) {
-        resetDJForm();
-      }
+      if (editDJIndex === index) resetDJForm();
 
       renderDJs();
       renderSchedule();
@@ -1193,11 +1270,25 @@
       schedule.splice(index, 1);
       saveScheduleData(schedule);
 
-      if (editScheduleIndex === index) {
-        resetScheduleForm();
-      }
+      if (editScheduleIndex === index) resetScheduleForm();
 
       renderSchedule();
+    }
+
+    function resetAllDemoData() {
+      localStorage.removeItem("djs_demo");
+      localStorage.removeItem("schedule_demo");
+      localStorage.removeItem("live_dj_demo");
+      editDJIndex = null;
+      editScheduleIndex = null;
+      replayExpanded = false;
+      djExpanded = false;
+      renderDJs();
+      renderSchedule();
+      resetDJForm();
+      resetScheduleForm();
+      populateLiveDjSelect();
+      alert("Demo data cleared");
     }
 
     loadLive();
