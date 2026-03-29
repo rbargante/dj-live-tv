@@ -653,20 +653,12 @@
           </div>
 
           <div class="tab-panel" id="tab-settings">
-            <h3>Live Settings</h3>
+            <h3>Visibility</h3>
             <div class="settings-wrap">
               <div class="admin">
-                <select id="liveDjSelect"></select>
-
                 <div class="form-actions">
-                  <button onclick="saveLiveDJ()">SAVE LIVE DJ</button>
-                  <button class="secondary-btn" onclick="clearLiveDJ()">CLEAR LIVE DJ</button>
-                </div>
-
-                <h3 style="margin-top:12px;">Visibility</h3>
-                <div class="form-actions">
-                  <button onclick="toggleDjSection()">TOGGLE DJs</button>
-                  <button onclick="toggleScheduleSection()">TOGGLE Schedule</button>
+                  <button id="toggleDjsBtn" onclick="toggleDjSection()">DJs: ON</button>
+                  <button id="toggleScheduleBtn" onclick="toggleScheduleSection()">Schedule: ON</button>
                 </div>
               </div>
             </div>
@@ -759,6 +751,19 @@
       const settings = getUiSettings();
       document.getElementById("djSectionWrap").style.display = settings.showDjs ? "block" : "none";
       document.getElementById("scheduleSectionWrap").style.display = settings.showSchedule ? "block" : "none";
+
+      const djsBtn = document.getElementById("toggleDjsBtn");
+      const scheduleBtn = document.getElementById("toggleScheduleBtn");
+
+      if (djsBtn) {
+        djsBtn.textContent = settings.showDjs ? "DJs: ON" : "DJs: OFF";
+        djsBtn.style.background = settings.showDjs ? "#f52a1f" : "#333";
+      }
+
+      if (scheduleBtn) {
+        scheduleBtn.textContent = settings.showSchedule ? "Schedule: ON" : "Schedule: OFF";
+        scheduleBtn.style.background = settings.showSchedule ? "#f52a1f" : "#333";
+      }
     }
 
     function toggleDjSection() {
@@ -766,7 +771,6 @@
       settings.showDjs = !settings.showDjs;
       saveUiSettings(settings);
       applyUiSettings();
-      alert("DJs section " + (settings.showDjs ? "VISIBLE" : "HIDDEN"));
     }
 
     function toggleScheduleSection() {
@@ -774,7 +778,6 @@
       settings.showSchedule = !settings.showSchedule;
       saveUiSettings(settings);
       applyUiSettings();
-      alert("Schedule section " + (settings.showSchedule ? "VISIBLE" : "HIDDEN"));
     }
 
     function getAutoLiveDJ() {
@@ -782,13 +785,33 @@
       const now = new Date();
       const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       const currentDay = days[now.getDay()];
-      const currentTime = now.getHours().toString().padStart(2, "0") + ":00";
-      const match = schedule.find(item => (item.day === currentDay || item.day === "Everyday") && item.time === currentTime);
-      return match ? match.djName : "";
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      const todaysItems = schedule
+        .filter(item => item.day === currentDay || item.day === "Everyday")
+        .map(item => {
+          const [hour, minute] = (item.time || "00:00").split(":").map(Number);
+          return {
+            ...item,
+            totalMinutes: (hour || 0) * 60 + (minute || 0)
+          };
+        })
+        .sort((a, b) => a.totalMinutes - b.totalMinutes);
+
+      if (!todaysItems.length) return "";
+
+      let active = "";
+      for (const item of todaysItems) {
+        if (currentMinutes >= item.totalMinutes) {
+          active = item.djName;
+        }
+      }
+
+      return active;
     }
 
     function getCurrentLiveDJ() {
-      return getLiveDJ() || getAutoLiveDJ() || "";
+      return getAutoLiveDJ() || "";
     }
 
     function showBadge() {
@@ -1020,9 +1043,11 @@
 
       const count = scheduleExpanded ? schedule.length : Math.min(scheduleBaseCount, schedule.length);
 
+      const count = scheduleExpanded ? schedule.length : Math.min(scheduleBaseCount, schedule.length);
+
       schedule.slice(0, count).forEach(item => {
 
-      schedule.forEach(item => {
+      schedule.slice(0, count).forEach(item => {
         const originalIndex = original.findIndex(s =>
           s.djName === item.djName &&
           s.day === item.day &&
@@ -1059,6 +1084,26 @@
 
         container.appendChild(row);
       });
+
+      let moreWrap = document.getElementById("scheduleMoreWrap");
+      if (!moreWrap) {
+        moreWrap = document.createElement("div");
+        moreWrap.id = "scheduleMoreWrap";
+        moreWrap.className = "view-more-wrap";
+        document.getElementById("scheduleSectionWrap").appendChild(moreWrap);
+      }
+
+      moreWrap.innerHTML = "";
+      if (schedule.length > scheduleBaseCount) {
+        const btn = document.createElement("button");
+        btn.className = "view-more-btn";
+        btn.textContent = scheduleExpanded ? "View less" : "View more";
+        btn.onclick = () => {
+          scheduleExpanded = !scheduleExpanded;
+          renderSchedule();
+        };
+        moreWrap.appendChild(btn);
+      }
 
       const wrap = document.getElementById("scheduleSectionWrap");
       let moreWrap = document.getElementById("scheduleMoreWrap");
@@ -1262,21 +1307,7 @@
     }
 
     function populateLiveDjSelect() {
-      const select = document.getElementById("liveDjSelect");
-      if (!select) return;
-
-      const djs = getDJs();
-      const currentValue = getLiveDJ();
-      select.innerHTML = `<option value="">Select live DJ</option>`;
-
-      djs.forEach(dj => {
-        const option = document.createElement("option");
-        option.value = dj.name;
-        option.textContent = dj.name;
-        select.appendChild(option);
-      });
-
-      select.value = currentValue || "";
+      return;
     }
 
     function populateScheduleTimeSelect() {
@@ -1293,17 +1324,11 @@
     }
 
     function saveLiveDJ() {
-      const value = document.getElementById("liveDjSelect").value;
-      setLiveDJ(value);
-      renderDJs();
-      renderSchedule();
+      return;
     }
 
     function clearLiveDJ() {
-      setLiveDJ("");
-      populateLiveDjSelect();
-      renderDJs();
-      renderSchedule();
+      return;
     }
 
     function resetScheduleForm() {
