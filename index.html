@@ -739,7 +739,8 @@
       const settings = getUiSettings();
       settings.showDjs = !settings.showDjs;
       saveUiSettings(settings);
-      applyUiSettings();
+      applyAdminVisibility();
+    applyUiSettings();
     }
 
     function toggleScheduleSection() {
@@ -1309,8 +1310,23 @@
       renderSchedule();
     }
 
-    if (window.location.search.includes("admin")) {
-      document.getElementById("adminSection").style.display = "block";
+    function applyAdminVisibility() {
+      const adminMode = window.location.search.includes("admin");
+      const adminSection = document.getElementById("adminSection");
+      const loginBox = document.getElementById("loginBox");
+      const adminPanel = document.getElementById("adminPanel");
+
+      if (!adminSection || !loginBox || !adminPanel) return;
+
+      if (adminMode) {
+        adminSection.style.display = "block";
+        loginBox.style.display = "block";
+        adminPanel.style.display = "none";
+      } else {
+        adminSection.style.display = "none";
+        loginBox.style.display = "block";
+        adminPanel.style.display = "none";
+      }
     }
 
     applyUiSettings();
