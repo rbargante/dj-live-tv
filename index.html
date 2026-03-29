@@ -242,9 +242,21 @@
       gap: 12px;
     }
 
+    .schedule-head {
+      display: grid;
+      grid-template-columns: 70px 1.2fr 110px 110px 1fr 1.2fr auto;
+      gap: 14px;
+      padding: 0 14px 8px 14px;
+      color: #9c9c9c;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
     .schedule-item {
       display: grid;
-      grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto;
+      grid-template-columns: 70px 1.2fr 110px 110px 1fr 1.2fr auto;
       gap: 14px;
       align-items: center;
       background: #0d0d0d;
@@ -296,16 +308,10 @@
       line-height: 1.35;
     }
 
-    .schedule-head {
-      display: grid;
-      grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto;
-      gap: 14px;
-      padding: 0 14px 8px 14px;
-      color: #9c9c9c;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .5px;
+    .schedule-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .live-pill,
@@ -498,16 +504,11 @@
         gap: 12px;
       }
 
-      .schedule-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-      }
-
+      .schedule-day,
       .schedule-time,
       .schedule-style,
-      .schedule-show {
-        margin-top: 2px;
+      .schedule-show-col {
+        display: none;
       }
 
       .schedule-right {
@@ -585,8 +586,8 @@
 
       <div class="schedule-head">
         <div></div>
-        <div>Day</div>
         <div>DJ</div>
+        <div>Day</div>
         <div>Time</div>
         <div>Style</div>
         <div>Show</div>
@@ -711,7 +712,7 @@
     let djExpanded = false;
     let scheduleExpanded = false;
     let replayBaseCount = 8;
-    let djBaseCount = 6;
+    let djBaseCount = 8;
     let scheduleBaseCount = 5;
     let editDJIndex = null;
     let editScheduleIndex = null;
@@ -1031,7 +1032,8 @@
 
       const count = djExpanded ? orderedDjs.length : Math.min(djBaseCount, orderedDjs.length);
 
-      orderedDjs.slice(0, count).forEach((dj, index) => {
+      orderedDjs.slice(0, count).forEach((dj) => {
+        const originalIndex = getDJs().findIndex(x => x.name === dj.name);
         const isLiveCard = liveItem && dj.name === liveItem.djName;
         const isNextCard = nextItem && dj.name === nextItem.djName;
         const card = document.createElement("div");
@@ -1046,8 +1048,8 @@
           ${!isLiveCard && isNextCard ? `<span class="next-pill">NEXT</span>` : ``}
           ${isAdminOpen ? `
             <div class="admin-card-buttons">
-              <button class="small-btn" onclick="startEditDJ(${getDJs().findIndex(x => x.name === dj.name)})">EDIT</button>
-              <button class="small-btn delete" onclick="deleteDJ(${getDJs().findIndex(x => x.name === dj.name)})">DELETE</button>
+              <button class="small-btn" onclick="startEditDJ(${originalIndex})">EDIT</button>
+              <button class="small-btn delete" onclick="deleteDJ(${originalIndex})">DELETE</button>
             </div>
           ` : ``}
         `;
@@ -1106,15 +1108,14 @@
 
         row.innerHTML = `
           <img class="schedule-photo ${isLiveRow ? 'live-photo' : ''}" src="${photo}" alt="">
-          <div class="schedule-day">${item.day || ""}</div>
           <div class="schedule-meta">
             <div class="schedule-name">${item.djName}</div>
-            <div class="schedule-show">${item.show}</div>
             ${isLiveRow && nextItem ? `<div class="next-note">Next: ${nextItem.djName} at ${nextItem.time}</div>` : ``}
           </div>
+          <div class="schedule-day">${item.day || ""}</div>
           <div class="schedule-time">${item.time}</div>
           <div class="schedule-style">${item.style}</div>
-          <div class="schedule-show">${item.show}</div>
+          <div class="schedule-show schedule-show-col">${item.show}</div>
           <div class="schedule-right">
             ${isLiveRow ? `<span class="live-pill">LIVE NOW</span>` : ``}
             ${!isLiveRow && isNextRow ? `<span class="next-pill">NEXT</span>` : ``}
