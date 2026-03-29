@@ -335,13 +335,6 @@
       gap: 12px;
     }
 
-    .admin label {
-      font-size: 12px;
-      color: #a7a7a7;
-      margin-bottom: -8px;
-      margin-left: 4px;
-    }
-
     .admin input,
     .admin textarea,
     .admin select {
@@ -539,124 +532,130 @@
     <div id="videos" class="grid"></div>
     <div class="view-more-wrap" id="viewMoreWrap"></div>
 
-    <h2 class="section-title">OUR DJs</h2>
-    <p class="section-sub">Resident selectors, guests, and featured artists.</p>
-    <div id="djGrid" class="grid"></div>
-    <div class="view-more-wrap" id="djMoreWrap"></div>
-
-    <h2 class="section-title">SCHEDULE</h2>
-    <p class="section-sub">Weekly lineup in list format.</p>
-
-    <div class="schedule-head">
-      <div></div>
-      <div>Day</div>
-      <div>DJ</div>
-      <div>Time</div>
-      <div>Style</div>
-      <div>Show</div>
-      <div></div>
+    <div id="djSectionWrap">
+      <h2 class="section-title">OUR DJs</h2>
+      <p class="section-sub">Resident selectors, guests, and featured artists.</p>
+      <div id="djGrid" class="grid"></div>
+      <div class="view-more-wrap" id="djMoreWrap"></div>
     </div>
 
-    <div class="schedule-list" id="scheduleList"></div>
+    <div id="scheduleSectionWrap">
+      <h2 class="section-title">SCHEDULE</h2>
+      <p class="section-sub">Weekly lineup in list format.</p>
 
-    <h2 class="section-title">ADMIN</h2>
-    <p class="section-sub">Demo login for now, real backend can be added later.</p>
-
-    <div class="admin-shell">
-      <div id="loginBox" class="admin-card">
-        <div class="status-pill">Demo access</div>
-        <h3>Login</h3>
-        <div class="admin">
-          <input id="user" placeholder="Username">
-          <input id="pass" type="password" placeholder="Password">
-          <button onclick="login()">LOGIN</button>
-        </div>
-        <div class="admin-note">Username: admin, Password: 1234</div>
+      <div class="schedule-head">
+        <div></div>
+        <div>Day</div>
+        <div>DJ</div>
+        <div>Time</div>
+        <div>Style</div>
+        <div>Show</div>
+        <div></div>
       </div>
 
-      <div id="adminPanel" class="admin-card" style="display:none;">
-        <div class="status-pill">Admin panel demo</div>
+      <div class="schedule-list" id="scheduleList"></div>
+    </div>
 
-        <div class="admin-tabs">
-          <button class="tab-btn active" data-tab="tab-dj" onclick="switchTab('tab-dj')">DJs</button>
-          <button class="tab-btn" data-tab="tab-schedule" onclick="switchTab('tab-schedule')">Schedule</button>
-          <button class="tab-btn" data-tab="tab-settings" onclick="switchTab('tab-settings')">Settings</button>
+    <div id="adminSection" style="display:none;">
+      <h2 class="section-title">ADMIN</h2>
+      <p class="section-sub">Demo login for now, real backend can be added later.</p>
+
+      <div class="admin-shell">
+        <div id="loginBox" class="admin-card">
+          <div class="status-pill">Demo access</div>
+          <h3>Login</h3>
+          <div class="admin">
+            <input id="user" placeholder="Username">
+            <input id="pass" type="password" placeholder="Password">
+            <button onclick="login()">LOGIN</button>
+          </div>
+          <div class="admin-note">Username: admin, Password: 1234</div>
         </div>
 
-        <div class="form-actions" style="margin-bottom:18px;">
-          <button class="secondary-btn" onclick="logoutAdmin()">LOG OUT</button>
-        </div>
+        <div id="adminPanel" class="admin-card" style="display:none;">
+          <div class="status-pill">Admin panel demo</div>
 
-        <div class="tab-panel active" id="tab-dj">
-          <h3>Add or Edit DJ</h3>
-          <div class="add-dj-wrap">
-            <div class="preview-wrap">
-              <img id="previewImg" class="preview-img" src="https://via.placeholder.com/120" alt="Preview">
-            </div>
+          <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="tab-dj" onclick="switchTab('tab-dj')">DJs</button>
+            <button class="tab-btn" data-tab="tab-schedule" onclick="switchTab('tab-schedule')">Schedule</button>
+            <button class="tab-btn" data-tab="tab-settings" onclick="switchTab('tab-settings')">Settings</button>
+          </div>
 
-            <div class="admin">
-              <input id="name" placeholder="DJ Name">
-              <input id="img" placeholder="Image URL" oninput="updatePreview()">
-              <input id="style" placeholder="Style (ex: House, Techno)">
-              <textarea id="bio" placeholder="Bio"></textarea>
+          <div class="form-actions" style="margin-bottom:18px;">
+            <button class="secondary-btn" onclick="logoutAdmin()">LOG OUT</button>
+          </div>
 
-              <div class="form-actions">
-                <button onclick="saveDJ()">SAVE DJ</button>
-                <button class="secondary-btn" onclick="resetDJForm()">CLEAR</button>
+          <div class="tab-panel active" id="tab-dj">
+            <h3>Add or Edit DJ</h3>
+            <div class="add-dj-wrap">
+              <div class="preview-wrap">
+                <img id="previewImg" class="preview-img" src="https://via.placeholder.com/120" alt="Preview">
+              </div>
+
+              <div class="admin">
+                <input id="name" placeholder="DJ Name">
+                <input id="img" placeholder="Image URL" oninput="updatePreview()">
+                <input id="style" placeholder="Style (ex: House, Techno)">
+                <textarea id="bio" placeholder="Bio"></textarea>
+
+                <div class="form-actions">
+                  <button onclick="saveDJ()">SAVE DJ</button>
+                  <button class="secondary-btn" onclick="resetDJForm()">CLEAR</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="tab-panel" id="tab-schedule">
-          <h3>Add or Edit Schedule</h3>
-          <div class="add-schedule-wrap">
-            <div class="admin">
-              <label>Select DJ</label>
-              <select id="scheduleDjSelect"></select>
-              
-              <label>Day</label>
-              <select id="scheduleDay">
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-                <option value="Every Day">Every Day</option>
-              </select>
+          <div class="tab-panel" id="tab-schedule">
+            <h3>Add or Edit Schedule</h3>
+            <div class="add-schedule-wrap">
+              <div class="admin">
+                <select id="scheduleDjSelect"></select>
+                <select id="scheduleDay">
+                  <option value="">Select Day</option>
+                  <option>Monday</option>
+                  <option>Tuesday</option>
+                  <option>Wednesday</option>
+                  <option>Thursday</option>
+                  <option>Friday</option>
+                  <option>Saturday</option>
+                  <option>Sunday</option>
+                  <option>Everyday</option>
+                </select>
+                <select id="scheduleTime"></select>
+                <input id="scheduleStyle" placeholder="Style (ex: Deep House / Lounge)">
+                <input id="scheduleShow" placeholder="Show name">
 
-              <label>Time</label>
-              <input id="scheduleTime" type="time">
-              
-              <label>Extra Info</label>
-              <input id="scheduleStyle" placeholder="Style (ex: Deep House / Lounge)">
-              <input id="scheduleShow" placeholder="Show name">
-
-              <div class="form-actions">
-                <button onclick="saveSchedule()">SAVE SCHEDULE</button>
-                <button class="secondary-btn" onclick="resetScheduleForm()">CLEAR</button>
+                <div class="form-actions">
+                  <button onclick="saveSchedule()">SAVE SCHEDULE</button>
+                  <button class="secondary-btn" onclick="resetScheduleForm()">CLEAR</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="tab-panel" id="tab-settings">
-          <h3>Live Settings</h3>
-          <div class="settings-wrap">
-            <div class="admin">
-              <select id="liveDjSelect"></select>
+          <div class="tab-panel" id="tab-settings">
+            <h3>Live Settings</h3>
+            <div class="settings-wrap">
+              <div class="admin">
+                <select id="liveDjSelect"></select>
 
-              <div class="form-actions">
-                <button onclick="saveLiveDJ()">SAVE LIVE DJ</button>
-                <button class="secondary-btn" onclick="clearLiveDJ()">CLEAR LIVE DJ</button>
+                <div class="form-actions">
+                  <button onclick="saveLiveDJ()">SAVE LIVE DJ</button>
+                  <button class="secondary-btn" onclick="clearLiveDJ()">CLEAR LIVE DJ</button>
+                </div>
+
+                <h3 style="margin-top:12px;">Visibility</h3>
+                <div class="form-actions">
+                  <button onclick="toggleDjSection()">TOGGLE DJs</button>
+                  <button onclick="toggleScheduleSection()">TOGGLE Schedule</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="admin-note">Saved in this browser only. Refresh keeps data here, another browser/device will not.</div>
+          <div class="admin-note">Saved in this browser only. Refresh keeps data here, another browser/device will not.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -719,6 +718,49 @@
 
     function setLiveDJ(name) {
       localStorage.setItem("live_dj_demo", name || "");
+    }
+
+    function getUiSettings() {
+      const saved = JSON.parse(localStorage.getItem("ui_settings_demo"));
+      return saved || { showDjs: false, showSchedule: false };
+    }
+
+    function saveUiSettings(settings) {
+      localStorage.setItem("ui_settings_demo", JSON.stringify(settings));
+    }
+
+    function applyUiSettings() {
+      const settings = getUiSettings();
+      document.getElementById("djSectionWrap").style.display = settings.showDjs ? "block" : "none";
+      document.getElementById("scheduleSectionWrap").style.display = settings.showSchedule ? "block" : "none";
+    }
+
+    function toggleDjSection() {
+      const settings = getUiSettings();
+      settings.showDjs = !settings.showDjs;
+      saveUiSettings(settings);
+      applyUiSettings();
+    }
+
+    function toggleScheduleSection() {
+      const settings = getUiSettings();
+      settings.showSchedule = !settings.showSchedule;
+      saveUiSettings(settings);
+      applyUiSettings();
+    }
+
+    function getAutoLiveDJ() {
+      const schedule = getSchedule();
+      const now = new Date();
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const currentDay = days[now.getDay()];
+      const currentTime = now.getHours().toString().padStart(2, "0") + ":00";
+      const match = schedule.find(item => (item.day === currentDay || item.day === "Everyday") && item.time === currentTime);
+      return match ? match.djName : "";
+    }
+
+    function getCurrentLiveDJ() {
+      return getLiveDJ() || getAutoLiveDJ() || "";
     }
 
     function showBadge() {
@@ -803,23 +845,35 @@
 
     async function loadVideos() {
       const container = document.getElementById("videos");
-      container.innerHTML = "Loading...";
-      document.getElementById("viewMoreWrap").innerHTML = "";
+      const wrap = document.getElementById("viewMoreWrap");
+      container.innerHTML = "<p>Loading replays...</p>";
+      wrap.innerHTML = "";
+
+      const fallbackVideos = [
+        { session_title: "Replay 1", thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+1" }, source: "" },
+        { session_title: "Replay 2", thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+2" }, source: "" },
+        { session_title: "Replay 3", thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+3" }, source: "" },
+        { session_title: "Replay 4", thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+4" }, source: "" }
+      ];
 
       try {
-        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos", { cache: "no-store" });
+        if (!res.ok) throw new Error("Bad response");
         const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) throw new Error("No videos");
 
-        if (!Array.isArray(data)) {
-          container.innerHTML = "Error loading videos";
-          return;
-        }
-
-        allVideos = data;
-        renderVideos();
+        allVideos = data.map((v, i) => ({
+          session_title: v.session_title || `Replay ${i + 1}`,
+          thumbnail: {
+            src: v.thumbnail?.src || `https://via.placeholder.com/640x360?text=Replay+${i + 1}`
+          },
+          source: v.source || ""
+        }));
       } catch {
-        container.innerHTML = "Error loading videos";
+        allVideos = fallbackVideos;
       }
+
+      renderVideos();
     }
 
     function renderVideos() {
@@ -828,18 +882,32 @@
       container.innerHTML = "";
       viewMoreWrap.innerHTML = "";
 
+      if (!allVideos.length) {
+        container.innerHTML = "<p>No replays available right now.</p>";
+        return;
+      }
+
       const count = replayExpanded ? allVideos.length : Math.min(replayBaseCount, allVideos.length);
 
-      allVideos.slice(0, count).forEach(v => {
+      allVideos.slice(0, count).forEach((v, index) => {
         const card = document.createElement("div");
         card.className = "card replay-card";
 
+        const thumb = v.thumbnail?.src || `https://via.placeholder.com/640x360?text=Replay+${index + 1}`;
+        const source = v.source || "";
+
         card.innerHTML = `
-          <img src="${v.thumbnail?.src || ''}" alt="">
+          <img src="${thumb}" alt="${v.session_title || 'Replay'}" onerror="this.onerror=null;this.src='https://via.placeholder.com/640x360?text=Replay';">
           <p>${v.session_title || "DJ Set"}</p>
         `;
 
-        card.onclick = () => loadReplay(v.source);
+        if (source) {
+          card.onclick = () => loadReplay(source);
+        } else {
+          card.style.cursor = "default";
+          card.onclick = null;
+        }
+
         container.appendChild(card);
       });
 
@@ -860,6 +928,7 @@
       const moreWrap = document.getElementById("djMoreWrap");
       const djs = getDJs();
       const isAdminOpen = document.getElementById("adminPanel").style.display === "block";
+      const liveDj = getCurrentLiveDJ();
 
       grid.innerHTML = "";
       moreWrap.innerHTML = "";
@@ -867,14 +936,16 @@
       const count = djExpanded ? djs.length : Math.min(djBaseCount, djs.length);
 
       djs.slice(0, count).forEach((dj, index) => {
+        const isLiveCard = liveDj && dj.name === liveDj;
         const card = document.createElement("div");
-        card.className = "card dj-card";
+        card.className = "card dj-card" + (isLiveCard ? " live-item" : "");
 
         card.innerHTML = `
           <img src="${dj.img}" alt="">
           <h3>${dj.name}</h3>
           <div class="dj-style">${dj.style || "DJ STYLE"}</div>
           <p>${dj.bio || "New DJ profile."}</p>
+          ${isLiveCard ? `<span class="live-pill">LIVE NOW</span>` : ``}
           ${isAdminOpen ? `
             <div class="admin-card-buttons">
               <button class="small-btn" onclick="startEditDJ(${index})">EDIT</button>
@@ -907,9 +978,9 @@
       const schedule = [...original];
       const djs = getDJs();
       const isAdminOpen = document.getElementById("adminPanel").style.display === "block";
-      const liveDj = getLiveDJ();
+      const liveDj = getCurrentLiveDJ();
 
-      if (isChannelLive && liveDj) {
+      if (liveDj) {
         schedule.sort((a, b) => {
           if (a.djName === liveDj && b.djName !== liveDj) return -1;
           if (a.djName !== liveDj && b.djName === liveDj) return 1;
@@ -930,7 +1001,7 @@
 
         const dj = djs.find(d => d.name === item.djName);
         const photo = dj ? dj.img : "https://via.placeholder.com/56";
-        const isLiveRow = isChannelLive && liveDj && item.djName === liveDj;
+        const isLiveRow = liveDj && item.djName === liveDj;
 
         const row = document.createElement("div");
         row.className = "schedule-item" + (isLiveRow ? " live-item" : "");
@@ -1150,22 +1221,37 @@
       select.value = currentValue || "";
     }
 
+    function populateScheduleTimeSelect() {
+      const select = document.getElementById("scheduleTime");
+      if (!select || select.options.length > 0) return;
+      select.innerHTML = `<option value="">Select Time</option>`;
+      for (let i = 0; i < 24; i++) {
+        const h = i.toString().padStart(2, "0") + ":00";
+        const option = document.createElement("option");
+        option.value = h;
+        option.textContent = h;
+        select.appendChild(option);
+      }
+    }
+
     function saveLiveDJ() {
       const value = document.getElementById("liveDjSelect").value;
       setLiveDJ(value);
+      renderDJs();
       renderSchedule();
     }
 
     function clearLiveDJ() {
       setLiveDJ("");
       populateLiveDjSelect();
+      renderDJs();
       renderSchedule();
     }
 
     function resetScheduleForm() {
       editScheduleIndex = null;
       document.getElementById("scheduleDjSelect").value = "";
-      document.getElementById("scheduleDay").value = "Monday";
+      document.getElementById("scheduleDay").value = "";
       document.getElementById("scheduleTime").value = "";
       document.getElementById("scheduleStyle").value = "";
       document.getElementById("scheduleShow").value = "";
@@ -1173,8 +1259,8 @@
 
     function saveSchedule() {
       const djName = document.getElementById("scheduleDjSelect").value.trim();
-      const day = document.getElementById("scheduleDay").value;
-      const time = document.getElementById("scheduleTime").value;
+      const day = document.getElementById("scheduleDay").value.trim();
+      const time = document.getElementById("scheduleTime").value.trim();
       const style = document.getElementById("scheduleStyle").value.trim();
       const show = document.getElementById("scheduleShow").value.trim();
 
@@ -1202,7 +1288,7 @@
       editScheduleIndex = index;
 
       document.getElementById("scheduleDjSelect").value = item.djName;
-      document.getElementById("scheduleDay").value = item.day;
+      document.getElementById("scheduleDay").value = item.day || "";
       document.getElementById("scheduleTime").value = item.time;
       document.getElementById("scheduleStyle").value = item.style;
       document.getElementById("scheduleShow").value = item.show;
@@ -1223,10 +1309,16 @@
       renderSchedule();
     }
 
+    if (window.location.search.includes("admin")) {
+      document.getElementById("adminSection").style.display = "block";
+    }
+
+    applyUiSettings();
     loadLive();
     loadVideos();
     renderDJs();
     renderSchedule();
+    populateScheduleTimeSelect();
     updateLiveStatus();
 
     setInterval(() => {
