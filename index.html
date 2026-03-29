@@ -100,10 +100,6 @@
       font-weight: bold;
     }
 
-    .open-btn {
-      background: rgba(255,255,255,.15);
-    }
-
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -174,7 +170,6 @@
     <div class="controls">
       <button class="control-btn" id="unmuteBtn">🔊</button>
       <button class="control-btn" id="fullscreenBtn">⛶</button>
-      <button class="control-btn open-btn" id="openLiveBtn">↗</button>
       <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
     </div>
   </div>
@@ -215,19 +210,11 @@ function stopEverything() {
     hls = null;
   }
 
-  const wrap = document.getElementById("playerWrap");
-  wrap.innerHTML = "";
+  document.getElementById("playerWrap").innerHTML = "";
 }
 
 function attachControls(mode) {
   document.getElementById("fullscreenBtn").onclick = requestPlayerFullscreen;
-
-  const openBtn = document.getElementById("openLiveBtn");
-  if (openBtn) {
-    openBtn.onclick = () => {
-      window.open("https://kick.com/djlivetv", "_blank");
-    };
-  }
 
   const liveBtn = document.getElementById("backLiveBtn");
   if (liveBtn) {
@@ -264,7 +251,6 @@ function loadLive() {
     <div class="controls">
       <button class="control-btn" id="unmuteBtn">🔊</button>
       <button class="control-btn" id="fullscreenBtn">⛶</button>
-      <button class="control-btn open-btn" id="openLiveBtn">↗</button>
       <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
     </div>
   `;
