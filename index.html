@@ -689,6 +689,8 @@
     let currentMode = "live";
     let allVideos = [];
     let replayExpanded = false;
+    let scheduleExpanded = false;
+    let scheduleBaseCount = 5;
     let djExpanded = false;
     let replayBaseCount = 8;
     let djBaseCount = 6;
@@ -764,6 +766,7 @@
       settings.showDjs = !settings.showDjs;
       saveUiSettings(settings);
       applyUiSettings();
+      alert("DJs section " + (settings.showDjs ? "VISIBLE" : "HIDDEN"));
     }
 
     function toggleScheduleSection() {
@@ -771,6 +774,7 @@
       settings.showSchedule = !settings.showSchedule;
       saveUiSettings(settings);
       applyUiSettings();
+      alert("Schedule section " + (settings.showSchedule ? "VISIBLE" : "HIDDEN"));
     }
 
     function getAutoLiveDJ() {
@@ -1014,6 +1018,10 @@
 
       container.innerHTML = "";
 
+      const count = scheduleExpanded ? schedule.length : Math.min(scheduleBaseCount, schedule.length);
+
+      schedule.slice(0, count).forEach(item => {
+
       schedule.forEach(item => {
         const originalIndex = original.findIndex(s =>
           s.djName === item.djName &&
@@ -1051,6 +1059,29 @@
 
         container.appendChild(row);
       });
+
+      const wrap = document.getElementById("scheduleSectionWrap");
+      let moreWrap = document.getElementById("scheduleMoreWrap");
+
+      if (!moreWrap) {
+        moreWrap = document.createElement("div");
+        moreWrap.id = "scheduleMoreWrap";
+        moreWrap.className = "view-more-wrap";
+        wrap.appendChild(moreWrap);
+      }
+
+      moreWrap.innerHTML = "";
+
+      if (schedule.length > scheduleBaseCount) {
+        const btn = document.createElement("button");
+        btn.className = "view-more-btn";
+        btn.textContent = scheduleExpanded ? "View less" : "View more";
+        btn.onclick = () => {
+          scheduleExpanded = !scheduleExpanded;
+          renderSchedule();
+        };
+        moreWrap.appendChild(btn);
+      }
     }
 
     async function updateLiveStatus() {
