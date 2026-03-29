@@ -80,7 +80,6 @@
       display: flex;
       gap: 10px;
       z-index: 30;
-      flex-wrap: wrap;
     }
 
     .control-btn {
@@ -121,7 +120,7 @@
       border-radius: 10px;
       display: block;
       background: #111;
-      aspect-ratio: 16/9;
+      aspect-ratio: 16 / 9;
       object-fit: cover;
     }
 
@@ -148,192 +147,180 @@
 </head>
 
 <body>
-<div class="container">
+  <div class="container">
 
-  <h1>DJ LIVE TV</h1>
+    <h1>DJ LIVE TV</h1>
 
-  <div class="badge-wrap">
-    <div id="live-status-badge">
-      <span id="live-status-dot"></span>
-      <span id="live-status-text">CHECKING...</span>
+    <div class="badge-wrap">
+      <div id="live-status-badge">
+        <span id="live-status-dot"></span>
+        <span id="live-status-text">CHECKING...</span>
+      </div>
     </div>
+
+    <div class="player" id="playerWrap">
+      <iframe
+        id="livePlayer"
+        src="https://player.kick.com/DJLIVETV?muted=true"
+        allow="autoplay; fullscreen"
+        allowfullscreen>
+      </iframe>
+
+      <div class="controls">
+        <button class="control-btn" id="unmuteBtn">🔊</button>
+        <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:40px;">REPLAYS</h2>
+    <div id="videos" class="grid"></div>
+
   </div>
 
-  <div class="player" id="playerWrap">
-    <iframe
-      id="livePlayer"
-      src="https://player.kick.com/DJLIVETV?muted=true"
-      allow="autoplay; fullscreen"
-      allowfullscreen>
-    </iframe>
+  <script>
+    let hls = null;
 
-    <div class="controls">
-      <button class="control-btn" id="unmuteBtn">🔊</button>
-      <button class="control-btn" id="fullscreenBtn">⛶</button>
-      <button class="control-btn live-btn" id="backLiveBtn" style="display:none;">🔴 LIVE</button>
-    </div>
-  </div>
+    function stopEverything() {
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
 
-  <h2 style="margin-top:40px;">REPLAYS</h2>
-  <div id="videos" class="grid"></div>
-
-</div>
-
-<script>
-let hls = null;
-
-function requestPlayerFullscreen() {
-  const video = document.getElementById("replayVideo");
-  const wrap = document.getElementById("playerWrap");
-
-  if (video) {
-    if (video.requestFullscreen) {
-      video.requestFullscreen();
-    } else if (video.webkitEnterFullscreen) {
-      video.webkitEnterFullscreen();
-    } else if (video.webkitRequestFullscreen) {
-      video.webkitRequestFullscreen();
+      const wrap = document.getElementById("playerWrap");
+      wrap.innerHTML = "";
     }
-    return;
-  }
 
-  if (wrap.requestFullscreen) {
-    wrap.requestFullscreen();
-  } else if (wrap.webkitRequestFullscreen) {
-    wrap.webkitRequestFullscreen();
-  }
-}
+    function attachControls(mode) {
+      const liveBtn = document.getElementById("backLiveBtn");
+      if (liveBtn) {
+        liveBtn.onclick = loadLive;
+        liveBtn.style.display = mode === "replay" ? "inline-flex" : "none";
+      }
 
-function stopEverything() {
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-
-  document.getElementById("playerWrap").innerHTML = "";
-}
-
-function attachControls(mode) {
-  document.getElementById("fullscreenBtn").onclick = requestPlayerFullscreen;
-
-  const liveBtn = document.getElementById("backLiveBtn");
-  if (liveBtn) {
-    liveBtn.onclick = loadLive;
-    liveBtn.style.display = mode === "replay" ? "inline-flex" : "none";
-  }
-
-  const unmuteBtn = document.getElementById("unmuteBtn");
-  if (unmuteBtn) {
-    if (mode === "live") {
-      unmuteBtn.style.display = "inline-flex";
-      unmuteBtn.onclick = () => {
-        const iframe = document.getElementById("livePlayer");
-        if (iframe) {
-          iframe.src = "https://player.kick.com/DJLIVETV";
+      const unmuteBtn = document.getElementById("unmuteBtn");
+      if (unmuteBtn) {
+        if (mode === "live") {
+          unmuteBtn.style.display = "inline-flex";
+          unmuteBtn.onclick = () => {
+            const iframe = document.getElementById("livePlayer");
+            if (iframe) {
+              iframe.src = "https://player.kick.com/DJLIVETV";
+            }
+          };
+        } else {
+          unmuteBtn.style.display = "none";
         }
-      };
-    } else {
-      unmuteBtn.style.display = "none";
+      }
     }
-  }
-}
 
-function loadLive() {
-  stopEverything();
+    function loadLive() {
+      stopEverything();
 
-  const wrap = document.getElementById("playerWrap");
-  wrap.innerHTML = `
-    <iframe id="livePlayer"
-      src="https://player.kick.com/DJLIVETV?muted=true"
-      allow="autoplay; fullscreen"
-      allowfullscreen></iframe>
+      const wrap = document.getElementById("playerWrap");
+      wrap.innerHTML = `
+        <iframe id="livePlayer"
+          src="https://player.kick.com/DJLIVETV?muted=true"
+          allow="autoplay; fullscreen"
+          allowfullscreen>
+        </iframe>
 
-    <div class="controls">
-      <button class="control-btn" id="unmuteBtn">🔊</button>
-      <button class="control-btn" id="fullscreenBtn">⛶</button>
-      <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
-    </div>
-  `;
+        <div class="controls">
+          <button class="control-btn" id="unmuteBtn">🔊</button>
+          <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
+        </div>
+      `;
 
-  attachControls("live");
-}
-
-function loadReplay(url) {
-  stopEverything();
-
-  const wrap = document.getElementById("playerWrap");
-  wrap.innerHTML = `
-    <video id="replayVideo" controls autoplay playsinline></video>
-
-    <div class="controls">
-      <button class="control-btn" id="fullscreenBtn">⛶</button>
-      <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
-    </div>
-  `;
-
-  const video = document.getElementById("replayVideo");
-
-  if (video.canPlayType("application/vnd.apple.mpegurl")) {
-    video.src = url;
-  } else {
-    hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-  }
-
-  attachControls("replay");
-}
-
-async function loadVideos() {
-  const container = document.getElementById("videos");
-  const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-  const data = await res.json();
-
-  data.forEach(v => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <img src="${v.thumbnail?.src || ''}">
-      <p>${v.session_title || 'DJ Set'}</p>
-    `;
-    card.onclick = () => loadReplay(v.source);
-    container.appendChild(card);
-  });
-}
-
-async function updateLiveStatus() {
-  const badge = document.getElementById("live-status-badge");
-  const dot = document.getElementById("live-status-dot");
-  const text = document.getElementById("live-status-text");
-
-  try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status&t=" + Date.now());
-    const status = (await res.text()).trim().toLowerCase();
-
-    if (status === "live") {
-      badge.style.background = "rgba(255,0,0,.15)";
-      badge.style.color = "#ff5a5a";
-      dot.style.background = "#ff3b3b";
-      text.textContent = "LIVE NOW";
-    } else {
-      badge.style.background = "#2b2b2b";
-      badge.style.color = "#ccc";
-      dot.style.background = "#666";
-      text.textContent = "OFFLINE";
+      attachControls("live");
     }
-  } catch {
-    badge.style.background = "#2b2b2b";
-    badge.style.color = "#ccc";
-    dot.style.background = "#666";
-    text.textContent = "OFFLINE";
-  }
-}
 
-attachControls("live");
-loadVideos();
-updateLiveStatus();
-setInterval(updateLiveStatus, 5000);
-</script>
+    function loadReplay(url) {
+      stopEverything();
 
+      const wrap = document.getElementById("playerWrap");
+      wrap.innerHTML = `
+        <video id="replayVideo" controls autoplay playsinline></video>
+
+        <div class="controls">
+          <button class="control-btn live-btn" id="backLiveBtn">🔴 LIVE</button>
+        </div>
+      `;
+
+      const video = document.getElementById("replayVideo");
+
+      if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = url;
+      } else if (window.Hls && Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+      }
+
+      attachControls("replay");
+    }
+
+    async function loadVideos() {
+      const container = document.getElementById("videos");
+      container.innerHTML = "";
+
+      try {
+        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          container.innerHTML = "Error loading videos";
+          return;
+        }
+
+        data.forEach(v => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          card.innerHTML = `
+            <img src="${v.thumbnail?.src || ''}" alt="">
+            <p>${v.session_title || 'DJ Set'}</p>
+          `;
+
+          card.onclick = () => loadReplay(v.source);
+          container.appendChild(card);
+        });
+
+      } catch {
+        container.innerHTML = "Error loading videos";
+      }
+    }
+
+    async function updateLiveStatus() {
+      const badge = document.getElementById("live-status-badge");
+      const dot = document.getElementById("live-status-dot");
+      const text = document.getElementById("live-status-text");
+
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status&t=" + Date.now());
+        const status = (await res.text()).trim().toLowerCase();
+
+        if (status === "live") {
+          badge.style.background = "rgba(255,0,0,.15)";
+          badge.style.color = "#ff5a5a";
+          dot.style.background = "#ff3b3b";
+          text.textContent = "LIVE NOW";
+        } else {
+          badge.style.background = "#2b2b2b";
+          badge.style.color = "#ccc";
+          dot.style.background = "#666";
+          text.textContent = "OFFLINE";
+        }
+      } catch {
+        badge.style.background = "#2b2b2b";
+        badge.style.color = "#ccc";
+        dot.style.background = "#666";
+        text.textContent = "OFFLINE";
+      }
+    }
+
+    attachControls("live");
+    loadVideos();
+    updateLiveStatus();
+    setInterval(updateLiveStatus, 5000);
+  </script>
 </body>
 </html>
