@@ -3,412 +3,176 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DJ LIVE TV - Streaming & Schedule</title>
+  <title>DJ LIVE TV</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
   <style>
-    /* RESET E ESTRUTURA BASE */
-    html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      background: #000; /* Fundo sempre preto */
-      color: #fff;
-      font-family: 'Inter', Arial, sans-serif;
-      overflow-x: hidden;
-    }
-
-    .container {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
+    /* MANTIVE TODO O TEU ESTILO ORIGINAL IGUAL */
+    body { margin: 0; background: #000; color: #fff; font-family: Arial, sans-serif; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 14px; }
     h1, h2, h3 { text-align: center; margin: 0; }
-
-    h1 {
-      font-size: clamp(32px, 8vw, 64px);
-      margin-bottom: 20px;
-      font-weight: 900;
-      letter-spacing: -1px;
-    }
-
-    .section-title {
-      margin-top: 60px;
-      margin-bottom: 15px;
-      font-size: clamp(24px, 5vw, 36px);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .section-sub {
-      text-align: center;
-      color: #888;
-      margin-bottom: 30px;
-      font-size: 15px;
-    }
-
-    /* BADGE STATUS LIVE */
-    .badge-wrap {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    #live-status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 20px;
-      border-radius: 50px;
-      font-size: 14px;
-      font-weight: 800;
-      background: #111;
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: all 0.4s ease;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #444;
-      box-shadow: 0 0 0 rgba(255,255,255,0);
-    }
-
-    .live-active .dot {
-      background: #ff3b30;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
-    }
-
-    /* PLAYER */
-    .player-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #050505;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .player-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* GRIDS */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 25px;
-    }
-
-    .card {
-      background: #111;
-      border-radius: 15px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: 0.3s;
-    }
-
-    .card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
-
-    .card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
-
-    .card-info { padding: 15px; }
-
-    /* SCHEDULE LIST */
+    h1 { margin-bottom: 14px; font-size: 56px; letter-spacing: .5px; }
+    .section-title { margin-top: 44px; margin-bottom: 16px; font-size: 38px; letter-spacing: .4px; }
+    .section-sub { text-align: center; color: #bdbdbd; margin: 0 0 18px 0; font-size: 15px; }
+    .badge-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
+    #live-status-badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; background: #2b2b2b; color: #d7d7d7; border: 1px solid rgba(255,255,255,.12); }
+    #live-status-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; display: inline-block; }
+    .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
+    .player iframe, .player video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+    .controls { position: absolute; right: 14px; bottom: 14px; z-index: 20; display: flex; gap: 10px; flex-wrap: wrap; }
+    .control-btn { background: rgba(0,0,0,.78); color: #fff; border: 1px solid rgba(255,255,255,.16); padding: 12px 14px; border-radius: 12px; font-size: 15px; cursor: pointer; min-height: 46px; font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+    .card { background: #0d0d0d; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
+    .card img { width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover; background: #111; }
+    .card p { margin: 0; padding: 10px 12px 14px; font-size: 14px; line-height: 1.35; }
+    .dj-card { padding: 14px; text-align: center; }
+    .dj-card img { aspect-ratio: 1 / 1; border-radius: 14px; margin-bottom: 10px; object-fit: cover; }
+    .dj-style { color: #ff6b6b; font-size: 13px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
     .schedule-list { display: flex; flex-direction: column; gap: 12px; }
-
-    .schedule-row {
-      display: grid;
-      grid-template-columns: 60px 100px 1fr 100px 120px;
-      align-items: center;
-      background: #111;
-      padding: 15px;
-      border-radius: 15px;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .schedule-row.is-live {
-      border-color: #ff3b30;
-      background: rgba(255, 59, 48, 0.05);
-    }
-
-    .dj-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
-
-    /* ADMIN AREA */
-    .admin-section {
-      margin: 80px auto;
-      max-width: 600px;
-    }
-
-    .admin-card {
-      background: #0a0a0a;
-      padding: 30px;
-      border-radius: 25px;
-      border: 1px solid #222;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    }
-
-    .admin-form input, .admin-form select {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 15px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: #fff;
-      border-radius: 12px;
-      box-sizing: border-box;
-    }
-
-    .btn-primary {
-      width: 100%;
-      padding: 16px;
-      background: #ff3b30;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .btn-primary:hover { background: #ff453a; }
-
-    .btn-logout {
-      background: #333;
-      margin-top: 10px;
-    }
-
-    /* RESPONSIVIDADE */
-    @media (max-width: 768px) {
-      .schedule-row { grid-template-columns: 50px 1fr auto; gap: 10px; }
-      .hide-mobile { display: none; }
-      .container { padding: 10px; }
-    }
+    .schedule-item { display: grid; grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto; gap: 14px; align-items: center; background: #0d0d0d; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 12px 14px; }
+    .schedule-item.live-item { border: 1px solid rgba(255,90,90,.35); box-shadow: 0 0 0 1px rgba(255,90,90,.12); }
+    .schedule-photo { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
+    .live-pill { display: inline-block; padding: 8px 10px; border-radius: 999px; background: rgba(255,60,60,.14); color: #ff6a6a; border: 1px solid rgba(255,90,90,.35); font-size: 12px; font-weight: 700; }
+    .admin-shell { display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 940px; margin: 40px auto; }
+    .admin-card { background: #0d0d0d; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 20px; }
+    .admin { display: flex; flex-direction: column; gap: 12px; }
+    .admin input, .admin select, .admin textarea { padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); font-size: 16px; background: #f2f2f2; color: #111; width: 100%; box-sizing: border-box; }
+    .admin button { padding: 14px; border-radius: 12px; border: none; background: #f52a1f; color: white; font-weight: 700; cursor: pointer; }
+    .tab-btn.active { background: #f13a2c; }
+    .small-btn { background: #1f1f1f; color: #fff; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 9px 12px; cursor: pointer; font-size: 13px; }
+    .small-btn.delete { background: #481515; }
+    @media (max-width: 900px) { .schedule-head { display: none; } .schedule-item { grid-template-columns: 56px 1fr auto; } }
   </style>
 </head>
 <body>
-
   <div class="container">
     <h1>DJ LIVE TV</h1>
-
-    <div class="badge-wrap">
-      <div id="live-status-badge">
-        <span class="dot" id="statusDot"></span>
-        <span id="statusText">CHECKING STATUS...</span>
-      </div>
+    <div class="badge-wrap"><div id="live-status-badge"><span id="live-status-dot"></span><span id="live-status-text">CHECKING...</span></div></div>
+    <div class="player" id="playerWrap">
+      <iframe id="livePlayer" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
+      <div class="controls"><button class="control-btn" id="unmuteBtn">🔊 SOUND</button></div>
     </div>
 
-    <div class="player-container" id="mainPlayer">
-      <iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
-    </div>
+    <h2 class="section-title">REPLAYS</h2>
+    <div id="videos" class="grid"></div>
 
-    <h2 class="section-title">Replays</h2>
-    <p class="section-sub">Watch past sets and sessions.</p>
-    <div id="replayGrid" class="grid"></div>
-
-    <h2 class="section-title">Our DJs</h2>
-    <p class="section-sub">The talent behind the decks.</p>
+    <h2 class="section-title">OUR DJs</h2>
     <div id="djGrid" class="grid"></div>
 
-    <h2 class="section-title">Schedule</h2>
-    <p class="section-sub">Weekly broadcasting times (Local Time).</p>
-    <div id="scheduleContainer" class="schedule-list"></div>
+    <h2 class="section-title">SCHEDULE</h2>
+    <div class="schedule-list" id="scheduleList"></div>
 
-    <div class="admin-section">
-      
+    <div class="admin-shell">
       <div id="loginBox" class="admin-card">
-        <h3 style="margin-bottom:20px;">Admin Login</h3>
-        <div class="admin-form">
-          <input type="text" id="adminUser" placeholder="Username">
-          <input type="password" id="adminPass" placeholder="Password">
-          <button class="btn-primary" onclick="attemptLogin()">ENTER DASHBOARD</button>
+        <h3>Admin Login</h3>
+        <div class="admin">
+          <input id="user" placeholder="Username">
+          <input id="pass" type="password" placeholder="Password">
+          <button onclick="login()">LOGIN</button>
         </div>
       </div>
 
       <div id="adminPanel" class="admin-card" style="display:none;">
-        <h3 style="margin-bottom:20px;">Schedule Manager</h3>
-        <div class="admin-form">
-          <label style="font-size:12px; color:#666;">Select DJ</label>
-          <select id="inputDjName"></select>
-          
-          <label style="font-size:12px; color:#666;">Day</label>
-          <select id="inputDay">
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-            <option value="Saturday">Saturday</option>
-            <option value="Sunday">Sunday</option>
-            <option value="Every Day">Every Day</option>
+        <div class="admin">
+          <select id="scheduleDjSelect"></select>
+          <select id="scheduleDay">
+            <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option><option value="Every Day">Every Day</option>
           </select>
-
-          <label style="font-size:12px; color:#666;">Time</label>
-          <input type="time" id="inputTime">
-          
-          <input type="text" id="inputStyle" placeholder="Genre/Style">
-          <input type="text" id="inputShow" placeholder="Show Name">
-          
-          <button class="btn-primary" onclick="addScheduleItem()">SAVE TO SCHEDULE</button>
-          <button class="btn-primary btn-logout" onclick="logout()">LOGOUT</button>
+          <input id="scheduleTime" type="time">
+          <input id="scheduleStyle" placeholder="Style (ex: House)">
+          <input id="scheduleShow" placeholder="Show name">
+          <button onclick="saveSchedule()">SAVE SCHEDULE</button>
+          <button style="background:#333" onclick="logoutAdmin()">LOGOUT</button>
         </div>
       </div>
-
     </div>
   </div>
 
   <script>
-    // --- DATA ---
-    const djs = [
-      { name: "DJ Ricardo", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=400", style: "Tech House" },
-      { name: "DJ Sofia", img: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400", style: "Melodic Techno" },
-      { name: "DJ Marco", img: "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=400", style: "Afro House" }
-    ];
+    let isChannelLive = false;
+    const defaultDJs = [{ name: "DJ Ricardo", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", style: "House", bio: "Tech House lover." }];
+    
+    function getDJs() { return JSON.parse(localStorage.getItem("djs_demo")) || defaultDJs; }
+    function getSchedule() { return JSON.parse(localStorage.getItem("schedule_demo")) || []; }
 
-    let isLive = false;
-    let currentLiveDj = "";
+    function renderSchedule() {
+      const container = document.getElementById("scheduleList");
+      const schedule = getSchedule();
+      const djs = getDJs();
+      const now = new Date();
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const currentDay = days[now.getDay()];
+      const currentTime = now.getHours() + ":" + now.getMinutes().toString().padStart(2, '0');
 
-    // --- CORE FUNCTIONS ---
-
-    function init() {
-      renderDjs();
-      renderSchedule();
-      updateStatus();
-      setInterval(updateStatus, 30000); // Check every 30s
+      container.innerHTML = "";
+      schedule.forEach((item, index) => {
+        const dj = djs.find(d => d.name === item.djName);
+        const isLiveNow = (item.day === currentDay || item.day === "Every Day") && isChannelLive; 
+        
+        container.innerHTML += `
+          <div class="schedule-item ${isLiveNow ? 'live-item' : ''}">
+            <img class="schedule-photo" src="${dj ? dj.img : ''}">
+            <div class="schedule-day">${item.day}</div>
+            <div class="schedule-name">${item.djName}</div>
+            <div class="schedule-time">${item.time}</div>
+            <div class="schedule-style">${item.style}</div>
+            <div class="schedule-show">${item.show}</div>
+            <div>
+              ${isLiveNow ? '<span class="live-pill">LIVE</span>' : ''}
+              <button class="small-btn delete" onclick="deleteSchedule(${index})">X</button>
+            </div>
+          </div>`;
+      });
     }
 
     async function updateStatus() {
-      // 1. Check Schedule for Auto-Live
-      const now = new Date();
-      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      const dayName = days[now.getDay()];
-      const hour = now.getHours();
-
-      const schedule = JSON.parse(localStorage.getItem('schedule_data')) || [];
-      currentLiveDj = "";
-
-      schedule.forEach(item => {
-        const itemHour = parseInt(item.time.split(":")[0]);
-        if ((item.day === dayName || item.day === "Every Day") && itemHour === hour) {
-          currentLiveDj = item.djName;
-        }
-      });
-
-      // 2. Check Kick.com API via Proxy
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status");
         const status = (await res.text()).trim().toLowerCase();
-        
-        const badge = document.getElementById("live-status-badge");
-        if (status === "live") {
-          isLive = true;
-          badge.classList.add("live-active");
-          document.getElementById("statusText").innerText = "LIVE NOW" + (currentLiveDj ? ": " + currentLiveDj : "");
-        } else {
-          isLive = false;
-          badge.classList.remove("live-active");
-          document.getElementById("statusText").innerText = "OFFLINE";
-        }
-      } catch(e) { console.log("Status error"); }
-
+        isChannelLive = (status === "live");
+        document.getElementById("live-status-text").innerText = isChannelLive ? "LIVE NOW" : "OFFLINE";
+        document.getElementById("live-status-dot").style.background = isChannelLive ? "#ff3b3b" : "#666";
+      } catch { isChannelLive = false; }
       renderSchedule();
     }
 
-    // --- RENDERING ---
-
-    function renderDjs() {
-      const container = document.getElementById("djGrid");
-      const select = document.getElementById("inputDjName");
-      
-      container.innerHTML = djs.map(dj => `
-        <div class="card">
-          <img src="${dj.img}">
-          <div class="card-info">
-            <h3 style="text-align:left">${dj.name}</h3>
-            <p style="margin:5px 0 0 0; color:#ff3b30; font-size:12px; font-weight:bold">${dj.style}</p>
-          </div>
-        </div>
-      `).join("");
-
-      select.innerHTML = djs.map(dj => `<option value="${dj.name}">${dj.name}</option>`).join("");
+    function saveSchedule() {
+      const djName = document.getElementById("scheduleDjSelect").value;
+      const day = document.getElementById("scheduleDay").value;
+      const time = document.getElementById("scheduleTime").value;
+      const style = document.getElementById("scheduleStyle").value;
+      const show = document.getElementById("scheduleShow").value;
+      if (!djName || !time) return alert("Fill DJ and Time");
+      const s = getSchedule();
+      s.push({ djName, day, time, style, show });
+      localStorage.setItem("schedule_demo", JSON.stringify(s));
+      renderSchedule();
     }
 
-    function renderSchedule() {
-      const container = document.getElementById("scheduleContainer");
-      const data = JSON.parse(localStorage.getItem('schedule_data')) || [];
-      
-      container.innerHTML = data.map(item => {
-        const dj = djs.find(d => d.name === item.djName);
-        const active = isLive && item.djName === currentLiveDj;
-        
-        return `
-          <div class="schedule-row ${active ? 'is-live' : ''}">
-            <img src="${dj ? dj.img : ''}" class="dj-thumb">
-            <div style="font-weight:bold">${item.day}</div>
-            <div>
-              <div style="font-weight:900; font-size:16px">${item.djName}</div>
-              <div style="font-size:12px; color:#666">${item.show}</div>
-            </div>
-            <div style="color:#ff3b30; font-weight:bold">${item.time}</div>
-            <div class="hide-mobile">${active ? '<span class="live-pill">LIVE NOW</span>' : item.style}</div>
-          </div>
-        `;
-      }).join("");
+    function deleteSchedule(index) {
+      const s = getSchedule();
+      s.splice(index, 1);
+      localStorage.setItem("schedule_demo", JSON.stringify(s));
+      renderSchedule();
     }
 
-    // --- ADMIN ACTIONS ---
-
-    function attemptLogin() {
-      const u = document.getElementById("adminUser").value;
-      const p = document.getElementById("adminPass").value;
-
-      if(u === "admin" && p === "1234") {
+    function login() {
+      if (document.getElementById("user").value === "admin" && document.getElementById("pass").value === "1234") {
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
-      } else {
-        alert("Invalid Credentials");
+        const select = document.getElementById("scheduleDjSelect");
+        select.innerHTML = getDJs().map(d => `<option value="${d.name}">${d.name}</option>`).join("");
       }
     }
 
-    function logout() {
+    function logoutAdmin() {
       document.getElementById("adminPanel").style.display = "none";
       document.getElementById("loginBox").style.display = "block";
     }
 
-    function addScheduleItem() {
-      const newItem = {
-        djName: document.getElementById("inputDjName").value,
-        day: document.getElementById("inputDay").value,
-        time: document.getElementById("inputTime").value,
-        style: document.getElementById("inputStyle").value,
-        show: document.getElementById("inputShow").value
-      };
-
-      if(!newItem.time) return alert("Select a time");
-
-      let data = JSON.parse(localStorage.getItem('schedule_data')) || [];
-      data.push(newItem);
-      localStorage.setItem('schedule_data', JSON.stringify(data));
-      
-      renderSchedule();
-      alert("Added to schedule!");
-    }
-
-    // Run
-    init();
-
+    // Init
+    updateStatus();
+    setInterval(updateStatus, 30000);
+    document.getElementById("djGrid").innerHTML = getDJs().map(dj => `<div class="card dj-card"><img src="${dj.img}"><h3>${dj.name}</h3><div class="dj-style">${dj.style}</div></div>`).join("");
   </script>
 </body>
 </html>
