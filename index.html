@@ -155,6 +155,22 @@
       line-height: 1.35;
     }
 
+    .view-more-wrap {
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    .view-more-btn {
+      background: #ef3b2d;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .dj-card {
       padding: 14px;
       text-align: center;
@@ -175,6 +191,7 @@
     .dj-card p {
       padding: 0;
       color: #c8c8c8;
+      margin-top: 6px;
     }
 
     .dj-style {
@@ -186,6 +203,29 @@
       letter-spacing: .4px;
     }
 
+    .admin-card-buttons {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      background: #1f1f1f;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .small-btn.delete {
+      background: #481515;
+    }
+
     .schedule-list {
       display: flex;
       flex-direction: column;
@@ -194,7 +234,7 @@
 
     .schedule-item {
       display: grid;
-      grid-template-columns: 70px 1.1fr 110px 1fr 1.1fr;
+      grid-template-columns: 70px 1.1fr 110px 1fr 1.1fr auto;
       gap: 14px;
       align-items: center;
       background: #0d0d0d;
@@ -231,7 +271,7 @@
 
     .schedule-head {
       display: grid;
-      grid-template-columns: 70px 1.1fr 110px 1fr 1.1fr;
+      grid-template-columns: 70px 1.1fr 110px 1fr 1.1fr auto;
       gap: 14px;
       padding: 0 14px 8px 14px;
       color: #9c9c9c;
@@ -245,7 +285,7 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 18px;
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto;
     }
 
@@ -268,7 +308,8 @@
     }
 
     .admin input,
-    .admin textarea {
+    .admin textarea,
+    .admin select {
       padding: 14px 16px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,.08);
@@ -314,8 +355,9 @@
       margin-bottom: 10px;
     }
 
-    .add-dj-wrap {
-      max-width: 700px;
+    .add-dj-wrap,
+    .add-schedule-wrap {
+      max-width: 760px;
       margin: 0 auto;
     }
 
@@ -333,6 +375,16 @@
       background: #222;
     }
 
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .secondary-btn {
+      background: #333 !important;
+    }
+
     @media (max-width: 900px) {
       h1 {
         font-size: 42px;
@@ -347,7 +399,7 @@
       }
 
       .schedule-item {
-        grid-template-columns: 56px 1fr;
+        grid-template-columns: 56px 1fr auto;
         gap: 12px;
       }
 
@@ -361,6 +413,12 @@
       .schedule-style,
       .schedule-show {
         margin-top: 2px;
+      }
+
+      .schedule-right {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
       }
     }
 
@@ -421,32 +479,12 @@
     <h2 class="section-title">REPLAYS</h2>
     <p class="section-sub">Watch previous sets and archived sessions.</p>
     <div id="videos" class="grid"></div>
+    <div class="view-more-wrap" id="viewMoreWrap"></div>
 
     <h2 class="section-title">OUR DJs</h2>
     <p class="section-sub">Resident selectors, guests, and featured artists.</p>
 
-    <div class="grid" id="djGrid">
-      <div class="card dj-card">
-        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80" alt="DJ Ricardo">
-        <h3>DJ Ricardo</h3>
-        <div class="dj-style">House / Tech House</div>
-        <p>Late-night club mixes and warm-up sessions.</p>
-      </div>
-
-      <div class="card dj-card">
-        <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=80" alt="DJ Sofia">
-        <h3>DJ Sofia</h3>
-        <div class="dj-style">Deep House / Lounge</div>
-        <p>Sunset sessions, deep grooves, and lounge vibes.</p>
-      </div>
-
-      <div class="card dj-card">
-        <img src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=1200&q=80" alt="DJ Marco">
-        <h3>DJ Marco</h3>
-        <div class="dj-style">EDM / Party</div>
-        <p>Weekend energy, festival edits, and main room sets.</p>
-      </div>
-    </div>
+    <div class="grid" id="djGrid"></div>
 
     <h2 class="section-title">SCHEDULE</h2>
     <p class="section-sub">Weekly lineup in list format.</p>
@@ -457,75 +495,10 @@
       <div>Time</div>
       <div>Style</div>
       <div>Show</div>
+      <div></div>
     </div>
 
-    <div class="schedule-list">
-      <div class="schedule-item">
-        <img class="schedule-photo" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80" alt="DJ Ricardo">
-        <div class="schedule-meta">
-          <div class="schedule-name">DJ Ricardo</div>
-          <div class="schedule-show">Resident Set</div>
-        </div>
-        <div class="schedule-time">18:00</div>
-        <div class="schedule-style">House / Tech House</div>
-        <div class="schedule-show">Monday Warm Up</div>
-      </div>
-
-      <div class="schedule-item">
-        <img class="schedule-photo" src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=600&q=80" alt="DJ Sofia">
-        <div class="schedule-meta">
-          <div class="schedule-name">DJ Sofia</div>
-          <div class="schedule-show">Guest Lounge</div>
-        </div>
-        <div class="schedule-time">21:00</div>
-        <div class="schedule-style">Deep House / Lounge</div>
-        <div class="schedule-show">Monday Late Set</div>
-      </div>
-
-      <div class="schedule-item">
-        <img class="schedule-photo" src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=600&q=80" alt="DJ Marco">
-        <div class="schedule-meta">
-          <div class="schedule-name">DJ Marco</div>
-          <div class="schedule-show">Festival Pressure</div>
-        </div>
-        <div class="schedule-time">20:00</div>
-        <div class="schedule-style">EDM / Party</div>
-        <div class="schedule-show">Friday Prime Time</div>
-      </div>
-
-      <div class="schedule-item">
-        <img class="schedule-photo" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80" alt="DJ Ricardo">
-        <div class="schedule-meta">
-          <div class="schedule-name">DJ Ricardo</div>
-          <div class="schedule-show">After Dark</div>
-        </div>
-        <div class="schedule-time">23:00</div>
-        <div class="schedule-style">Classics / House</div>
-        <div class="schedule-show">Friday Late Mix</div>
-      </div>
-
-      <div class="schedule-item">
-        <img class="schedule-photo" src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=600&q=80" alt="DJ Sofia">
-        <div class="schedule-meta">
-          <div class="schedule-name">DJ Sofia</div>
-          <div class="schedule-show">Sunset Sessions</div>
-        </div>
-        <div class="schedule-time">18:00</div>
-        <div class="schedule-style">Chill / Lounge</div>
-        <div class="schedule-show">Saturday Early Vibes</div>
-      </div>
-
-      <div class="schedule-item">
-        <img class="schedule-photo" src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=600&q=80" alt="DJ Marco">
-        <div class="schedule-meta">
-          <div class="schedule-name">DJ Marco</div>
-          <div class="schedule-show">Main Room</div>
-        </div>
-        <div class="schedule-time">21:00</div>
-        <div class="schedule-style">EDM / Festival</div>
-        <div class="schedule-show">Saturday Main Event</div>
-      </div>
-    </div>
+    <div class="schedule-list" id="scheduleList"></div>
 
     <h2 class="section-title">ADMIN</h2>
     <p class="section-sub">Demo login for now, real backend can be added later.</p>
@@ -544,7 +517,7 @@
 
       <div id="adminPanel" class="admin-card" style="display:none;">
         <div class="status-pill">Admin panel demo</div>
-        <h3>Add DJ</h3>
+        <h3>Add or Edit DJ</h3>
 
         <div class="add-dj-wrap">
           <div class="preview-wrap">
@@ -556,11 +529,31 @@
             <input id="img" placeholder="Image URL" oninput="updatePreview()">
             <input id="style" placeholder="Style (ex: House, Techno)">
             <textarea id="bio" placeholder="Bio"></textarea>
-            <button onclick="addDJ()">ADD DJ</button>
+
+            <div class="form-actions">
+              <button onclick="saveDJ()">SAVE DJ</button>
+              <button class="secondary-btn" onclick="resetDJForm()">CLEAR</button>
+            </div>
           </div>
         </div>
 
-        <div class="admin-note">Saved in this browser only. Refresh or another device will not keep it.</div>
+        <h3 style="margin-top:34px;">Add or Edit Schedule</h3>
+
+        <div class="add-schedule-wrap">
+          <div class="admin">
+            <select id="scheduleDjSelect"></select>
+            <input id="scheduleTime" placeholder="Time (ex: 21:00)">
+            <input id="scheduleStyle" placeholder="Style (ex: Deep House / Lounge)">
+            <input id="scheduleShow" placeholder="Show name">
+
+            <div class="form-actions">
+              <button onclick="saveSchedule()">SAVE SCHEDULE</button>
+              <button class="secondary-btn" onclick="resetScheduleForm()">CLEAR</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-note">Saved in this browser only. Refresh keeps data here, another browser/device will not.</div>
       </div>
     </div>
   </div>
@@ -568,6 +561,88 @@
   <script>
     let hls = null;
     let currentMode = "live";
+    let allVideos = [];
+    let visibleCount = 8;
+    let editDJIndex = null;
+    let editScheduleIndex = null;
+
+    const defaultDJs = [
+      {
+        name: "DJ Ricardo",
+        img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
+        style: "House / Tech House",
+        bio: "Late-night club mixes and warm-up sessions."
+      },
+      {
+        name: "DJ Sofia",
+        img: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=80",
+        style: "Deep House / Lounge",
+        bio: "Sunset sessions, deep grooves, and lounge vibes."
+      },
+      {
+        name: "DJ Marco",
+        img: "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=1200&q=80",
+        style: "EDM / Party",
+        bio: "Weekend energy, festival edits, and main room sets."
+      }
+    ];
+
+    const defaultSchedule = [
+      {
+        djName: "DJ Ricardo",
+        time: "18:00",
+        style: "House / Tech House",
+        show: "Monday Warm Up"
+      },
+      {
+        djName: "DJ Sofia",
+        time: "21:00",
+        style: "Deep House / Lounge",
+        show: "Monday Late Set"
+      },
+      {
+        djName: "DJ Marco",
+        time: "20:00",
+        style: "EDM / Party",
+        show: "Friday Prime Time"
+      },
+      {
+        djName: "DJ Ricardo",
+        time: "23:00",
+        style: "Classics / House",
+        show: "Friday Late Mix"
+      },
+      {
+        djName: "DJ Sofia",
+        time: "18:00",
+        style: "Chill / Lounge",
+        show: "Saturday Early Vibes"
+      },
+      {
+        djName: "DJ Marco",
+        time: "21:00",
+        style: "EDM / Festival",
+        show: "Saturday Main Event"
+      }
+    ];
+
+    function getDJs() {
+      const saved = JSON.parse(localStorage.getItem("djs_demo"));
+      return saved && Array.isArray(saved) ? saved : defaultDJs;
+    }
+
+    function saveDJs(djs) {
+      localStorage.setItem("djs_demo", JSON.stringify(djs));
+    }
+
+    function getSchedule() {
+      const saved = JSON.parse(localStorage.getItem("schedule_demo"));
+      return saved && Array.isArray(saved) ? saved : defaultSchedule;
+    }
+
+    function saveScheduleData(schedule) {
+      localStorage.setItem("schedule_demo", JSON.stringify(schedule));
+    }
 
     function showBadge() {
       document.getElementById("badgeWrap").style.display = "flex";
@@ -651,7 +726,8 @@
 
     async function loadVideos() {
       const container = document.getElementById("videos");
-      container.innerHTML = "";
+      container.innerHTML = "Loading...";
+      document.getElementById("viewMoreWrap").innerHTML = "";
 
       try {
         const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
@@ -662,20 +738,43 @@
           return;
         }
 
-        data.forEach(v => {
-          const card = document.createElement("div");
-          card.className = "card replay-card";
-
-          card.innerHTML = `
-            <img src="${v.thumbnail?.src || ''}" alt="">
-            <p>${v.session_title || "DJ Set"}</p>
-          `;
-
-          card.onclick = () => loadReplay(v.source);
-          container.appendChild(card);
-        });
+        allVideos = data;
+        renderVideos();
       } catch {
         container.innerHTML = "Error loading videos";
+      }
+    }
+
+    function renderVideos() {
+      const container = document.getElementById("videos");
+      const viewMoreWrap = document.getElementById("viewMoreWrap");
+      container.innerHTML = "";
+      viewMoreWrap.innerHTML = "";
+
+      const videosToShow = allVideos.slice(0, visibleCount);
+
+      videosToShow.forEach(v => {
+        const card = document.createElement("div");
+        card.className = "card replay-card";
+
+        card.innerHTML = `
+          <img src="${v.thumbnail?.src || ''}" alt="">
+          <p>${v.session_title || "DJ Set"}</p>
+        `;
+
+        card.onclick = () => loadReplay(v.source);
+        container.appendChild(card);
+      });
+
+      if (visibleCount < allVideos.length) {
+        const btn = document.createElement("button");
+        btn.className = "view-more-btn";
+        btn.textContent = "VIEW MORE";
+        btn.onclick = () => {
+          visibleCount += 8;
+          renderVideos();
+        };
+        viewMoreWrap.appendChild(btn);
       }
     }
 
@@ -710,6 +809,72 @@
       }
     }
 
+    function renderDJs() {
+      const grid = document.getElementById("djGrid");
+      const djs = getDJs();
+      const isAdminOpen = document.getElementById("adminPanel").style.display === "block";
+
+      grid.innerHTML = "";
+
+      djs.forEach((dj, index) => {
+        const card = document.createElement("div");
+        card.className = "card dj-card";
+
+        card.innerHTML = `
+          <img src="${dj.img}" alt="">
+          <h3>${dj.name}</h3>
+          <div class="dj-style">${dj.style || "DJ STYLE"}</div>
+          <p>${dj.bio || "New DJ profile."}</p>
+          ${isAdminOpen ? `
+            <div class="admin-card-buttons">
+              <button class="small-btn" onclick="startEditDJ(${index})">EDIT</button>
+              <button class="small-btn delete" onclick="deleteDJ(${index})">DELETE</button>
+            </div>
+          ` : ``}
+        `;
+
+        grid.appendChild(card);
+      });
+
+      populateScheduleDjSelect();
+    }
+
+    function renderSchedule() {
+      const container = document.getElementById("scheduleList");
+      const schedule = getSchedule();
+      const djs = getDJs();
+      const isAdminOpen = document.getElementById("adminPanel").style.display === "block";
+
+      container.innerHTML = "";
+
+      schedule.forEach((item, index) => {
+        const dj = djs.find(d => d.name === item.djName);
+        const photo = dj ? dj.img : "https://via.placeholder.com/56";
+
+        const row = document.createElement("div");
+        row.className = "schedule-item";
+
+        row.innerHTML = `
+          <img class="schedule-photo" src="${photo}" alt="">
+          <div class="schedule-meta">
+            <div class="schedule-name">${item.djName}</div>
+            <div class="schedule-show">${item.show}</div>
+          </div>
+          <div class="schedule-time">${item.time}</div>
+          <div class="schedule-style">${item.style}</div>
+          <div class="schedule-show">${item.show}</div>
+          <div class="schedule-right">
+            ${isAdminOpen ? `
+              <button class="small-btn" onclick="startEditSchedule(${index})">EDIT</button>
+              <button class="small-btn delete" onclick="deleteSchedule(${index})">DELETE</button>
+            ` : ``}
+          </div>
+        `;
+
+        container.appendChild(row);
+      });
+    }
+
     function login() {
       const user = document.getElementById("user").value;
       const pass = document.getElementById("pass").value;
@@ -717,44 +882,20 @@
       if (user === "admin" && pass === "1234") {
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
+        renderDJs();
+        renderSchedule();
       } else {
         alert("Wrong login");
       }
     }
 
     function updatePreview() {
-      const url = document.getElementById("img").value;
+      const url = document.getElementById("img").value.trim();
       document.getElementById("previewImg").src = url || "https://via.placeholder.com/120";
     }
 
-    function addDJ() {
-      const name = document.getElementById("name").value.trim();
-      const img = document.getElementById("img").value.trim();
-      const style = document.getElementById("style").value.trim();
-      const bio = document.getElementById("bio").value.trim();
-
-      if (!name || !img) {
-        alert("Fill name and image URL");
-        return;
-      }
-
-      const grid = document.getElementById("djGrid");
-      const card = document.createElement("div");
-      card.className = "card dj-card";
-
-      card.innerHTML = `
-        <img src="${img}" alt="">
-        <h3>${name}</h3>
-        <div class="dj-style">${style || "DJ STYLE"}</div>
-        <p>${bio || "New DJ profile."}</p>
-      `;
-
-      grid.appendChild(card);
-
-      let DJs = JSON.parse(localStorage.getItem("djs_demo")) || [];
-      DJs.push({ name, img, style, bio });
-      localStorage.setItem("djs_demo", JSON.stringify(DJs));
-
+    function resetDJForm() {
+      editDJIndex = null;
       document.getElementById("name").value = "";
       document.getElementById("img").value = "";
       document.getElementById("style").value = "";
@@ -762,26 +903,150 @@
       updatePreview();
     }
 
-    function loadSavedDJs() {
-      const saved = JSON.parse(localStorage.getItem("djs_demo")) || [];
-      const grid = document.getElementById("djGrid");
+    function saveDJ() {
+      const name = document.getElementById("name").value.trim();
+      const img = document.getElementById("img").value.trim();
+      const style = document.getElementById("style").value.trim();
+      const bio = document.getElementById("bio").value.trim();
 
-      saved.forEach(dj => {
-        const card = document.createElement("div");
-        card.className = "card dj-card";
-        card.innerHTML = `
-          <img src="${dj.img}" alt="">
-          <h3>${dj.name}</h3>
-          <div class="dj-style">${dj.style || "DJ STYLE"}</div>
-          <p>${dj.bio || "New DJ profile."}</p>
-        `;
-        grid.appendChild(card);
+      if (!name || !img) {
+        alert("Fill DJ name and image URL");
+        return;
+      }
+
+      const djs = getDJs();
+
+      if (editDJIndex !== null) {
+        const oldName = djs[editDJIndex].name;
+        djs[editDJIndex] = { name, img, style, bio };
+
+        const schedule = getSchedule().map(item => {
+          if (item.djName === oldName) {
+            return { ...item, djName: name, style: style || item.style };
+          }
+          return item;
+        });
+        saveScheduleData(schedule);
+      } else {
+        djs.push({ name, img, style, bio });
+      }
+
+      saveDJs(djs);
+      resetDJForm();
+      renderDJs();
+      renderSchedule();
+    }
+
+    function startEditDJ(index) {
+      const djs = getDJs();
+      const dj = djs[index];
+      editDJIndex = index;
+
+      document.getElementById("name").value = dj.name;
+      document.getElementById("img").value = dj.img;
+      document.getElementById("style").value = dj.style || "";
+      document.getElementById("bio").value = dj.bio || "";
+      updatePreview();
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+
+    function deleteDJ(index) {
+      const djs = getDJs();
+      const removed = djs[index];
+      djs.splice(index, 1);
+      saveDJs(djs);
+
+      const filteredSchedule = getSchedule().filter(item => item.djName !== removed.name);
+      saveScheduleData(filteredSchedule);
+
+      if (editDJIndex === index) {
+        resetDJForm();
+      }
+
+      renderDJs();
+      renderSchedule();
+    }
+
+    function populateScheduleDjSelect() {
+      const select = document.getElementById("scheduleDjSelect");
+      if (!select) return;
+
+      const djs = getDJs();
+      const currentValue = select.value;
+      select.innerHTML = `<option value="">Select DJ</option>`;
+
+      djs.forEach(dj => {
+        const option = document.createElement("option");
+        option.value = dj.name;
+        option.textContent = dj.name;
+        select.appendChild(option);
       });
+
+      if ([...select.options].some(o => o.value === currentValue)) {
+        select.value = currentValue;
+      }
+    }
+
+    function resetScheduleForm() {
+      editScheduleIndex = null;
+      document.getElementById("scheduleDjSelect").value = "";
+      document.getElementById("scheduleTime").value = "";
+      document.getElementById("scheduleStyle").value = "";
+      document.getElementById("scheduleShow").value = "";
+    }
+
+    function saveSchedule() {
+      const djName = document.getElementById("scheduleDjSelect").value.trim();
+      const time = document.getElementById("scheduleTime").value.trim();
+      const style = document.getElementById("scheduleStyle").value.trim();
+      const show = document.getElementById("scheduleShow").value.trim();
+
+      if (!djName || !time || !style || !show) {
+        alert("Fill all schedule fields");
+        return;
+      }
+
+      const schedule = getSchedule();
+
+      if (editScheduleIndex !== null) {
+        schedule[editScheduleIndex] = { djName, time, style, show };
+      } else {
+        schedule.push({ djName, time, style, show });
+      }
+
+      saveScheduleData(schedule);
+      resetScheduleForm();
+      renderSchedule();
+    }
+
+    function startEditSchedule(index) {
+      const schedule = getSchedule();
+      const item = schedule[index];
+      editScheduleIndex = index;
+
+      document.getElementById("scheduleDjSelect").value = item.djName;
+      document.getElementById("scheduleTime").value = item.time;
+      document.getElementById("scheduleStyle").value = item.style;
+      document.getElementById("scheduleShow").value = item.show;
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+
+    function deleteSchedule(index) {
+      const schedule = getSchedule();
+      schedule.splice(index, 1);
+      saveScheduleData(schedule);
+
+      if (editScheduleIndex === index) {
+        resetScheduleForm();
+      }
+
+      renderSchedule();
     }
 
     loadLive();
     loadVideos();
-    loadSavedDJs();
+    renderDJs();
+    renderSchedule();
     updateLiveStatus();
 
     setInterval(() => {
