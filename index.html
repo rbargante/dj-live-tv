@@ -1,334 +1,228 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DJ LIVE TV</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ LIVE TV</title>
 
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      padding: 10px;
-    }
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial;
+}
 
-    h1, h2 {
-      text-align: center;
-      margin: 0;
-    }
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 10px;
+}
 
-    h1 {
-      margin-bottom: 14px;
-    }
+h1, h2 {
+  text-align: center;
+}
 
-    .badge-wrap {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
+/* PLAYER */
+.player {
+  position: relative;
+  padding-top: 56.25%;
+  border-radius: 12px;
+  overflow: hidden;
+}
 
-    #live-status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 700;
-      background: #2b2b2b;
-      color: #d7d7d7;
-      border: 1px solid rgba(255,255,255,.12);
-    }
+.player iframe,
+.player video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
 
-    #live-status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #666;
-      display: inline-block;
-    }
+/* CONTROLS */
+.controls {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+}
 
-    .player {
-      position: relative;
-      padding-top: 56.25%;
-      background: black;
-      border-radius: 12px;
-      overflow: hidden;
-    }
+.control-btn {
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+}
 
-    .player iframe,
-    .player video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-      background: black;
-    }
+/* REPLAYS */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 16px;
+}
 
-    .controls {
-      position: absolute;
-      bottom: 14px;
-      right: 14px;
-      display: flex;
-      gap: 10px;
-      z-index: 30;
-      flex-wrap: wrap;
-    }
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
 
-    .control-btn {
-      background: rgba(0,0,0,0.8);
-      color: white;
-      border: 1px solid rgba(255,255,255,.15);
-      padding: 12px 14px;
-      border-radius: 12px;
-      font-size: 15px;
-      cursor: pointer;
-      min-height: 46px;
-    }
+/* DJs */
+.dj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 20px;
+}
 
-    .back-btn {
-      background: rgba(255,255,255,0.14);
-      font-weight: 700;
-    }
+.dj-card {
+  background: #111;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      padding: 20px 0;
-    }
+.dj-card img {
+  width: 100%;
+  border-radius: 10px;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
 
-    .card {
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
+/* SCHEDULE */
+.schedule {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  gap: 20px;
+}
 
-    .card:hover {
-      transform: scale(1.04);
-    }
+.day {
+  background: #111;
+  padding: 12px;
+  border-radius: 12px;
+}
 
-    .card img {
-      width: 100%;
-      border-radius: 10px;
-      display: block;
-      background: #111;
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
-    }
+/* ADMIN */
+.admin {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-    .card p {
-      font-size: 14px;
-      margin-top: 6px;
-      line-height: 1.35;
-    }
+.admin input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+}
 
-    @media (max-width: 700px) {
-      .controls {
-        bottom: 16px;
-        right: 16px;
-      }
-
-      .control-btn {
-        padding: 14px 16px;
-        font-size: 16px;
-        min-height: 52px;
-      }
-    }
-  </style>
+.admin button {
+  padding: 12px;
+  border-radius: 8px;
+  background: red;
+  color: white;
+  border: none;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
 
-    <h1>DJ LIVE TV</h1>
+<div class="container">
 
-    <div class="badge-wrap" id="badgeWrap">
-      <div id="live-status-badge">
-        <span id="live-status-dot"></span>
-        <span id="live-status-text">CHECKING...</span>
-      </div>
-    </div>
+<h1>DJ LIVE TV</h1>
 
-    <div class="player" id="playerWrap">
-      <iframe
-        id="livePlayer"
-        src="https://player.kick.com/DJLIVETV?muted=true"
-        allow="autoplay; fullscreen"
-        allowfullscreen>
-      </iframe>
+<!-- PLAYER -->
+<div class="player" id="playerWrap">
+  <iframe src="https://player.kick.com/DJLIVETV?muted=true"></iframe>
 
-      <div class="controls">
-        <button class="control-btn" id="unmuteBtn">🔊 SOUND</button>
-      </div>
-    </div>
-
-    <h2 style="margin-top:40px;">REPLAYS</h2>
-    <div id="videos" class="grid"></div>
-
+  <div class="controls">
+    <button class="control-btn">🔊</button>
   </div>
+</div>
 
-  <script>
-    let hls = null;
-    let currentMode = "live";
+<!-- REPLAYS -->
+<h2>REPLAYS</h2>
+<div class="grid" id="videos"></div>
 
-    function showBadge() {
-      const badgeWrap = document.getElementById("badgeWrap");
-      if (badgeWrap) badgeWrap.style.display = "flex";
-    }
+<!-- DJs -->
+<h2>OUR DJs</h2>
 
-    function hideBadge() {
-      const badgeWrap = document.getElementById("badgeWrap");
-      if (badgeWrap) badgeWrap.style.display = "none";
-    }
+<div class="dj-grid" id="djGrid">
 
-    function stopEverything() {
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
+<div class="dj-card">
+<img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30">
+<h3>DJ RICARDO</h3>
+<p>House / Tech House</p>
+</div>
 
-      const wrap = document.getElementById("playerWrap");
-      wrap.innerHTML = "";
-    }
+<div class="dj-card">
+<img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91">
+<h3>DJ SOFIA</h3>
+<p>Deep House / Lounge</p>
+</div>
 
-    function loadLive() {
-      stopEverything();
-      currentMode = "live";
-      showBadge();
+<div class="dj-card">
+<img src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff">
+<h3>DJ MARCO</h3>
+<p>EDM / Festival</p>
+</div>
 
-      const wrap = document.getElementById("playerWrap");
-      wrap.innerHTML = `
-        <iframe
-          id="livePlayer"
-          src="https://player.kick.com/DJLIVETV?muted=true"
-          allow="autoplay; fullscreen"
-          allowfullscreen>
-        </iframe>
+</div>
 
-        <div class="controls">
-          <button class="control-btn" id="unmuteBtn">🔊 SOUND</button>
-        </div>
-      `;
+<!-- SCHEDULE -->
+<h2>SCHEDULE</h2>
 
-      const unmuteBtn = document.getElementById("unmuteBtn");
-      if (unmuteBtn) {
-        unmuteBtn.onclick = () => {
-          const iframe = document.getElementById("livePlayer");
-          if (iframe) {
-            iframe.src = "https://player.kick.com/DJLIVETV";
-          }
-        };
-      }
-    }
+<div class="schedule">
+<div class="day">
+<h3>MONDAY</h3>
+<p>18:00 DJ Ricardo</p>
+<p>21:00 DJ Sofia</p>
+</div>
 
-    function loadReplay(url) {
-      stopEverything();
-      currentMode = "replay";
-      hideBadge();
+<div class="day">
+<h3>FRIDAY</h3>
+<p>20:00 DJ Marco</p>
+<p>23:00 DJ Ricardo</p>
+</div>
 
-      const wrap = document.getElementById("playerWrap");
-      wrap.innerHTML = `
-        <video id="replayVideo" controls autoplay playsinline></video>
+<div class="day">
+<h3>SATURDAY</h3>
+<p>18:00 DJ Sofia</p>
+<p>21:00 DJ Marco</p>
+</div>
+</div>
 
-        <div class="controls">
-          <button class="control-btn back-btn" id="backChannelBtn">← BACK TO CHANNEL</button>
-        </div>
-      `;
+<!-- ADMIN -->
+<h2>ADD DJ (DEMO)</h2>
 
-      const video = document.getElementById("replayVideo");
+<div class="admin">
+<input id="name" placeholder="DJ Name">
+<input id="img" placeholder="Image URL">
+<input id="bio" placeholder="Bio">
+<button onclick="addDJ()">ADD</button>
+</div>
 
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = url;
-      } else if (window.Hls && Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-      }
+</div>
 
-      const backBtn = document.getElementById("backChannelBtn");
-      if (backBtn) {
-        backBtn.onclick = loadLive;
-      }
-    }
+<script>
+function addDJ() {
+  const name = document.getElementById("name").value;
+  const img = document.getElementById("img").value;
+  const bio = document.getElementById("bio").value;
 
-    async function loadVideos() {
-      const container = document.getElementById("videos");
-      container.innerHTML = "";
+  const grid = document.getElementById("djGrid");
 
-      try {
-        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-        const data = await res.json();
+  const card = document.createElement("div");
+  card.className = "dj-card";
 
-        if (!Array.isArray(data)) {
-          container.innerHTML = "Error loading videos";
-          return;
-        }
+  card.innerHTML = `
+    <img src="${img}">
+    <h3>${name}</h3>
+    <p>${bio}</p>
+  `;
 
-        data.forEach(v => {
-          const card = document.createElement("div");
-          card.className = "card";
+  grid.appendChild(card);
+}
+</script>
 
-          card.innerHTML = `
-            <img src="${v.thumbnail?.src || ''}" alt="">
-            <p>${v.session_title || 'DJ Set'}</p>
-          `;
-
-          card.onclick = () => loadReplay(v.source);
-          container.appendChild(card);
-        });
-
-      } catch {
-        container.innerHTML = "Error loading videos";
-      }
-    }
-
-    async function updateLiveStatus() {
-      const badge = document.getElementById("live-status-badge");
-      const dot = document.getElementById("live-status-dot");
-      const text = document.getElementById("live-status-text");
-
-      try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status&t=" + Date.now());
-        const status = (await res.text()).trim().toLowerCase();
-
-        if (status === "live") {
-          badge.style.background = "rgba(255,0,0,.15)";
-          badge.style.color = "#ff5a5a";
-          badge.style.border = "1px solid rgba(255,90,90,.35)";
-          dot.style.background = "#ff3b3b";
-          text.textContent = "LIVE NOW";
-        } else {
-          badge.style.background = "#2b2b2b";
-          badge.style.color = "#ccc";
-          badge.style.border = "1px solid rgba(255,255,255,.12)";
-          dot.style.background = "#666";
-          text.textContent = "OFFLINE";
-        }
-      } catch {
-        badge.style.background = "#2b2b2b";
-        badge.style.color = "#ccc";
-        badge.style.border = "1px solid rgba(255,255,255,.12)";
-        dot.style.background = "#666";
-        text.textContent = "OFFLINE";
-      }
-    }
-
-    loadLive();
-    loadVideos();
-    updateLiveStatus();
-    setInterval(() => {
-      if (currentMode === "live") {
-        updateLiveStatus();
-      }
-    }, 5000);
-  </script>
 </body>
 </html>
