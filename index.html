@@ -1043,10 +1043,6 @@
 
       const count = scheduleExpanded ? schedule.length : Math.min(scheduleBaseCount, schedule.length);
 
-      const count = scheduleExpanded ? schedule.length : Math.min(scheduleBaseCount, schedule.length);
-
-      schedule.slice(0, count).forEach(item => {
-
       schedule.slice(0, count).forEach(item => {
         const originalIndex = original.findIndex(s =>
           s.djName === item.djName &&
@@ -1094,29 +1090,6 @@
       }
 
       moreWrap.innerHTML = "";
-      if (schedule.length > scheduleBaseCount) {
-        const btn = document.createElement("button");
-        btn.className = "view-more-btn";
-        btn.textContent = scheduleExpanded ? "View less" : "View more";
-        btn.onclick = () => {
-          scheduleExpanded = !scheduleExpanded;
-          renderSchedule();
-        };
-        moreWrap.appendChild(btn);
-      }
-
-      const wrap = document.getElementById("scheduleSectionWrap");
-      let moreWrap = document.getElementById("scheduleMoreWrap");
-
-      if (!moreWrap) {
-        moreWrap = document.createElement("div");
-        moreWrap.id = "scheduleMoreWrap";
-        moreWrap.className = "view-more-wrap";
-        wrap.appendChild(moreWrap);
-      }
-
-      moreWrap.innerHTML = "";
-
       if (schedule.length > scheduleBaseCount) {
         const btn = document.createElement("button");
         btn.className = "view-more-btn";
