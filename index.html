@@ -14,6 +14,46 @@
       font-family: Arial, sans-serif;
     }
 
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: rgba(0,0,0,.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 10px;
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .nav-links a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
     .container {
       max-width: 1120px;
       margin: 0 auto;
@@ -545,6 +585,18 @@
 </head>
 <body>
   <div class="container">
+    <div class="top-nav">
+      <div class="nav-inner">
+        <div class="logo">DJ LIVE TV</div>
+        <div class="nav-links">
+          <a href="#">Home</a>
+          <a href="#replays">Replays</a>
+          <a href="#djs" id="navDjs">Our DJs</a>
+          <a href="#schedule" id="navSchedule">Schedule</a>
+        </div>
+      </div>
+    </div>
+
     <h1>DJ LIVE TV</h1>
 
     <div class="badge-wrap" id="badgeWrap">
@@ -567,12 +619,19 @@
       </div>
     </div>
 
-    <h2 class="section-title">REPLAYS</h2>
+    <h2 id="replays" class="section-title">REPLAYS</h2>
     <p class="section-sub">Watch previous sets and archived sessions.</p>
     <div id="videos" class="grid"></div>
     <div class="view-more-wrap" id="viewMoreWrap"></div>
 
     <div id="djSectionWrap">
+      <h2 id="djs" class="section-title">OUR DJs</h2>
+      <p class="section-sub">Resident selectors, guests, and featured artists.</p>
+      <div id="djGrid" class="grid"></div>
+      <div class="view-more-wrap" id="djMoreWrap"></div>
+    </div>
+
+    <div id="scheduleSectionWrap">
       <h2 class="section-title">OUR DJs</h2>
       <p class="section-sub">Resident selectors, guests, and featured artists.</p>
       <div id="djGrid" class="grid"></div>
@@ -580,7 +639,7 @@
     </div>
 
     <div id="scheduleSectionWrap">
-      <h2 class="section-title">SCHEDULE</h2>
+      <h2 id="schedule" class="section-title">SCHEDULE</h2>
       <p class="section-sub">Weekly lineup in list format.</p>
 
       <div class="schedule-head">
@@ -770,6 +829,7 @@
 
     function applyUiSettings() {
       const settings = getUiSettings();
+
       document.getElementById("djSectionWrap").style.display = settings.showDjs ? "block" : "none";
       document.getElementById("scheduleSectionWrap").style.display = settings.showSchedule ? "block" : "none";
       document.getElementById("badgeWrap").style.display = settings.showBadge ? "flex" : "none";
@@ -778,10 +838,27 @@
       const scheduleBtn = document.getElementById("toggleScheduleBtn");
       const badgeBtn = document.getElementById("toggleBadgeBtn");
 
+      const navDjs = document.getElementById("navDjs");
+      const navSchedule = document.getElementById("navSchedule");
+
+      if (navDjs) navDjs.style.display = settings.showDjs ? "inline-block" : "none";
+      if (navSchedule) navSchedule.style.display = settings.showSchedule ? "inline-block" : "none";
+
       if (djsBtn) {
         djsBtn.textContent = settings.showDjs ? "DJs: ON" : "DJs: OFF";
         djsBtn.style.background = settings.showDjs ? "#f52a1f" : "#333";
       }
+
+      if (scheduleBtn) {
+        scheduleBtn.textContent = settings.showSchedule ? "Schedule: ON" : "Schedule: OFF";
+        scheduleBtn.style.background = settings.showSchedule ? "#f52a1f" : "#333";
+      }
+
+      if (badgeBtn) {
+        badgeBtn.textContent = settings.showBadge ? "Badge: ON" : "Badge: OFF";
+        badgeBtn.style.background = settings.showBadge ? "#f52a1f" : "#333";
+      }
+    }
 
       if (scheduleBtn) {
         scheduleBtn.textContent = settings.showSchedule ? "Schedule: ON" : "Schedule: OFF";
