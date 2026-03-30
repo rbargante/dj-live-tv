@@ -686,6 +686,7 @@
                 <div class="form-actions">
                   <button id="toggleDjsBtn" onclick="toggleDjSection()">DJs: ON</button>
                   <button id="toggleScheduleBtn" onclick="toggleScheduleSection()">Schedule: ON</button>
+                  <button id="toggleBadgeBtn" onclick="toggleBadgeSection()">Badge: ON</button>
                 </div>
               </div>
             </div>
@@ -760,7 +761,7 @@
 
     function getUiSettings() {
       const saved = JSON.parse(localStorage.getItem("ui_settings_demo"));
-      return saved || { showDjs: true, showSchedule: true };
+      return saved || { showDjs: true, showSchedule: true, showBadge: true };
     }
 
     function saveUiSettings(settings) {
@@ -771,9 +772,11 @@
       const settings = getUiSettings();
       document.getElementById("djSectionWrap").style.display = settings.showDjs ? "block" : "none";
       document.getElementById("scheduleSectionWrap").style.display = settings.showSchedule ? "block" : "none";
+      document.getElementById("badgeWrap").style.display = settings.showBadge ? "flex" : "none";
 
       const djsBtn = document.getElementById("toggleDjsBtn");
       const scheduleBtn = document.getElementById("toggleScheduleBtn");
+      const badgeBtn = document.getElementById("toggleBadgeBtn");
 
       if (djsBtn) {
         djsBtn.textContent = settings.showDjs ? "DJs: ON" : "DJs: OFF";
@@ -783,6 +786,11 @@
       if (scheduleBtn) {
         scheduleBtn.textContent = settings.showSchedule ? "Schedule: ON" : "Schedule: OFF";
         scheduleBtn.style.background = settings.showSchedule ? "#f52a1f" : "#333";
+      }
+
+      if (badgeBtn) {
+        badgeBtn.textContent = settings.showBadge ? "Badge: ON" : "Badge: OFF";
+        badgeBtn.style.background = settings.showBadge ? "#f52a1f" : "#333";
       }
     }
 
@@ -796,6 +804,13 @@
     function toggleScheduleSection() {
       const settings = getUiSettings();
       settings.showSchedule = !settings.showSchedule;
+      saveUiSettings(settings);
+      applyUiSettings();
+    }
+
+    function toggleBadgeSection() {
+      const settings = getUiSettings();
+      settings.showBadge = !settings.showBadge;
       saveUiSettings(settings);
       applyUiSettings();
     }
@@ -1146,7 +1161,6 @@
       const badge = document.getElementById("live-status-badge");
       const dot = document.getElementById("live-status-dot");
       const text = document.getElementById("live-status-text");
-      const { liveItem } = getLiveAndNextItems();
 
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycbzMvkIpTAEEORQKvh_hWNzLY5Y7A9k_kO6KmlqTAXbK-9MXE37rE5UqFGgZx0z8Kr-E/exec?action=status&t=" + Date.now());
@@ -1158,7 +1172,7 @@
           badge.style.color = "#ff5a5a";
           badge.style.border = "1px solid rgba(255,90,90,.35)";
           dot.style.background = "#ff3b3b";
-          text.textContent = liveItem ? `${liveItem.djName} LIVE NOW` : "LIVE NOW";
+          text.textContent = "LIVE NOW";
         } else {
           isChannelLive = false;
           badge.style.background = "#2b2b2b";
