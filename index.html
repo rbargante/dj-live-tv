@@ -1515,5 +1515,51 @@
       }
     }, 60000);
   </script>
+  <!-- BACK TO TOP BUTTON -->
+  <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <style>
+    #backToTop{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      background:#f52a1f;
+      color:#fff;
+      border:none;
+      border-radius:50%;
+      width:42px;
+      height:42px;
+      font-size:18px;
+      cursor:pointer;
+      display:none;
+      z-index:999;
+      box-shadow:0 4px 12px rgba(0,0,0,.4);
+    }
+
+    #backToTop:hover{
+      background:#ff3b2f;
+    }
+
+    .footer-logo{
+      margin-top:20px;
+      opacity:.85;
+      font-weight:700;
+      font-size:14px;
+      letter-spacing:.5px;
+    }
+  </style>
+
+  <script>
+    const btn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      btn.style.display = window.scrollY > 300 ? 'block' : 'none';
+    });
+  </script>
+
+  <!-- FOOTER LOGO (OPTIONAL) -->
+  <div style="text-align:center;padding:20px 0;">
+    <div class="footer-logo">DJ LIVE TV</div>
+  </div>
+
 </body>
 </html>
