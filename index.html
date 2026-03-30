@@ -38,13 +38,15 @@
     }
 
     .logo {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:700;
-      font-size:16px;
-      letter-spacing:.4px;
-      white-space:nowrap;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: .6px;
+      white-space: nowrap;
+      color: #fff;
+      text-shadow: 0 0 14px rgba(255,50,50,.18);
     }
 
     .nav-links {
@@ -55,14 +57,18 @@
     }
 
     .nav-links a {
-      color: #ccc;
+      color: #cfcfcf;
       text-decoration: none;
       font-size: 14px;
       font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 10px;
+      transition: background .2s ease, color .2s ease;
     }
 
     .nav-links a:hover {
       color: #fff;
+      background: rgba(255,255,255,.06);
     }
 
     .container {
@@ -645,6 +651,7 @@
 
     <h2 class="section-title" id="replays">REPLAYS</h2>
     <p class="section-sub">Watch previous sets and archived sessions.</p>
+    <div id="replaysStatus" class="section-sub" style="margin-top:-6px; margin-bottom:18px; color:#8f8f8f;"></div>
     <div id="videos" class="grid"></div>
     <div class="view-more-wrap" id="viewMoreWrap"></div>
 
@@ -776,7 +783,10 @@
     <footer class="site-footer">
       <div><strong>DJ LIVE TV</strong></div>
       <div>Live DJ broadcasts, archived replays, featured resident DJs, and a rotating weekly schedule.</div>
-      <div>© 2026 DJ LIVE TV. All rights reserved.</div>
+      <div style="margin-top:8px;">
+        <a href="#top" style="color:#d8d8d8; text-decoration:underline;">Back to top</a>
+      </div>
+      <div style="margin-top:8px; color:#7f7f7f;">© 2026 DJ LIVE TV. All rights reserved.</div>
     </footer>
   </div>
 
@@ -1022,8 +1032,10 @@
     async function loadVideos() {
       const container = document.getElementById("videos");
       const wrap = document.getElementById("viewMoreWrap");
+      const statusBox = document.getElementById("replaysStatus");
       container.innerHTML = "<p>Loading replays...</p>";
       wrap.innerHTML = "";
+      if (statusBox) statusBox.textContent = "Checking replay library...";
 
       const fallbackVideos = [
         { session_title: "Replay 1", thumbnail: { src: "https://via.placeholder.com/640x360?text=Replay+1" }, source: "" },
@@ -1045,8 +1057,11 @@
           },
           source: v.source || ""
         }));
+
+        if (statusBox) statusBox.textContent = `${allVideos.length} replay${allVideos.length === 1 ? "" : "s"} available.`;
       } catch {
         allVideos = fallbackVideos;
+        if (statusBox) statusBox.textContent = "Replay library temporarily unavailable, showing placeholders.";
       }
 
       renderVideos();
