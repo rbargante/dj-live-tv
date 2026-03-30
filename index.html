@@ -7,6 +7,10 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       background: #000;
@@ -18,10 +22,9 @@
       position: sticky;
       top: 0;
       z-index: 999;
-      background: rgba(0,0,0,.85);
+      background: rgba(0,0,0,.88);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(255,255,255,.08);
-      margin-bottom: 10px;
     }
 
     .nav-inner {
@@ -31,16 +34,21 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 14px;
+      gap: 16px;
     }
 
     .logo {
       font-weight: 700;
       font-size: 16px;
+      letter-spacing: .4px;
+      white-space: nowrap;
     }
 
     .nav-links {
       display: flex;
       gap: 18px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .nav-links a {
@@ -282,6 +290,18 @@
       gap: 12px;
     }
 
+    .schedule-head {
+      display: grid;
+      grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto;
+      gap: 14px;
+      padding: 0 14px 8px 14px;
+      color: #9c9c9c;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
     .schedule-item {
       display: grid;
       grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto;
@@ -336,16 +356,17 @@
       line-height: 1.35;
     }
 
-    .schedule-head {
-      display: grid;
-      grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto;
-      gap: 14px;
-      padding: 0 14px 8px 14px;
-      color: #9c9c9c;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .5px;
+    .schedule-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .schedule-right {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
     }
 
     .live-pill,
@@ -525,6 +546,15 @@
     }
 
     @media (max-width: 900px) {
+      .nav-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        gap: 14px;
+      }
+
       h1 {
         font-size: 42px;
       }
@@ -538,22 +568,11 @@
         gap: 12px;
       }
 
-      .schedule-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-      }
-
+      .schedule-day,
       .schedule-time,
       .schedule-style,
-      .schedule-show {
-        margin-top: 2px;
-      }
-
-      .schedule-right {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+      .schedule-show-col {
+        display: none;
       }
     }
 
@@ -584,19 +603,19 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top-nav">
-      <div class="nav-inner">
-        <div class="logo">DJ LIVE TV</div>
-        <div class="nav-links">
-          <a href="#">Home</a>
-          <a href="#replays">Replays</a>
-          <a href="#djs" id="navDjs">Our DJs</a>
-          <a href="#schedule" id="navSchedule">Schedule</a>
-        </div>
+  <div class="top-nav">
+    <div class="nav-inner">
+      <div class="logo">DJ LIVE TV</div>
+      <div class="nav-links">
+        <a href="#top">Home</a>
+        <a href="#replays">Replays</a>
+        <a href="#djs" id="navDjs">Our DJs</a>
+        <a href="#schedule" id="navSchedule">Schedule</a>
       </div>
     </div>
+  </div>
 
+  <div class="container" id="top">
     <h1>DJ LIVE TV</h1>
 
     <div class="badge-wrap" id="badgeWrap">
@@ -619,27 +638,20 @@
       </div>
     </div>
 
-    <h2 id="replays" class="section-title">REPLAYS</h2>
+    <h2 class="section-title" id="replays">REPLAYS</h2>
     <p class="section-sub">Watch previous sets and archived sessions.</p>
     <div id="videos" class="grid"></div>
     <div class="view-more-wrap" id="viewMoreWrap"></div>
 
     <div id="djSectionWrap">
-      <h2 id="djs" class="section-title">OUR DJs</h2>
+      <h2 class="section-title" id="djs">OUR DJs</h2>
       <p class="section-sub">Resident selectors, guests, and featured artists.</p>
       <div id="djGrid" class="grid"></div>
       <div class="view-more-wrap" id="djMoreWrap"></div>
     </div>
 
     <div id="scheduleSectionWrap">
-      <h2 class="section-title">OUR DJs</h2>
-      <p class="section-sub">Resident selectors, guests, and featured artists.</p>
-      <div id="djGrid" class="grid"></div>
-      <div class="view-more-wrap" id="djMoreWrap"></div>
-    </div>
-
-    <div id="scheduleSectionWrap">
-      <h2 id="schedule" class="section-title">SCHEDULE</h2>
+      <h2 class="section-title" id="schedule">SCHEDULE</h2>
       <p class="section-sub">Weekly lineup in list format.</p>
 
       <div class="schedule-head">
@@ -829,36 +841,23 @@
 
     function applyUiSettings() {
       const settings = getUiSettings();
-
       document.getElementById("djSectionWrap").style.display = settings.showDjs ? "block" : "none";
       document.getElementById("scheduleSectionWrap").style.display = settings.showSchedule ? "block" : "none";
       document.getElementById("badgeWrap").style.display = settings.showBadge ? "flex" : "none";
+
+      const navDjs = document.getElementById("navDjs");
+      const navSchedule = document.getElementById("navSchedule");
+      if (navDjs) navDjs.style.display = settings.showDjs ? "inline-block" : "none";
+      if (navSchedule) navSchedule.style.display = settings.showSchedule ? "inline-block" : "none";
 
       const djsBtn = document.getElementById("toggleDjsBtn");
       const scheduleBtn = document.getElementById("toggleScheduleBtn");
       const badgeBtn = document.getElementById("toggleBadgeBtn");
 
-      const navDjs = document.getElementById("navDjs");
-      const navSchedule = document.getElementById("navSchedule");
-
-      if (navDjs) navDjs.style.display = settings.showDjs ? "inline-block" : "none";
-      if (navSchedule) navSchedule.style.display = settings.showSchedule ? "inline-block" : "none";
-
       if (djsBtn) {
         djsBtn.textContent = settings.showDjs ? "DJs: ON" : "DJs: OFF";
         djsBtn.style.background = settings.showDjs ? "#f52a1f" : "#333";
       }
-
-      if (scheduleBtn) {
-        scheduleBtn.textContent = settings.showSchedule ? "Schedule: ON" : "Schedule: OFF";
-        scheduleBtn.style.background = settings.showSchedule ? "#f52a1f" : "#333";
-      }
-
-      if (badgeBtn) {
-        badgeBtn.textContent = settings.showBadge ? "Badge: ON" : "Badge: OFF";
-        badgeBtn.style.background = settings.showBadge ? "#f52a1f" : "#333";
-      }
-    }
 
       if (scheduleBtn) {
         scheduleBtn.textContent = settings.showSchedule ? "Schedule: ON" : "Schedule: OFF";
@@ -942,7 +941,8 @@
     }
 
     function showBadge() {
-      document.getElementById("badgeWrap").style.display = "flex";
+      const settings = getUiSettings();
+      document.getElementById("badgeWrap").style.display = settings.showBadge ? "flex" : "none";
     }
 
     function hideBadge() {
@@ -1123,7 +1123,8 @@
 
       const count = djExpanded ? orderedDjs.length : Math.min(djBaseCount, orderedDjs.length);
 
-      orderedDjs.slice(0, count).forEach((dj, index) => {
+      orderedDjs.slice(0, count).forEach((dj) => {
+        const originalIndex = getDJs().findIndex(x => x.name === dj.name);
         const isLiveCard = liveItem && dj.name === liveItem.djName;
         const isNextCard = nextItem && dj.name === nextItem.djName;
         const card = document.createElement("div");
@@ -1138,8 +1139,8 @@
           ${!isLiveCard && isNextCard ? `<span class="next-pill">NEXT</span>` : ``}
           ${isAdminOpen ? `
             <div class="admin-card-buttons">
-              <button class="small-btn" onclick="startEditDJ(${getDJs().findIndex(x => x.name === dj.name)})">EDIT</button>
-              <button class="small-btn delete" onclick="deleteDJ(${getDJs().findIndex(x => x.name === dj.name)})">DELETE</button>
+              <button class="small-btn" onclick="startEditDJ(${originalIndex})">EDIT</button>
+              <button class="small-btn delete" onclick="deleteDJ(${originalIndex})">DELETE</button>
             </div>
           ` : ``}
         `;
@@ -1206,7 +1207,7 @@
           </div>
           <div class="schedule-time">${item.time}</div>
           <div class="schedule-style">${item.style}</div>
-          <div class="schedule-show">${item.show}</div>
+          <div class="schedule-show schedule-show-col">${item.show}</div>
           <div class="schedule-right">
             ${isLiveRow ? `<span class="live-pill">LIVE NOW</span>` : ``}
             ${!isLiveRow && isNextRow ? `<span class="next-pill">NEXT</span>` : ``}
