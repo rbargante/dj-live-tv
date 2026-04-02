@@ -27,10 +27,9 @@
     .card-dj { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; padding: 15px; text-align: center; }
     .card-dj img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #222; margin-bottom: 10px; }
     .card-dj h3 { font-size: 14px; margin: 5px 0; }
-    .card-dj p { font-size: 10px; color: #f52a1f; font-weight: 800; text-transform: uppercase; margin: 0; }
-    .btn-more { display: block; margin: 20px auto; background: none; border: 1px solid #333; color: #888; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 11px; }
+    .card-dj p { font-size: 10px; color: #f52a1f; font-weight: 800; text-transform: uppercase; }
 
-    /* SCHEDULE PROFISSIONAL REORDENADO */
+    /* SCHEDULE REORDENADO: FOTO -> NOME -> DIA -> HORA */
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 80px 200px 150px 80px 1fr 100px; padding: 12px 20px; border-bottom: 1px solid #111; align-items: center; transition: 0.3s; }
     .sch-row.live-now { background: rgba(245, 42, 31, 0.08); }
@@ -40,17 +39,16 @@
     .sch-time { font-family: monospace; font-size: 16px; font-weight: bold; color: #888; }
     .sch-status { font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: right; }
 
-    /* EFEITOS LIVE */
     .live-now .sch-time { color: #f52a1f; }
     .live-now .sch-dj-thumb { border-color: #f52a1f; animation: pulse-border 1.5s infinite; }
-    .live-now .sch-status { color: #f52a1f; letter-spacing: 1px; }
+    .live-now .sch-status { color: #f52a1f; }
     @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(245, 42, 31, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0); } }
 
     /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 25px; margin-top: 50px; display: none; }
     .admin-card { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #222; }
     .admin-input, select { width: 100%; padding: 8px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; font-size: 13px; }
-    .btn-save-all { background: #28a745; color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; font-size: 16px; text-transform: uppercase; margin-bottom: 15px; }
+    .btn-publish { background: #28a745; color: #fff; border: none; padding: 20px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; font-size: 18px; text-transform: uppercase; margin-top: 20px; }
     .edit-row, .sch-edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr 40px; gap: 8px; margin-bottom: 8px; align-items: center; }
     .sch-edit-row { grid-template-columns: 1fr 1fr 1fr 1fr 40px; }
     .btn-del { color: #f52a1f; background: none; border: none; font-size: 18px; cursor: pointer; }
@@ -78,7 +76,6 @@
     <div id="secDjs">
       <h2 class="section-title" id="djs">Nossa Equipa</h2>
       <div id="djGrid" class="grid-djs"></div>
-      <button id="btnMoreDjs" class="btn-more" onclick="toggleDjsDisplay()" style="display:none">Ver Mais Equipa</button>
     </div>
 
     <div id="secSch">
@@ -90,21 +87,25 @@
       <h2 style="color:#f52a1f; text-align:center;">CONTROLO CLOUD</h2>
       <div id="loginBox">
         <input id="pass" type="password" class="admin-input" placeholder="Password">
-        <button onclick="login()" class="btn-save-all" style="background:#f52a1f">ENTRAR</button>
+        <button onclick="login()" class="admin-input" style="background:#f52a1f; color:white; font-weight:bold; cursor:pointer;">ENTRAR</button>
       </div>
       <div id="dashBox" style="display:none">
-        <button class="btn-save-all" onclick="saveAll()">☁️ PUBLICAR NO SITE</button>
+        
         <div class="admin-card">
           <h3>Gerir Equipa (DJs)</h3>
           <div id="adminDjList"></div>
           <button onclick="addNewDjField()" class="admin-input" style="background:#222; cursor:pointer">+ Adicionar DJ</button>
         </div>
+
         <div class="admin-card">
           <h3>Gerir Horário</h3>
           <div id="adminSchList"></div>
           <button onclick="addNewSchField()" class="admin-input" style="background:#222; cursor:pointer">+ Adicionar Horário</button>
         </div>
-        <button onclick="location.reload()" class="admin-input" style="background:#333; cursor:pointer">SAIR</button>
+
+        <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR NO SITE E SAIR</button>
+        
+        <button onclick="location.reload()" class="admin-input" style="background:#333; cursor:pointer; margin-top:10px;">CANCELAR</button>
       </div>
     </div>
   </div>
@@ -118,7 +119,6 @@
 
     let currentDjs = [];
     let currentSch = [];
-    let djsExpanded = false;
 
     async function load() {
       const rf = await fetch(DB + ".json");
@@ -130,19 +130,15 @@
     }
 
     function renderSite() {
-      // Render DJs
-      const dLimit = djsExpanded ? currentDjs.length : 4;
-      document.getElementById('djGrid').innerHTML = currentDjs.slice(0, dLimit).map(d => `
+      // DJs
+      document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
         <div class="card-dj"><img src="${d.img}"><h3>${d.name}</h3><p>${d.style}</p></div>`).join('');
-      document.getElementById('btnMoreDjs').style.display = currentDjs.length > 4 ? 'block' : 'none';
 
       const now = new Date();
       const currentHour = now.getHours();
       
-      // ORDENAÇÃO ROLLING: LIVE em primeiro, depois por hora
       let sortedSch = [...currentSch].sort((a, b) => {
-          const hA = parseInt(a.time);
-          const hB = parseInt(b.time);
+          const hA = parseInt(a.time); const hB = parseInt(b.time);
           if (hA === currentHour) return -1;
           if (hB === currentHour) return 1;
           return hA - hB;
@@ -177,25 +173,42 @@
       document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `
         <div class="sch-edit-row">
           <select onchange="currentSch[${i}].dj=this.value">
-            <option>Escolher DJ</option>
+            <option>DJ</option>
             ${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}
           </select>
           <select onchange="currentSch[${i}].day=this.value">${daysArr.map(d=>(`<option ${s.day==d?'selected':''}>${d}</option>`)).join('')}</select>
           <select onchange="currentSch[${i}].time=this.value">${hoursArr.map(h=>(`<option ${s.time==h?'selected':''}>${h}</option>`)).join('')}</select>
-          <input class="admin-input" placeholder="Bio/Show" value="${s.info}" oninput="currentSch[${i}].info=this.value">
+          <input class="admin-input" value="${s.info}" oninput="currentSch[${i}].info=this.value">
           <button class="btn-del" onclick="currentSch.splice(${i},1);renderAdmin()">🗑️</button>
         </div>`).join('');
     }
 
     function addNewDjField() { currentDjs.push({name:'', img:'', style:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:'', day:'Todos os dias', time:'22:00', info:''}); renderAdmin(); }
-    function toggleDjsDisplay() { djsExpanded = !djsExpanded; renderSite(); }
-    function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; renderAdmin(); }}
-    function toggleAdmin() { const a = document.getElementById('adminArea'); a.style.display = a.style.display==='block'?'none':'block'; a.scrollIntoView(); }
+
     async function saveAll() {
-      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify({djs: currentDjs.filter(d=>d.name), schedule: currentSch}) });
-      alert("✅ ATUALIZADO!"); location.reload();
+      await fetch(DB + ".json", { 
+        method: 'PUT', 
+        body: JSON.stringify({djs: currentDjs.filter(d=>d.name), schedule: currentSch}) 
+      });
+      alert("✅ ATUALIZADO NA CLOUD!");
+      location.reload(); // Sai e atualiza automaticamente
     }
+
+    function login() { 
+      if(document.getElementById('pass').value==='1234'){ 
+        document.getElementById('loginBox').style.display='none'; 
+        document.getElementById('dashBox').style.display='block'; 
+        renderAdmin(); 
+      } 
+    }
+    
+    function toggleAdmin() { 
+      const a = document.getElementById('adminArea'); 
+      a.style.display = a.style.display==='block'?'none':'block'; 
+      a.scrollIntoView(); 
+    }
+
     load();
   </script>
 </body>
