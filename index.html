@@ -14,40 +14,40 @@
     .nav-links a { color: #aaa; text-decoration: none; font-size: 12px; font-weight: 700; padding: 8px 15px; text-transform: uppercase; }
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
     
-    /* STATUS AUTOMÁTICO */
+    /* STATUS AUTO */
     .badge-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
     #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 11px; font-weight: 900; }
     #statusDot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
     .live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1.5s infinite; }
-    .live #statusBadge { border-color: #f52a1f; color: #f52a1f; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
     .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #222; }
     .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
-    .section-title { text-align: center; margin-top: 60px; font-size: 24px; font-weight: 900; text-transform: uppercase; color: #fff; margin-bottom: 30px; }
+    .section-title { text-align: center; margin: 60px 0 30px; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
     
-    /* GRID DJs PEQUENOS */
+    /* GRID VIDEOS & DJs */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+    .card-v { background: #0a0a0a; border-radius: 10px; overflow: hidden; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
+    .card-v:hover { border-color: #f52a1f; }
+    
     .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-    .card-dj { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; padding: 15px; text-align: center; position: relative; }
-    .card-dj img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid #222; }
-    .card-dj h3 { font-size: 15px; margin: 5px 0; }
-    .card-dj p { font-size: 10px; color: #f52a1f; font-weight: 800; text-transform: uppercase; }
+    .card-dj { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; padding: 15px; text-align: center; }
+    .card-dj img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
 
-    /* SCHEDULE PROFISSIONAL */
+    /* SCHEDULE */
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 100px 1fr 80px; padding: 15px 20px; border-bottom: 1px solid #111; align-items: center; }
-    .sch-time { color: #f52a1f; font-weight: bold; font-family: monospace; }
-    .sch-info { font-weight: 600; }
+    .sch-time { color: #f52a1f; font-weight: bold; }
+
+    .btn-more { display: block; margin: 20px auto; background: none; border: 1px solid #333; color: #888; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 11px; }
 
     /* ADMIN */
     .admin-section { background: #050505; border: 1px solid #f52a1f; border-radius: 15px; padding: 30px; margin-top: 50px; display: none; }
     .admin-input { width: 100%; padding: 10px; margin: 5px 0; background: #111; border: 1px solid #333; color: #fff; border-radius: 5px; }
     .admin-btn { background: #f52a1f; color: #fff; border: none; padding: 12px; border-radius: 5px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; }
-    .edit-list { margin-top: 20px; border-top: 1px solid #222; padding-top: 20px; }
-    .edit-item { display: flex; justify-content: space-between; padding: 10px; background: #111; margin-bottom: 5px; border-radius: 5px; font-size: 13px; }
-
-    footer { padding: 50px; text-align: center; color: #333; font-size: 11px; }
+    
+    footer { padding: 40px; text-align: center; color: #333; font-size: 11px; border-top: 1px solid #111; }
   </style>
 </head>
 <body>
@@ -56,23 +56,22 @@
     <div class="nav-inner">
       <div class="logo">FLASHMIX.TV</div>
       <div class="nav-links">
+        <a href="#vids">Vídeos</a>
         <a href="#djs">Equipa</a>
         <a href="#schedule">Horário</a>
-        <a href="javascript:void(0)" onclick="toggleAdmin()" style="color:#f52a1f">⚙️ Admin</a>
+        <a href="javascript:void(0)" onclick="toggleAdmin()" style="color:#f52a1f">Admin</a>
       </div>
     </div>
   </nav>
 
   <div class="container">
-    <div class="badge-wrap" id="badgeWrap"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">CHECKING...</span></div></div>
-    
-    <div class="player">
-      <iframe id="kickPlayer" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
-    </div>
+    <div class="badge-wrap" id="badgeWrap"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">OFFLINE</span></div></div>
+    <div class="player"><iframe id="kickPlayer" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe></div>
 
-    <div id="secVids">
-        <h2 class="section-title">Últimos Sets</h2>
-        <div id="videoGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:20px;"></div>
+    <div id="vids">
+      <h2 class="section-title">Últimos Sets</h2>
+      <div id="videoGrid" class="grid"></div>
+      <button class="btn-more" id="btnV" onclick="toggleVids()">Ver Mais Vídeos</button>
     </div>
 
     <div id="secDjs">
@@ -81,33 +80,29 @@
     </div>
 
     <div id="secSch">
-      <h2 class="section-title" id="schedule">Horário Semanal</h2>
+      <h2 class="section-title" id="schedule">Broadcast Schedule</h2>
       <div id="scheduleList" class="sch-container"></div>
     </div>
 
     <div id="adminArea" class="admin-section">
-      <h2 style="color:#f52a1f; text-align:center;">DASHBOARD EQUIPA</h2>
+      <h2 style="color:#f52a1f; text-align:center;">CONTROLO CLOUD</h2>
       <div id="loginBox">
         <input id="pass" type="password" class="admin-input" placeholder="Password">
         <button class="admin-btn" onclick="login()">Entrar</button>
       </div>
-      
       <div id="dashBox" style="display:none">
-        <button class="admin-btn" style="background:#222" onclick="toggleField('hideDjs')">Esconder/Mostrar DJs</button>
-        <button class="admin-btn" style="background:#222" onclick="toggleField('hideSch')">Esconder/Mostrar Horário</button>
-
-        <h3 style="margin-top:30px;">Adicionar à Equipa</h3>
-        <input id="djN" class="admin-input" placeholder="Nome do DJ">
-        <input id="djI" class="admin-input" placeholder="Link da Foto">
+        <button class="admin-btn" style="background:#222" onclick="toggleField('hideDjs')">Ocultar/Mostrar DJs</button>
+        <button class="admin-btn" style="background:#222" onclick="toggleField('hideSch')">Ocultar/Mostrar Horário</button>
+        <h3 style="margin-top:20px;">Adicionar DJ</h3>
+        <input id="djN" class="admin-input" placeholder="Nome">
+        <input id="djI" class="admin-input" placeholder="URL Foto">
         <input id="djS" class="admin-input" placeholder="Estilo">
-        <button class="admin-btn" style="background:green" onclick="saveDJ()">Adicionar DJ</button>
-
-        <h3>Editar Horário</h3>
-        <textarea id="inSch" class="admin-input" rows="4" placeholder="22:00 | Noite Mix | House"></textarea>
+        <button class="admin-btn" style="background:green" onclick="saveDJ()">Salvar na Nuvem</button>
+        <h3>Horário</h3>
+        <textarea id="inSch" class="admin-input" rows="3" placeholder="22:00 | Noite House | LIVE"></textarea>
         <button class="admin-btn" onclick="saveSch()">Atualizar Horário</button>
-
-        <div class="edit-list" id="editDjList"></div>
-        <button onclick="location.reload()" class="admin-btn" style="background:#333; margin-top:20px;">Sair e Salvar</button>
+        <div id="editDjList" style="margin-top:20px; border-top:1px solid #222; padding-top:10px;"></div>
+        <button onclick="location.reload()" class="admin-btn" style="background:#333; margin-top:20px;">Sair</button>
       </div>
     </div>
   </div>
@@ -116,89 +111,58 @@
 
   <script>
     const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-
-    // 1. STATUS AUTOMÁTICO DO OBS/KICK
-    async function checkStatus() {
-      try {
-        const res = await fetch("https://kick.com/api/v1/channels/DJLIVETV");
-        const data = await res.json();
-        const isLive = data.livestream !== null;
-        const badge = document.getElementById('badgeWrap');
-        if(isLive) {
-          badge.classList.add('live');
-          document.getElementById('statusText').innerText = "LIVE NOW";
-        } else {
-          badge.classList.remove('live');
-          document.getElementById('statusText').innerText = "OFFLINE";
-        }
-      } catch(e) {
-        document.getElementById('statusText').innerText = "OFFLINE";
-      }
-    }
+    let allVids = []; let vAll = false;
 
     async function load() {
-      checkStatus();
-      // Vídeos
-      const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-      const vids = await rv.json();
-      document.getElementById('videoGrid').innerHTML = vids.slice(0,4).map(v=>`<div style="background:#0a0a0a; border-radius:10px; overflow:hidden; border:1px solid #222;" onclick="window.open('${v.source}','_self')"><img src="${v.thumbnail.src}" style="width:100%"><h3 style="font-size:14px; padding:10px;">${v.session_title}</h3></div>`).join('');
+      // 1. VIDEOS
+      try {
+        const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        allVids = await rv.json(); renderVids();
+      } catch(e){}
 
-      // Firebase
+      // 2. FIREBASE (DJs e Schedule)
       const rf = await fetch(DB + ".json");
       const data = await rf.json();
       
-      if(data) {
-        document.getElementById('secDjs').style.display = data.hideDjs ? 'none' : 'block';
-        document.getElementById('secSch').style.display = data.hideSch ? 'none' : 'block';
+      document.getElementById('secDjs').style.display = data?.hideDjs ? 'none' : 'block';
+      document.getElementById('secSch').style.display = data?.hideSch ? 'none' : 'block';
 
-        if(data.djs) {
-          const djs = Object.entries(data.djs);
-          document.getElementById('djGrid').innerHTML = djs.map(([id, d]) => `
-            <div class="card-dj"><img src="${d.img}"><h3>${d.name}</h3><p>${d.style}</p></div>`).join('');
-          
-          document.getElementById('editDjList').innerHTML = "<h4>Gerir Equipa</h4>" + djs.map(([id, d]) => `
-            <div class="edit-item"><span>${d.name}</span><button onclick="deleteDJ('${id}')" style="color:red; background:none; border:none; cursor:pointer;">Remover</button></div>`).join('');
-        }
-
-        if(data.schedule) {
-          document.getElementById('scheduleList').innerHTML = data.schedule.split('\n').map(l => {
-            const [t, info, tag] = l.split('|');
-            return `<div class="sch-row"><div class="sch-time">${t||''}</div><div class="sch-info">${info||''}</div><div class="sch-tag">${tag||'LIVE'}</div></div>`;
-          }).join('');
-        }
+      // Se não houver DJs, mostra exemplo
+      const djs = data?.djs ? Object.entries(data.djs) : null;
+      if(djs) {
+        document.getElementById('djGrid').innerHTML = djs.map(([id, d]) => `<div class="card-dj"><img src="${d.img}"><h3>${d.name}</h3><p>${d.style}</p></div>`).join('');
+        document.getElementById('editDjList').innerHTML = "<h4>Equipa:</h4>" + djs.map(([id, d]) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">${d.name} <button onclick="deleteDJ('${id}')" style="color:red; background:none; border:none; cursor:pointer;">Apagar</button></div>`).join('');
+      } else {
+        document.getElementById('djGrid').innerHTML = `<div class="card-dj"><img src="https://via.placeholder.com/80"><h3>DJ Exemplo</h3><p>House</p></div>`;
       }
+
+      // Schedule
+      const sch = data?.schedule || "22:00 | Exemplo Mix | LIVE";
+      document.getElementById('scheduleList').innerHTML = sch.split('\n').map(l => {
+        const [t, info, tag] = l.split('|');
+        return `<div class="sch-row"><div class="sch-time">${t||''}</div><div class="sch-info">${info||''}</div><div class="sch-tag">${tag||''}</div></div>`;
+      }).join('');
     }
 
-    function login() { if(document.getElementById('pass').value === '1234') { document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; } }
+    function renderVids() {
+      const lim = vAll ? allVids.length : 4;
+      document.getElementById('videoGrid').innerHTML = allVids.slice(0, lim).map(v => `<div class="card-v" onclick="window.open('${v.source}','_self')"><img src="${v.thumbnail.src}" style="width:100%"><h3 style="font-size:12px; padding:8px;">${v.session_title}</h3></div>`).join('');
+      document.getElementById('btnV').innerText = vAll ? "Ver Menos" : "Ver Mais Vídeos";
+    }
+
+    function toggleVids() { vAll = !vAll; renderVids(); }
     function toggleAdmin() { document.getElementById('adminArea').style.display='block'; document.getElementById('adminArea').scrollIntoView(); }
+    function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; }}
     
     async function saveDJ() {
-      const dj = { name: document.getElementById('djN').value, img: document.getElementById('djI').value, style: document.getElementById('djS').value };
-      await fetch(DB + "djs.json", { method: 'POST', body: JSON.stringify(dj) });
-      load();
+      const dj = { name:document.getElementById('djN').value, img:document.getElementById('djI').value, style:document.getElementById('djS').value };
+      await fetch(DB+"djs.json",{method:'POST', body:JSON.stringify(dj)}); load();
     }
-
-    async function deleteDJ(id) {
-      if(confirm("Remover este DJ da equipa?")) {
-        await fetch(`${DB}djs/${id}.json`, { method: 'DELETE' });
-        load();
-      }
-    }
-
-    async function saveSch() {
-      await fetch(DB + "schedule.json", { method: 'PUT', body: JSON.stringify(document.getElementById('inSch').value) });
-      alert("Horário Atualizado!"); load();
-    }
-
-    async function toggleField(f) {
-      const res = await fetch(DB + f + ".json");
-      const val = await res.json();
-      await fetch(DB + f + ".json", { method: 'PUT', body: JSON.stringify(!val) });
-      load();
-    }
+    async function deleteDJ(id) { if(confirm("Apagar?")){ await fetch(`${DB}djs/${id}.json`,{method:'DELETE'}); load(); } }
+    async function saveSch() { await fetch(DB+"schedule.json",{method:'PUT', body:JSON.stringify(document.getElementById('inSch').value)}); alert("OK"); load(); }
+    async function toggleField(f) { const res = await fetch(DB+f+".json"); const val = await res.json(); await fetch(DB+f+".json",{method:'PUT',body:JSON.stringify(!val)}); load(); }
 
     load();
-    setInterval(checkStatus, 30000); // Verifica status a cada 30 segundos
   </script>
 </body>
 </html>
