@@ -24,27 +24,39 @@
     .section-title { text-align: center; margin: 60px 0 30px; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
     
     /* EQUIPA */
-    .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+    .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
     .card-dj { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; padding: 15px; text-align: center; }
-    .card-dj img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid #222; margin-bottom: 10px; }
+    .card-dj img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #222; margin-bottom: 10px; }
+    .card-dj h3 { font-size: 14px; margin: 5px 0; }
+    .card-dj p { font-size: 10px; color: #f52a1f; font-weight: 800; text-transform: uppercase; margin: 0; }
     .btn-more { display: block; margin: 20px auto; background: none; border: 1px solid #333; color: #888; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 11px; }
 
-    /* SCHEDULE (PROFESSIONAL) */
+    /* SCHEDULE PROFISSIONAL ROLLING */
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
-    .sch-row { display: grid; grid-template-columns: 120px 150px 1fr; padding: 15px 20px; border-bottom: 1px solid #111; align-items: center; }
-    .sch-time { color: #f52a1f; font-weight: bold; }
-    .sch-day { color: #888; font-size: 12px; text-transform: uppercase; }
+    .sch-row { display: grid; grid-template-columns: 80px 100px 150px 1fr 100px; padding: 12px 20px; border-bottom: 1px solid #111; align-items: center; transition: 0.3s; }
+    .sch-row.live-now { background: rgba(245, 42, 31, 0.05); }
+    .sch-time { color: #888; font-weight: bold; font-family: monospace; font-size: 15px; }
+    .sch-day { color: #555; font-size: 10px; text-transform: uppercase; font-weight: 800; }
+    .sch-dj-thumb { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
+    .sch-info { font-size: 14px; font-weight: 600; color: #ccc; }
+    .sch-status { font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: right; }
+
+    /* EFEITO LIVE NO SCHEDULE */
+    .live-now .sch-time { color: #f52a1f; }
+    .live-now .sch-dj-thumb { border-color: #f52a1f; animation: pulse-border 1.5s infinite; }
+    .live-now .sch-status { color: #f52a1f; }
+    @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(245, 42, 31, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0); } }
 
     /* ADMIN */
-    .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 30px; margin-top: 50px; display: none; }
-    .admin-card { background: #111; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222; }
-    .admin-input, select { width: 100%; padding: 10px; margin: 5px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-    .btn-save-all { background: #28a745; color: #fff; border: none; padding: 20px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; font-size: 18px; text-transform: uppercase; margin-bottom: 20px; }
-    .edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr 50px; gap: 10px; margin-bottom: 10px; align-items: center; }
-    .sch-edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 50px; gap: 10px; margin-bottom: 10px; }
-    .btn-del { color: #f52a1f; background: none; border: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 25px; margin-top: 50px; display: none; }
+    .admin-card { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #222; }
+    .admin-input, select { width: 100%; padding: 8px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; font-size: 13px; }
+    .btn-save-all { background: #28a745; color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; font-size: 16px; text-transform: uppercase; margin-bottom: 15px; }
+    .edit-row, .sch-edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr 40px; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .sch-edit-row { grid-template-columns: 1fr 1fr 1fr 1fr 40px; }
+    .btn-del { color: #f52a1f; background: none; border: none; font-size: 18px; cursor: pointer; }
 
-    footer { padding: 40px; text-align: center; color: #333; font-size: 11px; }
+    footer { padding: 40px; text-align: center; color: #333; font-size: 10px; }
   </style>
 </head>
 <body>
@@ -76,35 +88,24 @@
     </div>
 
     <div id="adminArea" class="admin-section">
-      <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
-      
+      <h2 style="color:#f52a1f; text-align:center;">CONTROLO CLOUD</h2>
       <div id="loginBox">
-        <input id="pass" type="password" class="admin-input" placeholder="Password Admin">
-        <button onclick="login()" class="admin-input" style="background:#f52a1f; color:white; font-weight:bold; cursor:pointer;">ENTRAR</button>
+        <input id="pass" type="password" class="admin-input" placeholder="Password">
+        <button onclick="login()" class="btn-save-all" style="background:#f52a1f">ENTRAR</button>
       </div>
-
       <div id="dashBox" style="display:none">
-        <button class="btn-save-all" onclick="saveAll()">☁️ Salvar Tudo no Site</button>
-
+        <button class="btn-save-all" onclick="saveAll()">☁️ PUBLICAR NO SITE</button>
         <div class="admin-card">
-          <h3>1. Visibilidade</h3>
-          <label><input type="checkbox" id="hideDjs"> Esconder DJs</label> | 
-          <label><input type="checkbox" id="hideSch"> Esconder Horário</label>
-        </div>
-
-        <div class="admin-card">
-          <h3>2. Gerir Equipa (DJs)</h3>
+          <h3>Equipa (DJs)</h3>
           <div id="adminDjList"></div>
-          <button onclick="addNewDjField()" class="admin-input" style="background:#222; color:white; cursor:pointer;">+ Adicionar DJ</button>
+          <button onclick="addNewDjField()" class="admin-input" style="background:#222; cursor:pointer">+ DJ</button>
         </div>
-
         <div class="admin-card">
-          <h3>3. Gerir Horário</h3>
+          <h3>Horário</h3>
           <div id="adminSchList"></div>
-          <button onclick="addNewSchField()" class="admin-input" style="background:#222; color:white; cursor:pointer;">+ Adicionar Horário</button>
+          <button onclick="addNewSchField()" class="admin-input" style="background:#222; cursor:pointer">+ Horário</button>
         </div>
-
-        <button onclick="location.reload()" class="admin-input" style="background:#333; color:white; cursor:pointer;">CANCELAR / SAIR</button>
+        <button onclick="location.reload()" class="admin-input" style="background:#333; cursor:pointer">SAIR</button>
       </div>
     </div>
   </div>
@@ -113,8 +114,8 @@
 
   <script>
     const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-    const days = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo", "Todos os dias"];
-    const hours = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+    const daysArr = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo", "Todos os dias"];
+    const hoursArr = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
     let currentDjs = [];
     let currentSch = [];
@@ -123,100 +124,81 @@
     async function load() {
       const rf = await fetch(DB + ".json");
       const data = await rf.json();
-      
-      currentDjs = data?.djs || [{name:"Exemplo", img:"https://via.placeholder.com/150", style:"House"}];
-      
-      // Se o horário no Firebase for texto antigo, resetamos para lista
+      currentDjs = data?.djs || [{name:"Admin", img:"https://via.placeholder.com/150", style:"House"}];
       currentSch = Array.isArray(data?.schedule) ? data.schedule : [];
-
-      renderSite(data);
+      renderSite();
       if(document.getElementById('dashBox').style.display === 'block') renderAdmin();
     }
 
-    function renderSite(data) {
-      document.getElementById('secDjs').style.display = data?.hideDjs ? 'none' : 'block';
-      document.getElementById('secSch').style.display = data?.hideSch ? 'none' : 'block';
-
-      const djsLimit = djsExpanded ? currentDjs.length : 4;
-      document.getElementById('djGrid').innerHTML = currentDjs.slice(0, djsLimit).map(d => `
+    function renderSite() {
+      // Render DJs
+      const dLimit = djsExpanded ? currentDjs.length : 4;
+      document.getElementById('djGrid').innerHTML = currentDjs.slice(0, dLimit).map(d => `
         <div class="card-dj"><img src="${d.img}"><h3>${d.name}</h3><p>${d.style}</p></div>`).join('');
-      
       document.getElementById('btnMoreDjs').style.display = currentDjs.length > 4 ? 'block' : 'none';
-      document.getElementById('btnMoreDjs').innerText = djsExpanded ? "Ver Menos" : "Ver Mais Equipa";
 
-      document.getElementById('scheduleList').innerHTML = currentSch.length > 0 ? 
-        currentSch.map(s => `
-          <div class="sch-row">
+      // Lógica de Tempo para Rolling Schedule
+      const now = new Date();
+      const currentHour = now.getHours();
+      
+      // Ordenar: primeiro o que está a tocar agora, depois o resto
+      let sortedSch = [...currentSch].sort((a, b) => {
+          const hA = parseInt(a.time);
+          const hB = parseInt(b.time);
+          const isLiveA = hA === currentHour;
+          const isLiveB = hB === currentHour;
+          if (isLiveA) return -1;
+          if (isLiveB) return 1;
+          return hA - hB;
+      });
+
+      document.getElementById('scheduleList').innerHTML = sortedSch.map((s, i) => {
+        const djData = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
+        const isLive = parseInt(s.time) === currentHour;
+        const isNext = !isLive && sortedSch[i-1] && parseInt(sortedSch[i-1].time) === currentHour;
+        
+        return `
+          <div class="sch-row ${isLive ? 'live-now' : ''}">
             <div class="sch-time">${s.time}</div>
             <div class="sch-day">${s.day}</div>
+            <img src="${djData.img}" class="sch-dj-thumb">
             <div class="sch-info"><strong>${s.dj}</strong> - ${s.info}</div>
-          </div>`).join('') : '<p style="padding:20px; color:#444">Nenhum horário definido.</p>';
+            <div class="sch-status">${isLive ? '● LIVE NOW' : (isNext ? 'NEXT' : '')}</div>
+          </div>`;
+      }).join('');
     }
 
     function renderAdmin() {
-      // Admin DJs
-      const djListDiv = document.getElementById('adminDjList');
-      djListDiv.innerHTML = currentDjs.map((d, i) => `
+      document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `
         <div class="edit-row">
-          <input class="admin-input" placeholder="Nome" value="${d.name}" oninput="currentDjs[${i}].name=this.value; updateSchSelectors()">
-          <input class="admin-input" placeholder="Foto URL" value="${d.img}" oninput="currentDjs[${i}].img=this.value">
-          <input class="admin-input" placeholder="Estilo" value="${d.style}" oninput="currentDjs[${i}].style=this.value">
+          <input class="admin-input" value="${d.name}" oninput="currentDjs[${i}].name=this.value; renderAdmin()">
+          <input class="admin-input" value="${d.img}" oninput="currentDjs[${i}].img=this.value">
+          <input class="admin-input" value="${d.style}" oninput="currentDjs[${i}].style=this.value">
           <button class="btn-del" onclick="currentDjs.splice(${i},1);renderAdmin()">🗑️</button>
         </div>`).join('');
 
-      // Admin Schedule
-      updateSchSelectors();
-    }
-
-    function updateSchSelectors() {
-      const schListDiv = document.getElementById('adminSchList');
-      schListDiv.innerHTML = currentSch.map((s, i) => `
+      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `
         <div class="sch-edit-row">
           <select onchange="currentSch[${i}].dj=this.value">
-            <option value="">Escolher DJ</option>
-            ${currentDjs.map(dj => `<option value="${dj.name}" ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}
+            <option>Escolher DJ</option>
+            ${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}
           </select>
-          <select onchange="currentSch[${i}].day=this.value">
-            ${days.map(d => `<option ${s.day==d?'selected':''}>${d}</option>`).join('')}
-          </select>
-          <select onchange="currentSch[${i}].time=this.value">
-            ${hours.map(h => `<option ${s.time==h?'selected':''}>${h}</option>`).join('')}
-          </select>
-          <input class="admin-input" placeholder="Info" value="${s.info}" oninput="currentSch[${i}].info=this.value">
-          <button class="btn-del" onclick="currentSch.splice(${i},1);updateSchSelectors()">🗑️</button>
+          <select onchange="currentSch[${i}].day=this.value">${daysArr.map(d=>(`<option ${s.day==d?'selected':''}>${d}</option>`)).join('')}</select>
+          <select onchange="currentSch[${i}].time=this.value">${hoursArr.map(h=>(`<option ${s.time==h?'selected':''}>${h}</option>`)).join('')}</select>
+          <input class="admin-input" value="${s.info}" oninput="currentSch[${i}].info=this.value">
+          <button class="btn-del" onclick="currentSch.splice(${i},1);renderAdmin()">🗑️</button>
         </div>`).join('');
     }
 
     function addNewDjField() { currentDjs.push({name:'', img:'', style:''}); renderAdmin(); }
-    function addNewSchField() { currentSch.push({dj:'', day:'Segunda', time:'22:00', info:''}); updateSchSelectors(); }
-    function toggleDjsDisplay() { djsExpanded = !djsExpanded; load(); }
-
+    function addNewSchField() { currentSch.push({dj:'', day:'Todos os dias', time:'22:00', info:''}); renderAdmin(); }
+    function toggleDjsDisplay() { djsExpanded = !djsExpanded; renderSite(); }
+    function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; renderAdmin(); }}
+    function toggleAdmin() { const a = document.getElementById('adminArea'); a.style.display = a.style.display==='block'?'none':'block'; a.scrollIntoView(); }
     async function saveAll() {
-      const data = {
-        hideDjs: document.getElementById('hideDjs').checked,
-        hideSch: document.getElementById('hideSch').checked,
-        djs: currentDjs.filter(d => d.name !== ''),
-        schedule: currentSch
-      };
-      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify(data) });
-      alert("✅ GUARDADO!");
-      location.reload();
+      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify({djs: currentDjs.filter(d=>d.name), schedule: currentSch}) });
+      alert("✅ ATUALIZADO!"); location.reload();
     }
-
-    function login() { 
-      if(document.getElementById('pass').value==='1234'){ 
-        document.getElementById('loginBox').style.display='none'; 
-        document.getElementById('dashBox').style.display='block'; 
-        renderAdmin();
-      } 
-    }
-    
-    function toggleAdmin() { 
-      const area = document.getElementById('adminArea');
-      area.style.display = area.style.display === 'block' ? 'none' : 'block';
-      area.scrollIntoView();
-    }
-
     load();
   </script>
 </body>
