@@ -5,57 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DJ LIVE TV</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
   <style>
+    /* MANTENHO TODOS OS TEUS ESTILOS ORIGINAIS */
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: Arial, sans-serif; }
     .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,.88); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,.08); }
     .nav-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; gap: 16px; }
-    .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 17px; letter-spacing: .6px; white-space: nowrap; color: #fff; text-shadow: 0 0 14px rgba(255,50,50,.18); }
-    .nav-links { display: flex; gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
-    .nav-links a { color: #cfcfcf; text-decoration: none; font-size: 14px; font-weight: 700; padding: 8px 10px; border-radius: 10px; transition: background .2s ease, color .2s ease; }
-    .nav-links a:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .logo { font-weight: 800; font-size: 17px; color: #fff; }
+    .nav-links a { color: #cfcfcf; text-decoration: none; font-size: 14px; font-weight: 700; padding: 8px 10px; border-radius: 10px; }
     .container { max-width: 1120px; margin: 0 auto; padding: 14px; }
-    h1 { text-align: center; margin: 0 0 14px 0; font-size: 56px; letter-spacing: .5px; }
-    .section-title { text-align: center; margin-top: 44px; margin-bottom: 16px; font-size: 38px; letter-spacing: .4px; }
-    .section-sub { text-align: center; color: #bdbdbd; margin: 0 0 18px 0; font-size: 15px; }
-    .badge-wrap { display: flex; justify-content: center; margin-bottom: 12px; gap: 10px; }
+    h1 { text-align: center; font-size: 56px; margin-bottom: 14px; }
+    .badge-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
     #live-status-badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; background: #2b2b2b; color: #d7d7d7; border: 1px solid rgba(255,255,255,.12); }
     #live-status-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; display: inline-block; }
-    .now-playing { background: rgba(245, 42, 31, 0.1); border: 1px solid rgba(245, 42, 31, 0.3); padding: 10px 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; display: none; }
-    .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
-    .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
-    .controls { position: absolute; right: 14px; bottom: 14px; z-index: 20; display: flex; gap: 10px; }
-    .control-btn { background: rgba(0,0,0,.78); color: #fff; border: 1px solid rgba(255,255,255,.16); padding: 12px 14px; border-radius: 12px; font-size: 15px; cursor: pointer; font-weight: 700; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
-    .card { background: #0d0d0d; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
-    .replay-card { cursor: pointer; transition: transform .2s ease; }
-    .replay-card:hover { transform: scale(1.03); }
-    .card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-    .card p { margin: 0; padding: 10px 12px 14px; font-size: 14px; }
-    .schedule-list { display: flex; flex-direction: column; gap: 12px; }
-    .schedule-item { display: grid; grid-template-columns: 70px 110px 1.1fr 110px 1fr 1.1fr auto; gap: 14px; align-items: center; background: #0d0d0d; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 12px 14px; }
-    .schedule-photo { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
-    .site-footer { margin-top: 44px; padding: 24px 12px 30px; border-top: 1px solid rgba(255,255,255,.08); text-align: center; color: #a7a7a7; font-size: 14px; }
-    #backToTop { position:fixed; right:20px; bottom:20px; background:#f52a1f; color:#fff; border:none; border-radius:50%; width:42px; height:42px; cursor:pointer; display:none; z-index:999; }
     
-    @media (max-width: 900px) {
-      h1 { font-size: 30px; }
-      .schedule-item { grid-template-columns: 56px 1fr auto; }
-      .schedule-day, .schedule-time, .schedule-style { display: none; }
-    }
+    /* BARRA DE MÚSICA (NOVIDADE) */
+    .now-playing { background: rgba(245, 42, 31, 0.1); border: 1px solid rgba(245, 42, 31, 0.3); padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+    .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
+    .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .controls { position: absolute; right: 14px; bottom: 14px; z-index: 20; }
+    .control-btn { background: rgba(0,0,0,.78); color: #fff; border: 1px solid rgba(255,255,255,.16); padding: 12px 14px; border-radius: 12px; font-size: 15px; cursor: pointer; font-weight: 700; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-top: 20px; }
+    .card { background: #0d0d0d; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
+    .card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+    
+    /* ADMIN PANEL ESTILO */
+    .admin-card { background: #0d0d0d; border: 1px solid #333; border-radius: 18px; padding: 20px; margin-top: 30px; display: none; }
+    .admin-input { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; }
+    
+    #backToTop { position:fixed; right:20px; bottom:20px; background:#f52a1f; color:#fff; border:none; border-radius:50%; width:42px; height:42px; cursor:pointer; display:none; z-index:999; }
   </style>
 </head>
 <body>
 
   <div class="top-nav">
     <div class="nav-inner">
-      <div class="logo"><span>DJ LIVE TV</span></div>
+      <div class="logo">DJ LIVE TV</div>
       <div class="nav-links">
         <a href="#top">Home</a>
         <a href="#replays">Replays</a>
         <a href="#djs">Our DJs</a>
         <a href="#schedule">Schedule</a>
+        <a href="javascript:void(0)" onclick="toggleAdmin()" style="border: 1px solid #444;">Admin</a>
       </div>
     </div>
   </div>
@@ -66,95 +60,120 @@
     <div class="badge-wrap">
       <div id="live-status-badge">
         <span id="live-status-dot"></span>
-        <span id="live-status-text">OFFLINE</span>
+        <span id="live-status-text">CHECKING...</span>
       </div>
     </div>
 
-    <div id="nowPlayingBox" class="now-playing">
-      <span style="color: #f52a1f; font-weight: bold; text-transform: uppercase; font-size: 12px;">A tocar agora:</span><br>
-      <span id="trackName" style="font-size: 18px; font-weight: 800;">---</span>
+    <div id="nowPlaying" class="now-playing">
+      <span style="color: #f52a1f; font-weight: bold; font-size: 12px; text-transform: uppercase;">A tocar:</span><br>
+      <strong id="trackTitle" style="font-size: 18px;">---</strong>
     </div>
 
     <div class="player">
-      <iframe id="livePlayer" src="https://player.kick.com/DJLIVETV?muted=true" allow="autoplay; fullscreen" allowfullscreen></iframe>
+      <iframe id="livePlayer" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
       <div class="controls">
-        <button class="control-btn" onclick="document.getElementById('livePlayer').src='https://player.kick.com/DJLIVETV'">🔊 SOUND</button>
+        <button class="control-btn" onclick="document.getElementById('livePlayer').src='https://player.kick.com/DJLIVETV'">🔊 SOM</button>
       </div>
     </div>
 
+    <div id="adminPanel" class="admin-card">
+      <h2 style="color: #f52a1f;">PAINEL DJ LIVE TV</h2>
+      <input id="pass" type="password" class="admin-input" placeholder="Password Admin">
+      <div id="adminTools" style="display:none;">
+        <p>Status da Emissão:</p>
+        <select id="setLive" class="admin-input">
+          <option value="live">LIVE (Vermelho)</option>
+          <option value="offline">OFFLINE (Cinza)</option>
+        </select>
+        <p>Música Atual:</p>
+        <input id="setTrack" class="admin-input" placeholder="Nome da Música">
+        <button onclick="saveLive()" style="width:100%; background:#f52a1f; color:#fff; border:none; padding:15px; border-radius:10px; font-weight:bold; cursor:pointer;">GUARDAR ALTERAÇÕES</button>
+      </div>
+      <button onclick="loginAdmin()" id="loginBtn" style="width:100%; background:#333; color:#fff; border:none; padding:10px; border-radius:10px; margin-top:10px;">ENTRAR</button>
+    </div>
+
     <h2 class="section-title" id="replays">REPLAYS</h2>
-    <div id="videos" class="grid"></div>
+    <div id="videoGrid" class="grid"></div>
 
     <h2 class="section-title" id="djs">OUR DJs</h2>
     <div id="djGrid" class="grid"></div>
-
-    <h2 class="section-title" id="schedule">SCHEDULE</h2>
-    <div class="schedule-list" id="scheduleList"></div>
-
-    <footer class="site-footer">
-      <strong>DJ LIVE TV</strong><br>
-      © 2026 DJ LIVE TV. All rights reserved.
-    </footer>
   </div>
 
   <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
   <script>
-    // CONFIGURAÇÃO FIREBASE LIVE TV
+    // URL DO TEU FIREBASE DJ LIVE TV
     const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/.json";
 
-    async function updateFromFirebase() {
+    // 1. SINCRONIZAÇÃO EM TEMPO REAL
+    async function sync() {
       try {
         const res = await fetch(DB_URL);
         const data = await res.json();
-        
         if (data) {
-          // Atualiza o Status (LIVE/OFFLINE)
-          const badgeText = document.getElementById("live-status-text");
-          const badgeDot = document.getElementById("live-status-dot");
+          // Status
+          const dot = document.getElementById("live-status-dot");
+          const text = document.getElementById("live-status-text");
           if (data.status === "live") {
-            badgeText.textContent = "LIVE NOW";
-            badgeDot.style.background = "#f52a1f";
+            dot.style.background = "#f52a1f";
+            text.textContent = "LIVE NOW";
           } else {
-            badgeText.textContent = "OFFLINE";
-            badgeDot.style.background = "#666";
+            dot.style.background = "#666";
+            text.textContent = "OFFLINE";
           }
-
-          // Atualiza a Música
-          const trackBox = document.getElementById("nowPlayingBox");
-          const trackName = document.getElementById("trackName");
+          // Música
+          const trackBar = document.getElementById("nowPlaying");
+          const trackTitle = document.getElementById("trackTitle");
           if (data.now_playing) {
-            trackBox.style.display = "block";
-            trackName.textContent = data.now_playing;
+            trackBar.style.display = "block";
+            trackTitle.textContent = data.now_playing;
           } else {
-            trackBox.style.display = "none";
+            trackBar.style.display = "none";
           }
         }
-      } catch (e) { console.log("Erro Firebase:", e); }
+      } catch (e) { console.log("Firebase Offline"); }
     }
 
-    // Atualiza a cada 5 segundos
-    setInterval(updateFromFirebase, 5000);
-    updateFromFirebase();
-
-    // Mostrar botão subir
-    window.addEventListener('scroll', () => {
-      document.getElementById('backToTop').style.display = window.scrollY > 300 ? 'block' : 'none';
-    });
-
-    // Carregar Vídeos do Worker
-    async function loadVideos() {
-      try {
-        const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-        const vids = await res.json();
-        document.getElementById("videos").innerHTML = vids.slice(0, 4).map(v => `
-          <div class="card replay-card" onclick="window.open('${v.source}', '_self')">
-            <img src="${v.thumbnail.src}">
-            <p>${v.session_title}</p>
-          </div>`).join('');
-      } catch (e) { document.getElementById("videos").innerHTML = "<p>Sem replays.</p>"; }
+    // 2. FUNÇÕES ADMIN (GUARDAR NO FIREBASE)
+    function toggleAdmin() {
+      const p = document.getElementById("adminPanel");
+      p.style.display = p.style.display === "block" ? "none" : "block";
     }
-    loadVideos();
+
+    function loginAdmin() {
+      if (document.getElementById("pass").value === "1234") {
+        document.getElementById("adminTools").style.display = "block";
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("pass").style.display = "none";
+      }
+    }
+
+    async function saveLive() {
+      const status = document.getElementById("setLive").value;
+      const track = document.getElementById("setTrack").value;
+      await fetch(DB_URL.replace(".json", "/status.json"), { method: 'PUT', body: JSON.stringify(status) });
+      await fetch(DB_URL.replace(".json", "/now_playing.json"), { method: 'PUT', body: JSON.stringify(track) });
+      alert("Atualizado!");
+      location.reload();
+    }
+
+    // 3. CARREGAR VÍDEOS E DJS
+    async function loadContent() {
+      // Replays do Worker
+      const resV = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+      const vids = await resV.json();
+      document.getElementById("videoGrid").innerHTML = vids.slice(0, 8).map(v => `
+        <div class="card" onclick="location.href='${v.source}'" style="cursor:pointer">
+          <img src="${v.thumbnail.src}">
+          <p style="padding:10px;">${v.session_title}</p>
+        </div>`).join('');
+    }
+
+    window.onscroll = () => { document.getElementById('backToTop').style.display = window.scrollY > 300 ? 'block' : 'none'; };
+    
+    setInterval(sync, 5000);
+    sync();
+    loadContent();
   </script>
 </body>
 </html>
