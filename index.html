@@ -12,7 +12,6 @@
     .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; }
     .logo { font-weight: 900; font-size: 20px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; }
     .nav-links a { color: #aaa; text-decoration: none; font-size: 12px; font-weight: 700; padding: 8px 15px; text-transform: uppercase; transition: 0.3s; }
-    .nav-links a:hover { color: #fff; }
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
     
     #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 11px; font-weight: 900; margin-bottom: 20px; }
@@ -31,21 +30,21 @@
     .card-dj p { font-size: 10px; color: #f52a1f; font-weight: 800; text-transform: uppercase; margin: 0; }
     .btn-more { display: block; margin: 20px auto; background: none; border: 1px solid #333; color: #888; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 11px; }
 
-    /* SCHEDULE PROFISSIONAL ROLLING */
+    /* SCHEDULE PROFISSIONAL REORDENADO */
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
-    .sch-row { display: grid; grid-template-columns: 80px 100px 150px 1fr 100px; padding: 12px 20px; border-bottom: 1px solid #111; align-items: center; transition: 0.3s; }
-    .sch-row.live-now { background: rgba(245, 42, 31, 0.05); }
-    .sch-time { color: #888; font-weight: bold; font-family: monospace; font-size: 15px; }
-    .sch-day { color: #555; font-size: 10px; text-transform: uppercase; font-weight: 800; }
-    .sch-dj-thumb { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
-    .sch-info { font-size: 14px; font-weight: 600; color: #ccc; }
+    .sch-row { display: grid; grid-template-columns: 80px 200px 150px 80px 1fr 100px; padding: 12px 20px; border-bottom: 1px solid #111; align-items: center; transition: 0.3s; }
+    .sch-row.live-now { background: rgba(245, 42, 31, 0.08); }
+    .sch-dj-thumb { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
+    .sch-name { font-weight: 800; font-size: 16px; color: #fff; }
+    .sch-day { color: #666; font-size: 11px; text-transform: uppercase; font-weight: 700; }
+    .sch-time { font-family: monospace; font-size: 16px; font-weight: bold; color: #888; }
     .sch-status { font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: right; }
 
-    /* EFEITO LIVE NO SCHEDULE */
+    /* EFEITOS LIVE */
     .live-now .sch-time { color: #f52a1f; }
     .live-now .sch-dj-thumb { border-color: #f52a1f; animation: pulse-border 1.5s infinite; }
-    .live-now .sch-status { color: #f52a1f; }
-    @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(245, 42, 31, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0); } }
+    .live-now .sch-status { color: #f52a1f; letter-spacing: 1px; }
+    @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(245, 42, 31, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 42, 31, 0); } }
 
     /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 25px; margin-top: 50px; display: none; }
@@ -67,7 +66,7 @@
       <div class="nav-links">
         <a href="#djs">Equipa</a>
         <a href="#schedule">Horário</a>
-        <a href="javascript:void(0)" onclick="toggleAdmin()" style="color:#f52a1f">⚙️ Admin</a>
+        <a href="javascript:void(0)" onclick="toggleAdmin()" style="color:#f52a1f">⚙️ Painel Cloud</a>
       </div>
     </div>
   </nav>
@@ -96,14 +95,14 @@
       <div id="dashBox" style="display:none">
         <button class="btn-save-all" onclick="saveAll()">☁️ PUBLICAR NO SITE</button>
         <div class="admin-card">
-          <h3>Equipa (DJs)</h3>
+          <h3>Gerir Equipa (DJs)</h3>
           <div id="adminDjList"></div>
-          <button onclick="addNewDjField()" class="admin-input" style="background:#222; cursor:pointer">+ DJ</button>
+          <button onclick="addNewDjField()" class="admin-input" style="background:#222; cursor:pointer">+ Adicionar DJ</button>
         </div>
         <div class="admin-card">
-          <h3>Horário</h3>
+          <h3>Gerir Horário</h3>
           <div id="adminSchList"></div>
-          <button onclick="addNewSchField()" class="admin-input" style="background:#222; cursor:pointer">+ Horário</button>
+          <button onclick="addNewSchField()" class="admin-input" style="background:#222; cursor:pointer">+ Adicionar Horário</button>
         </div>
         <button onclick="location.reload()" class="admin-input" style="background:#333; cursor:pointer">SAIR</button>
       </div>
@@ -137,18 +136,15 @@
         <div class="card-dj"><img src="${d.img}"><h3>${d.name}</h3><p>${d.style}</p></div>`).join('');
       document.getElementById('btnMoreDjs').style.display = currentDjs.length > 4 ? 'block' : 'none';
 
-      // Lógica de Tempo para Rolling Schedule
       const now = new Date();
       const currentHour = now.getHours();
       
-      // Ordenar: primeiro o que está a tocar agora, depois o resto
+      // ORDENAÇÃO ROLLING: LIVE em primeiro, depois por hora
       let sortedSch = [...currentSch].sort((a, b) => {
           const hA = parseInt(a.time);
           const hB = parseInt(b.time);
-          const isLiveA = hA === currentHour;
-          const isLiveB = hB === currentHour;
-          if (isLiveA) return -1;
-          if (isLiveB) return 1;
+          if (hA === currentHour) return -1;
+          if (hB === currentHour) return 1;
           return hA - hB;
       });
 
@@ -159,10 +155,11 @@
         
         return `
           <div class="sch-row ${isLive ? 'live-now' : ''}">
-            <div class="sch-time">${s.time}</div>
-            <div class="sch-day">${s.day}</div>
             <img src="${djData.img}" class="sch-dj-thumb">
-            <div class="sch-info"><strong>${s.dj}</strong> - ${s.info}</div>
+            <div class="sch-name">${s.dj}</div>
+            <div class="sch-day">${s.day}</div>
+            <div class="sch-time">${s.time}</div>
+            <div style="color:#555; font-size:12px; font-weight:bold;">${s.info}</div>
             <div class="sch-status">${isLive ? '● LIVE NOW' : (isNext ? 'NEXT' : '')}</div>
           </div>`;
       }).join('');
@@ -185,7 +182,7 @@
           </select>
           <select onchange="currentSch[${i}].day=this.value">${daysArr.map(d=>(`<option ${s.day==d?'selected':''}>${d}</option>`)).join('')}</select>
           <select onchange="currentSch[${i}].time=this.value">${hoursArr.map(h=>(`<option ${s.time==h?'selected':''}>${h}</option>`)).join('')}</select>
-          <input class="admin-input" value="${s.info}" oninput="currentSch[${i}].info=this.value">
+          <input class="admin-input" placeholder="Bio/Show" value="${s.info}" oninput="currentSch[${i}].info=this.value">
           <button class="btn-del" onclick="currentSch.splice(${i},1);renderAdmin()">🗑️</button>
         </div>`).join('');
     }
