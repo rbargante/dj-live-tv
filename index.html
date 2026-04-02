@@ -1,42 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DJ LIVE TV</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    /* MANTENHO TODOS OS TEUS ESTILOS ORIGINAIS */
+    /* DESIGN ORIGINAL + MELHORIAS */
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: Arial, sans-serif; }
     .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,.88); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,.08); }
     .nav-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; gap: 16px; }
     .logo { font-weight: 800; font-size: 17px; color: #fff; }
-    .nav-links a { color: #cfcfcf; text-decoration: none; font-size: 14px; font-weight: 700; padding: 8px 10px; border-radius: 10px; }
+    .nav-links a { color: #cfcfcf; text-decoration: none; font-size: 14px; font-weight: 700; padding: 8px 10px; }
     .container { max-width: 1120px; margin: 0 auto; padding: 14px; }
-    h1 { text-align: center; font-size: 56px; margin-bottom: 14px; }
-    .badge-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
-    #live-status-badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; background: #2b2b2b; color: #d7d7d7; border: 1px solid rgba(255,255,255,.12); }
-    #live-status-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; display: inline-block; }
+    h1 { text-align: center; font-size: 56px; margin-bottom: 14px; text-transform: uppercase; }
     
-    /* BARRA DE MÚSICA (NOVIDADE) */
-    .now-playing { background: rgba(245, 42, 31, 0.1); border: 1px solid rgba(245, 42, 31, 0.3); padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none; animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
-
+    .badge-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
+    #live-status-badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; background: #2b2b2b; border: 1px solid rgba(255,255,255,.12); }
+    #live-status-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; }
+    
+    .now-playing-bar { background: rgba(245, 42, 31, 0.15); border: 1px solid #f52a1f; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none; }
+    
     .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
     .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .controls { position: absolute; right: 14px; bottom: 14px; z-index: 20; }
-    .control-btn { background: rgba(0,0,0,.78); color: #fff; border: 1px solid rgba(255,255,255,.16); padding: 12px 14px; border-radius: 12px; font-size: 15px; cursor: pointer; font-weight: 700; }
     
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-top: 20px; }
-    .card { background: #0d0d0d; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
-    .card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+    .section-title { text-align: center; margin-top: 50px; font-size: 38px; text-transform: uppercase; border-bottom: 2px solid #f52a1f; display: table; margin-left: auto; margin-right: auto; padding-bottom: 5px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+    .card { background: #0d0d0d; border-radius: 16px; border: 1px solid rgba(255,255,255,.08); overflow: hidden; text-align: center; padding-bottom: 15px; }
+    .card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
     
-    /* ADMIN PANEL ESTILO */
-    .admin-card { background: #0d0d0d; border: 1px solid #333; border-radius: 18px; padding: 20px; margin-top: 30px; display: none; }
-    .admin-input { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; }
+    .schedule-list { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+    .schedule-item { display: grid; grid-template-columns: 100px 1fr 1fr; background: #0d0d0d; padding: 15px; border-radius: 12px; border: 1px solid #222; align-items: center; }
+
+    /* ADMIN COMPLETO */
+    .admin-box { background: #111; border: 2px solid #f52a1f; border-radius: 20px; padding: 25px; margin-top: 50px; display: none; }
+    .admin-input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; }
+    .admin-btn { width: 100%; background: #f52a1f; color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     
-    #backToTop { position:fixed; right:20px; bottom:20px; background:#f52a1f; color:#fff; border:none; border-radius:50%; width:42px; height:42px; cursor:pointer; display:none; z-index:999; }
+    footer { margin-top: 60px; padding: 40px 20px; border-top: 1px solid #222; text-align: center; color: #777; font-size: 14px; }
+    #backToTop { position:fixed; right:20px; bottom:20px; background:#f52a1f; color:#fff; border:none; border-radius:50%; width:42px; height:42px; cursor:pointer; display:none; }
+
+    @media (max-width: 768px) { h1 { font-size: 32px; } .schedule-item { grid-template-columns: 1fr; text-align: center; gap: 5px; } }
   </style>
 </head>
 <body>
@@ -45,11 +50,11 @@
     <div class="nav-inner">
       <div class="logo">DJ LIVE TV</div>
       <div class="nav-links">
-        <a href="#top">Home</a>
+        <a href="#top">Início</a>
         <a href="#replays">Replays</a>
-        <a href="#djs">Our DJs</a>
-        <a href="#schedule">Schedule</a>
-        <a href="javascript:void(0)" onclick="toggleAdmin()" style="border: 1px solid #444;">Admin</a>
+        <a href="#djs">DJs</a>
+        <a href="#schedule">Horário</a>
+        <a href="javascript:void(0)" onclick="toggleAdmin()" style="border:1px solid #444">ADMIN</a>
       </div>
     </div>
   </div>
@@ -60,36 +65,42 @@
     <div class="badge-wrap">
       <div id="live-status-badge">
         <span id="live-status-dot"></span>
-        <span id="live-status-text">CHECKING...</span>
+        <span id="live-status-text">OFFLINE</span>
       </div>
     </div>
 
-    <div id="nowPlaying" class="now-playing">
-      <span style="color: #f52a1f; font-weight: bold; font-size: 12px; text-transform: uppercase;">A tocar:</span><br>
-      <strong id="trackTitle" style="font-size: 18px;">---</strong>
+    <div id="trackBar" class="now-playing-bar">
+      <small style="color: #f52a1f; font-weight: bold;">NO AR:</small><br>
+      <strong id="trackTitle" style="font-size: 22px;">---</strong>
     </div>
 
     <div class="player">
       <iframe id="livePlayer" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
-      <div class="controls">
-        <button class="control-btn" onclick="document.getElementById('livePlayer').src='https://player.kick.com/DJLIVETV'">🔊 SOM</button>
-      </div>
     </div>
 
-    <div id="adminPanel" class="admin-card">
-      <h2 style="color: #f52a1f;">PAINEL DJ LIVE TV</h2>
-      <input id="pass" type="password" class="admin-input" placeholder="Password Admin">
-      <div id="adminTools" style="display:none;">
-        <p>Status da Emissão:</p>
-        <select id="setLive" class="admin-input">
-          <option value="live">LIVE (Vermelho)</option>
-          <option value="offline">OFFLINE (Cinza)</option>
-        </select>
-        <p>Música Atual:</p>
-        <input id="setTrack" class="admin-input" placeholder="Nome da Música">
-        <button onclick="saveLive()" style="width:100%; background:#f52a1f; color:#fff; border:none; padding:15px; border-radius:10px; font-weight:bold; cursor:pointer;">GUARDAR ALTERAÇÕES</button>
+    <div id="adminPanel" class="admin-box">
+      <h2 style="text-align:center; color:#f52a1f">PAINEL DE CONTROLO</h2>
+      <div id="loginArea">
+        <input id="adminPass" type="password" class="admin-input" placeholder="Senha Admin">
+        <button class="admin-btn" onclick="checkPass()">ENTRAR</button>
       </div>
-      <button onclick="loginAdmin()" id="loginBtn" style="width:100%; background:#333; color:#fff; border:none; padding:10px; border-radius:10px; margin-top:10px;">ENTRAR</button>
+      
+      <div id="controlArea" style="display:none">
+        <h3>GERAL</h3>
+        <select id="statusInput" class="admin-input">
+          <option value="offline">OFFLINE</option>
+          <option value="live">LIVE (No Ar)</option>
+        </select>
+        <input id="nowPlayingInput" class="admin-input" placeholder="Música atual">
+        
+        <h3>DJs (Lista separada por vírgulas)</h3>
+        <textarea id="djsInput" class="admin-input" rows="3" placeholder="DJ Ricardo, DJ Sofia..."></textarea>
+        
+        <h3>HORÁRIO (Texto livre)</h3>
+        <textarea id="scheduleInput" class="admin-input" rows="4" placeholder="Segunda 21h: DJ Ricardo..."></textarea>
+
+        <button class="admin-btn" onclick="saveFirebase()">GUARDAR TUDO NO FIREBASE</button>
+      </div>
     </div>
 
     <h2 class="section-title" id="replays">REPLAYS</h2>
@@ -97,83 +108,112 @@
 
     <h2 class="section-title" id="djs">OUR DJs</h2>
     <div id="djGrid" class="grid"></div>
+
+    <h2 class="section-title" id="schedule">SCHEDULE</h2>
+    <div id="scheduleList" class="schedule-list"></div>
+
   </div>
+
+  <footer>
+    <div id="footerText">DJ LIVE TV - Especialistas em Animação</div>
+    <div style="margin-top:10px; color:#444">© 2026 DJ LIVE TV. Todos os direitos reservados.</div>
+  </footer>
 
   <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
   <script>
-    // URL DO TEU FIREBASE DJ LIVE TV
+    // LINK DO TEU NOVO FIREBASE
     const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/.json";
 
-    // 1. SINCRONIZAÇÃO EM TEMPO REAL
-    async function sync() {
+    // 1. CARREGAR DADOS DO FIREBASE
+    async function loadData() {
       try {
         const res = await fetch(DB_URL);
         const data = await res.json();
-        if (data) {
-          // Status
-          const dot = document.getElementById("live-status-dot");
-          const text = document.getElementById("live-status-text");
-          if (data.status === "live") {
-            dot.style.background = "#f52a1f";
-            text.textContent = "LIVE NOW";
+        if(data) {
+          // Status e Música
+          document.getElementById("live-status-text").textContent = data.status === "live" ? "LIVE NOW" : "OFFLINE";
+          document.getElementById("live-status-dot").style.background = data.status === "live" ? "#f52a1f" : "#666";
+          if(data.now_playing) {
+            document.getElementById("trackBar").style.display = "block";
+            document.getElementById("trackTitle").textContent = data.now_playing;
           } else {
-            dot.style.background = "#666";
-            text.textContent = "OFFLINE";
+            document.getElementById("trackBar").style.display = "none";
           }
-          // Música
-          const trackBar = document.getElementById("nowPlaying");
-          const trackTitle = document.getElementById("trackTitle");
-          if (data.now_playing) {
-            trackBar.style.display = "block";
-            trackTitle.textContent = data.now_playing;
-          } else {
-            trackBar.style.display = "none";
+
+          // Renderizar DJs
+          if(data.djs_list) {
+            const djNames = data.djs_list.split(",");
+            document.getElementById("djGrid").innerHTML = djNames.map(name => `
+              <div class="card">
+                <img src="https://via.placeholder.com/400x225/111/fff?text=${name.trim()}">
+                <p style="font-weight:bold; font-size:18px; margin-top:10px;">${name.trim()}</p>
+              </div>
+            `).join('');
+          }
+
+          // Renderizar Horário
+          if(data.schedule_text) {
+            const lines = data.schedule_text.split("\n");
+            document.getElementById("scheduleList").innerHTML = lines.map(line => `
+              <div class="schedule-item">
+                <div style="color:#f52a1f; font-weight:bold">INFO</div>
+                <div style="color:#fff">${line}</div>
+                <div style="color:#555; text-align:right">Disponível</div>
+              </div>
+            `).join('');
           }
         }
-      } catch (e) { console.log("Firebase Offline"); }
+      } catch(e) { console.log("Firebase error"); }
     }
 
-    // 2. FUNÇÕES ADMIN (GUARDAR NO FIREBASE)
+    // 2. ADMIN FUNCTIONS
     function toggleAdmin() {
-      const p = document.getElementById("adminPanel");
-      p.style.display = p.style.display === "block" ? "none" : "block";
+      const panel = document.getElementById("adminPanel");
+      panel.style.display = panel.style.display === "block" ? "none" : "block";
+      panel.scrollIntoView({behavior: "smooth"});
     }
 
-    function loginAdmin() {
-      if (document.getElementById("pass").value === "1234") {
-        document.getElementById("adminTools").style.display = "block";
-        document.getElementById("loginBtn").style.display = "none";
-        document.getElementById("pass").style.display = "none";
+    function checkPass() {
+      if(document.getElementById("adminPass").value === "1234") {
+        document.getElementById("loginArea").style.display = "none";
+        document.getElementById("controlArea").style.display = "block";
       }
     }
 
-    async function saveLive() {
-      const status = document.getElementById("setLive").value;
-      const track = document.getElementById("setTrack").value;
-      await fetch(DB_URL.replace(".json", "/status.json"), { method: 'PUT', body: JSON.stringify(status) });
-      await fetch(DB_URL.replace(".json", "/now_playing.json"), { method: 'PUT', body: JSON.stringify(track) });
-      alert("Atualizado!");
+    async function saveFirebase() {
+      const data = {
+        status: document.getElementById("statusInput").value,
+        now_playing: document.getElementById("nowPlayingInput").value,
+        djs_list: document.getElementById("djsInput").value,
+        schedule_text: document.getElementById("scheduleInput").value
+      };
+      
+      await fetch(DB_URL, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
+      alert("SITE ATUALIZADO!");
       location.reload();
     }
 
-    // 3. CARREGAR VÍDEOS E DJS
-    async function loadContent() {
-      // Replays do Worker
-      const resV = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-      const vids = await resV.json();
-      document.getElementById("videoGrid").innerHTML = vids.slice(0, 8).map(v => `
+    // 3. REPLAYS DO WORKER
+    async function loadReplays() {
+      const res = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+      const vids = await res.json();
+      document.getElementById("videoGrid").innerHTML = vids.slice(0,4).map(v => `
         <div class="card" onclick="location.href='${v.source}'" style="cursor:pointer">
           <img src="${v.thumbnail.src}">
-          <p style="padding:10px;">${v.session_title}</p>
-        </div>`).join('');
+          <p>${v.session_title}</p>
+        </div>
+      `).join('');
     }
 
     window.onscroll = () => { document.getElementById('backToTop').style.display = window.scrollY > 300 ? 'block' : 'none'; };
-    
-    setInterval(sync, 5000);
-    sync();
-    loadContent();
+
+    loadData();
+    loadReplays();
+    setInterval(loadData, 5000); // Atualiza status a cada 5s
   </script>
 </body>
 </html>
