@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DJ LIVE TV | FLASHMIX</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
@@ -13,14 +14,13 @@
     .nav-links a { color: #aaa; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 10px; text-transform: uppercase; }
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
     
-    /* BADGE */
+    /* BADGE DESIGN */
     #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 10px; font-weight: 900; margin-bottom: 15px; }
     #statusDot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
     .is-live #statusBadge { border-color: #f52a1f; color: #f52a1f; }
-    .is-live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1s infinite; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .is-live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* PLAYER */
     .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
@@ -29,10 +29,17 @@
     .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
     .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
+    
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 50px 1fr 100px 80px; padding: 12px 15px; border-bottom: 1px solid #111; align-items: center; gap: 10px; }
     .sch-row.live-now { background: rgba(245, 42, 31, 0.08); border-left: 4px solid #f52a1f; }
     .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
+
+    .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 15px; margin-top: 40px; display: none; }
+    .admin-input { width: 100%; padding: 10px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
+    .btn-publish { background: #28a745; color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; }
+
+    footer { padding: 30px; text-align: center; color: #333; font-size: 10px; }
   </style>
 </head>
 <body id="bodyTag">
@@ -53,6 +60,12 @@
     <div id="vids"><h2 class="section-title">Últimos Sets</h2><div id="videoGrid" class="grid-vids"></div></div>
     <div id="secDjs"><h2 class="section-title" id="djs">Nossa Equipa</h2><div id="djGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div></div>
     <div id="secSch"><h2 class="section-title" id="schedule">Broadcast Schedule</h2><div id="scheduleList" class="sch-container"></div></div>
+
+    <div id="adminArea" class="admin-section">
+      <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
+      <div id="adminDjList"></div>
+      <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR E SAIR</button>
+    </div>
   </div>
 
   <script>
@@ -63,32 +76,23 @@
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
+    // VERIFICAÇÃO AUTOMÁTICA REAL
     async function checkStatus() {
       const body = document.getElementById('bodyTag');
       const statusTxt = document.getElementById('statusText');
-      
       try {
-        // FORÇAMOS O WORKER A IGNORAR O CACHE COM UM TIMESTAMP ÚNICO (?t=...)
-        const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`, {
-          cache: 'no-store',
-          headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
-        });
+        // Usamos o teu Worker da Cloudflare para ler o Kick sem bloqueios
+        const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?nocache=${Date.now()}`);
         const data = await res.json();
         
-        // Se o livestream do Kick for NULL, o status TEM de ser OFFLINE
-        if (data && data.livestream && data.livestream !== null) {
+        // Se houver uma livestream ativa no Kick
+        if (data && data.livestream) {
           body.classList.add('is-live');
           statusTxt.innerText = "LIVE NOW";
         } else {
           body.classList.remove('is-live');
           statusTxt.innerText = "OFFLINE";
-          // Se o player estiver a "mentir", fazemos refresh apenas ao iframe
-          const iframe = document.getElementById('kickIframe');
-          if(body.dataset.lastState === "live") {
-             iframe.src = iframe.src; 
-          }
         }
-        body.dataset.lastState = data.livestream ? "live" : "offline";
       } catch (e) {
         statusTxt.innerText = "OFFLINE";
       }
@@ -96,14 +100,16 @@
 
     async function load() {
       checkStatus(); 
-      setInterval(checkStatus, 10000); // Verifica a cada 10 seg com força total
+      setInterval(checkStatus, 15000); // Verifica automático a cada 15 seg
 
+      // Carregar vídeos do Worker
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
         const vids = await rv.json();
         document.getElementById('videoGrid').innerHTML = vids.slice(0, 4).map(v => `<div class="card-v" onclick="window.open('${v.source}','_self')"><img src="${v.thumbnail.src}" style="width:100%"><h3 style="font-size:13px; padding:10px;">${v.session_title}</h3></div>`).join('');
       } catch(e) {}
 
+      // Carregar DJs e Schedule do Firebase
       const rf = await fetch(DB + ".json");
       const data = await rf.json();
       const djs = data?.djs || [];
@@ -118,7 +124,7 @@
       }).join('');
     }
 
-    function toggleAdmin() { if(prompt("Senha:") === '1234') alert("Aceda ao Firebase."); }
+    function toggleAdmin() { if(prompt("Senha:") === '1234') document.getElementById('adminArea').style.display='block'; }
     load();
   </script>
 </body>
