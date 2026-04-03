@@ -15,7 +15,7 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
 
-    /* PLAYER - SEMPRE VISÍVEL (ESTILO KICK) */
+    /* PLAYER SEMPRE VISÍVEL */
     .player-container { 
       position: relative; 
       width: 100%; 
@@ -31,9 +31,6 @@
     
     #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4); }
 
-    /* BADGE PARA O MENU/STATUS */
-    .is-live .logo::after { content: ' • LIVE'; color: #f52a1f; font-size: 10px; vertical-align: middle; }
-
     .section-title { text-align: center; margin: 30px 0 15px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
 
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
@@ -47,6 +44,7 @@
     .sch-dj-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
     .sch-time { font-family: monospace; font-size: 13px; font-weight: bold; color: #f52a1f; text-align: right; }
 
+    /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 20px; margin-top: 40px; display: none; }
     .admin-input { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
     .btn-publish { background: #28a745; color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 20px; }
@@ -119,38 +117,30 @@
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
-    async function updateStatus() {
+    // SINCRONIZA O PLAYER SEM TIRAR DO SITE
+    async function syncPlayer() {
       const iframe = document.getElementById('kickIframe');
-      const site = document.getElementById('mainSite');
-
+      
       try {
         const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`);
         const data = await res.json();
         const liveNow = !!(data && data.livestream);
 
-        if (liveNow && !isLiveState) {
-          isLiveState = true;
-          site.classList.add('is-live');
-          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
-        } 
-        else if (!liveNow && isLiveState) {
-          isLiveState = false;
-          site.classList.remove('is-live');
-          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
-        } 
-        else if (!iframe.src) {
-          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+        // Se o estado mudar (ligou ou desligou), damos um refresh ao player interno
+        if (liveNow !== isLiveState) {
+          isLiveState = liveNow;
+          // Refresh silencioso do iframe para carregar o novo estado do Kick
+          const currentMuted = iframe.src.includes("muted=false") ? "false" : "true";
+          iframe.src = `https://player.kick.com/DJLIVETV?muted=${currentMuted}`;
         }
-      } catch(e) {
-        if (!iframe.src) iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
-      }
+      } catch(e) {}
     }
 
     async function load() {
-      updateStatus();
-      setInterval(updateStatus, 15000); 
+      syncPlayer();
+      setInterval(syncPlayer, 15000); // Verifica se ligaste o OBS de 15 em 15 segundos
 
-      // Sets
+      // Carregar Sets
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
         const vids = await rv.json();
@@ -161,7 +151,7 @@
           </div>`).join('');
       } catch(e) {}
 
-      // DJs e Schedule
+      // Carregar DJs e Horários
       try {
         const rf = await fetch(DB + ".json");
         const data = await rf.json();
@@ -200,12 +190,18 @@
 
     function addNewDjField() { currentDjs.push({name:'', img:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name || '', time:''}); renderAdmin(); }
+    
     async function saveAll() {
       await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify({ djs: currentDjs, schedule: currentSch }) });
       alert("✅ ATUALIZADO!"); location.reload();
     }
+    
     function toggleAdmin() {
-      if(prompt("Senha:") === '1234') { document.getElementById('adminArea').style.display='block'; renderAdmin(); document.getElementById('adminArea').scrollIntoView(); }
+      if(prompt("Senha:") === '1234') { 
+        document.getElementById('adminArea').style.display='block'; 
+        renderAdmin(); 
+        document.getElementById('adminArea').scrollIntoView(); 
+      }
     }
     load();
   </script>
