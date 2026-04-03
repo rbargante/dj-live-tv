@@ -23,7 +23,7 @@
     /* HORÁRIOS */
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 50px 1fr 100px; padding: 12px 15px; border-bottom: 1px solid #111; align-items: center; gap: 10px; }
-    .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
+    .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #333; }
     .sch-time { font-family: monospace; font-size: 14px; font-weight: bold; color: #f52a1f; text-align: right; }
 
     /* ADMIN */
@@ -89,8 +89,9 @@
     let currentDjs = []; 
     let currentSch = [];
 
+    // CARREGAMENTO APENAS DOS DADOS NECESSÁRIOS
     async function load() {
-      // Carregar vídeos
+      // 1. Vídeos do Worker
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
         const vids = await rv.json();
@@ -99,27 +100,27 @@
             <img src="${v.thumbnail.src}" style="width:100%">
             <h3 style="font-size:13px; padding:10px; margin:0;">${v.session_title}</h3>
           </div>`).join('');
-      } catch(e) { console.log("Erro vídeos"); }
+      } catch(e) {}
 
-      // Carregar Firebase (DJs e Schedule)
+      // 2. Firebase (DJs e Schedule)
       try {
         const rf = await fetch(DB + ".json");
         const data = await rf.json();
         currentDjs = data?.djs || [];
         currentSch = data?.schedule || [];
         renderSite();
-      } catch(e) { console.log("Erro Firebase"); }
+      } catch(e) {}
     }
 
     function renderSite() {
-      // Render Equipa
+      // DJs
       document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
         <div class="card-dj">
           <img src="${d.img || 'https://via.placeholder.com/150'}">
           <h3 style="margin:0; font-size:16px;">${d.name}</h3>
         </div>`).join('');
       
-      // Render Schedule
+      // Schedule
       document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
         const dj = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
         return `
@@ -131,6 +132,7 @@
       }).join('');
     }
 
+    // ADMIN FUNCTIONS
     function renderAdmin() {
       document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `
         <div style="display:flex; gap:10px; margin-bottom:10px;">
@@ -153,14 +155,13 @@
     function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name || '', time:''}); renderAdmin(); }
 
     async function saveAll() {
-      const payload = { djs: currentDjs, schedule: currentSch };
-      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify(payload) });
-      alert("✅ SITE ATUALIZADO!"); 
+      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify({ djs: currentDjs, schedule: currentSch }) });
+      alert("✅ ATUALIZADO!"); 
       location.reload();
     }
 
     function toggleAdmin() {
-      if(prompt("Senha de Acesso:") === '1234') {
+      if(prompt("Senha:") === '1234') {
         document.getElementById('adminArea').style.display = 'block';
         renderAdmin();
         document.getElementById('adminArea').scrollIntoView();
