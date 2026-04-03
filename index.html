@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DJ LIVE TV | FLASHMIX</title>
   <style>
-    /* RESET E BASE */
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     
-    /* NAVEGAÇÃO */
-    .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
+    .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
     .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
     .logo { font-weight: 900; font-size: 18px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; }
     .nav-links a { color: #aaa; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 10px; text-transform: uppercase; }
@@ -18,7 +16,7 @@
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
     .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
 
-    /* PLAYER KICK */
+    /* PLAYER KICK FIXO */
     .player-container { 
       position: relative; 
       width: 100%; 
@@ -27,63 +25,37 @@
       background: #0a0a0a; 
       border: 1px solid #222; 
       margin-top: 10px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
-    /* BOTÃO SOM MOBILE */
     #unmuteOverlay { 
-      position: absolute; 
-      bottom: 20px; 
-      right: 20px; 
-      z-index: 10; 
-      background: #f52a1f; 
-      color: #fff; 
-      border: none; 
-      padding: 12px 20px; 
-      border-radius: 50px; 
-      font-weight: 900; 
-      font-size: 12px; 
-      cursor: pointer; 
-      box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4);
-      text-transform: uppercase;
+      position: absolute; bottom: 20px; right: 20px; z-index: 10; background: #f52a1f; color: #fff; 
+      border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; cursor: pointer;
     }
 
-    /* GRID VÍDEOS */
+    /* GRIDS */
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-    .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; transition: 0.3s; }
-    .card-v:hover { border-color: #f52a1f; }
+    .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
     .card-v img { width: 100%; display: block; }
-    .card-v h3 { font-size: 13px; padding: 12px; margin: 0; font-weight: 600; }
+    .card-v h3 { font-size: 13px; padding: 12px; margin: 0; }
 
-    /* EQUIPA DJs */
     .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
     .card-dj { text-align: center; background: #0a0a0a; padding: 20px; border-radius: 15px; border: 1px solid #111; }
     .card-dj img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #222; margin-bottom: 12px; }
-    .card-dj h3 { margin: 0; font-size: 15px; font-weight: 700; }
 
-    /* HORÁRIOS */
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 50px 1fr 100px; padding: 15px; border-bottom: 1px solid #111; align-items: center; gap: 15px; }
     .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
     .sch-time { font-family: monospace; font-size: 14px; font-weight: bold; color: #f52a1f; text-align: right; }
 
-    /* ADMIN DASHBOARD */
+    /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 25px; margin-top: 50px; display: none; }
-    .admin-card { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222; }
-    .admin-input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+    .admin-input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 6px; }
     .btn-publish { background: #28a745; color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 20px; }
-    .btn-add { background: #222; color: #fff; border: 1px dashed #444; padding: 10px; width: 100%; cursor: pointer; border-radius: 6px; margin-bottom: 10px; }
     
-    footer { padding: 60px 30px; text-align: center; color: #444; font-size: 11px; letter-spacing: 1px; }
-
-    /* MOBILE ADJUSTS */
-    @media (max-width: 600px) {
-      .grid-djs { grid-template-columns: repeat(2, 1fr); }
-      .logo { font-size: 15px; }
-      #unmuteOverlay { padding: 10px 15px; font-size: 10px; bottom: 10px; right: 10px; }
-    }
+    footer { padding: 60px 30px; text-align: center; color: #444; font-size: 11px; }
+    @media (max-width: 600px) { .grid-djs { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body>
@@ -92,9 +64,7 @@
     <div class="nav-inner">
       <div class="logo">FLASHMIX.TV</div>
       <div class="nav-links">
-        <a href="#vids">Vídeos</a>
-        <a href="#djs">Equipa</a>
-        <a href="#schedule">Horário</a>
+        <a href="#vids">Vídeos</a><a href="#djs">Equipa</a><a href="#schedule">Horário</a>
         <a href="javascript:void(0)" onclick="toggleAdmin()" style="color:#f52a1f">Painel</a>
       </div>
     </div>
@@ -109,135 +79,66 @@
       <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
     </div>
 
-    <div id="vids">
-      <h2 class="section-title">Últimos Sets</h2>
-      <div id="videoGrid" class="grid-vids">
-        <p style="text-align:center; color:#444;">A carregar vídeos...</p>
-      </div>
-    </div>
-
-    <div id="secDjs">
-      <h2 class="section-title" id="djs">Nossa Equipa</h2>
-      <div id="djGrid" class="grid-djs"></div>
-    </div>
-
-    <div id="secSch">
-      <h2 class="section-title" id="schedule">Horários de Emissão</h2>
-      <div id="scheduleList" class="sch-container"></div>
-    </div>
+    <div id="vids"><h2 class="section-title">Últimos Sets</h2><div id="videoGrid" class="grid-vids"></div></div>
+    <div id="secDjs"><h2 class="section-title" id="djs">Nossa Equipa</h2><div id="djGrid" class="grid-djs"></div></div>
+    <div id="secSch"><h2 class="section-title" id="schedule">Horário</h2><div id="scheduleList" class="sch-container"></div></div>
 
     <div id="adminArea" class="admin-section">
-      <h2 style="color:#f52a1f; text-align:center; margin-bottom:30px;">COMANDO DE DADOS</h2>
-      
-      <div class="admin-card">
-        <h3>Gerir Equipa (DJs)</h3>
-        <div id="adminDjList"></div>
-        <button onclick="addNewDjField()" class="btn-add">+ NOVO DJ</button>
-      </div>
-
-      <div class="admin-card">
-        <h3>Gerir Horários</h3>
-        <div id="adminSchList"></div>
-        <button onclick="addNewSchField()" class="btn-add">+ NOVO HORÁRIO</button>
-      </div>
-
-      <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR ALTERAÇÕES NO SITE</button>
+      <h2 style="color:#f52a1f; text-align:center;">COMANDO DE DADOS</h2>
+      <div id="adminDjList"></div><button onclick="addNewDjField()" style="width:100%; margin-bottom:10px;">+ NOVO DJ</button>
+      <div id="adminSchList"></div><button onclick="addNewSchField()" style="width:100%; margin-bottom:10px;">+ NOVO HORÁRIO</button>
+      <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR</button>
     </div>
-
   </div>
 
   <footer>FLASHMIX TV — © 2026</footer>
 
   <script>
     const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-    const VIDEOS_WORKER = "https://blue-cherry-d10a.ricardobargante.workers.dev/videos";
-    
-    let currentDjs = []; 
-    let currentSch = [];
+    let currentDjs = []; let currentSch = [];
 
-    // Função para o Som no Mobile
     function unmutePlayer() {
-      const iframe = document.getElementById('kickIframe');
-      iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+      document.getElementById('kickIframe').src = "https://player.kick.com/DJLIVETV?muted=false";
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
     async function init() {
-      // Carregar Vídeos
+      // Vídeos
       try {
-        const resV = await fetch(VIDEOS_WORKER);
+        const resV = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
         const vids = await resV.json();
         document.getElementById('videoGrid').innerHTML = vids.slice(0, 4).map(v => `
           <div class="card-v" onclick="window.open('${v.source}','_self')">
-            <img src="${v.thumbnail.src}">
-            <h3>${v.session_title}</h3>
+            <img src="${v.thumbnail.src}"><h3>${v.session_title}</h3>
           </div>`).join('');
-      } catch(e) { console.error("Erro vídeos"); }
+      } catch(e) {}
 
-      // Carregar Firebase
+      // Firebase
       try {
         const resF = await fetch(DB_URL + ".json");
         const data = await resF.json();
-        currentDjs = data?.djs || [];
-        currentSch = data?.schedule || [];
+        currentDjs = data?.djs || []; currentSch = data?.schedule || [];
         renderSite();
-      } catch(e) { console.error("Erro Firebase"); }
+      } catch(e) {}
     }
 
     function renderSite() {
-      document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
-        <div class="card-dj">
-          <img src="${d.img || 'https://via.placeholder.com/150'}">
-          <h3>${d.name}</h3>
-        </div>`).join('');
-      
+      document.getElementById('djGrid').innerHTML = currentDjs.map(d => `<div class="card-dj"><img src="${d.img || 'https://via.placeholder.com/150'}"><h3>${d.name}</h3></div>`).join('');
       document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
         const dj = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
-        return `
-          <div class="sch-row">
-            <img src="${dj.img}" class="sch-dj-thumb">
-            <div style="font-weight:700;">${s.dj}</div>
-            <div class="sch-time">${s.time}</div>
-          </div>`;
+        return `<div class="sch-row"><img src="${dj.img}" class="sch-dj-thumb"><div style="font-weight:700;">${s.dj}</div><div class="sch-time">${s.time}</div></div>`;
       }).join('');
     }
 
     function renderAdmin() {
-      document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `
-        <div style="display:flex; gap:10px; margin-bottom:10px;">
-          <input class="admin-input" placeholder="Nome" value="${d.name}" oninput="currentDjs[${i}].name=this.value">
-          <input class="admin-input" placeholder="URL Imagem" value="${d.img}" oninput="currentDjs[${i}].img=this.value">
-          <button onclick="currentDjs.splice(${i},1);renderAdmin()" style="background:#f52a1f; color:#fff; border:none; border-radius:5px; cursor:pointer; padding:0 15px;">X</button>
-        </div>`).join('');
-
-      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `
-        <div style="display:flex; gap:10px; margin-bottom:10px;">
-          <select class="admin-input" onchange="currentSch[${i}].dj=this.value">
-            ${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}
-          </select>
-          <input class="admin-input" placeholder="Ex: 22:00" value="${s.time}" oninput="currentSch[${i}].time=this.value">
-          <button onclick="currentSch.splice(${i},1);renderAdmin()" style="background:#f52a1f; color:#fff; border:none; border-radius:5px; cursor:pointer; padding:0 15px;">X</button>
-        </div>`).join('');
+      document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `<div style="display:flex; gap:10px; margin-bottom:10px;"><input class="admin-input" value="${d.name}" oninput="currentDjs[${i}].name=this.value"><input class="admin-input" value="${d.img}" oninput="currentDjs[${i}].img=this.value"><button onclick="currentDjs.splice(${i},1);renderAdmin()">X</button></div>`).join('');
+      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `<div style="display:flex; gap:10px; margin-bottom:10px;"><select class="admin-input" onchange="currentSch[${i}].dj=this.value">${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}</select><input class="admin-input" value="${s.time}" oninput="currentSch[${i}].time=this.value"><button onclick="currentSch.splice(${i},1);renderAdmin()">X</button></div>`).join('');
     }
 
     function addNewDjField() { currentDjs.push({name:'', img:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name || '', time:''}); renderAdmin(); }
-
-    async function saveAll() {
-      const payload = { djs: currentDjs, schedule: currentSch };
-      await fetch(DB_URL + ".json", { method: 'PUT', body: JSON.stringify(payload) });
-      alert("✅ SITE ATUALIZADO COM SUCESSO!"); 
-      location.reload();
-    }
-
-    function toggleAdmin() {
-      if(prompt("Introduza a Senha:") === '1234') {
-        const area = document.getElementById('adminArea');
-        area.style.display = 'block';
-        renderAdmin();
-        area.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+    async function saveAll() { await fetch(DB_URL + ".json", { method: 'PUT', body: JSON.stringify({ djs: currentDjs, schedule: currentSch }) }); location.reload(); }
+    function toggleAdmin() { if(prompt("Senha:") === '1234') { document.getElementById('adminArea').style.display = 'block'; renderAdmin(); document.getElementById('adminArea').scrollIntoView(); } }
 
     init();
   </script>
