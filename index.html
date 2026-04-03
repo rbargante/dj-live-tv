@@ -13,18 +13,16 @@
     .nav-links a { color: #aaa; text-decoration: none; font-size: 10px; font-weight: 700; padding: 5px 8px; text-transform: uppercase; }
     .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
     
-    /* DESIGN DO PLAYER E OFFLINE */
     .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; margin-top: 10px; display: none; }
     .is-live .player-container { display: block; }
     
-    #offlineBox { width: 100%; border-radius: 12px; background: #0a0a0a; border: 1px dashed #333; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; color: #444; }
+    #offlineBox { width: 100%; border-radius: 12px; background: #0a0a0a; border: 1px dashed #333; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; color: #444; text-transform: uppercase; letter-spacing: 2px; font-size: 11px; }
     .is-live #offlineBox { display: none; }
 
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
     #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; }
-    
     .section-title { text-align: center; margin: 30px 0 15px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
     .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
@@ -48,7 +46,7 @@
   </nav>
 
   <div class="container">
-    <div id="offlineBox"><div style="font-size:30px">📻</div><br>SINAL OFFLINE • AGUARDANDO OBS</div>
+    <div id="offlineBox"><div>📻</div><br>SINAL OFFLINE • AGUARDANDO OBS</div>
 
     <div class="player-container">
       <div class="player-aspect"><iframe id="kickIframe" src="" allowfullscreen></iframe></div>
@@ -70,7 +68,7 @@
 
 <script>
   const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-  let currentDjs = []; let currentSch = []; let isLiveState = false;
+  let currentDjs = []; let currentSch = []; let isLiveState = null;
 
   function unmutePlayer() {
     document.getElementById('kickIframe').src = "https://player.kick.com/DJLIVETV?muted=false";
@@ -82,16 +80,17 @@
     const iframe = document.getElementById('kickIframe');
     
     try {
-      const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`);
+      const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
-      
       const liveNow = data.live === true;
 
       if (liveNow !== isLiveState) {
+        console.log("Mudança de estado detetada:", liveNow);
         isLiveState = liveNow;
         if (liveNow) {
           site.classList.add('is-live');
-          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+          // Adicionamos um timestamp também no iframe para forçar o Kick a atualizar
+          iframe.src = `https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}`;
         } else {
           site.classList.remove('is-live');
           iframe.src = "";
