@@ -5,171 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DJ LIVE TV | FLASHMIX</title>
     <style>
-        /* DESIGN FLASHMIX */
+        /* DESIGN FLASHMIX PRO */
         body { 
-            margin: 0; 
-            background: #000; 
-            color: #fff; 
+            margin: 0; background: #000; color: #fff; 
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-            text-align: center; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;
         }
 
-        .logo { 
-            padding: 20px; 
-            font-weight: 900; 
-            color: #f52a1f; 
-            letter-spacing: 4px; 
-            font-size: 26px; 
-            text-transform: uppercase;
+        .logo-main { 
+            padding: 20px; font-weight: 900; color: #f52a1f; letter-spacing: 4px; font-size: 26px; text-transform: uppercase;
             text-shadow: 0 0 15px rgba(245, 42, 31, 0.4);
         }
 
-        /* CONTENTOR DO PLAYER */
+        /* O CONTENTOR DO PLAYER (A CAIXA) */
         .player-wrapper {
-            position: relative;
-            width: 92%;
-            max-width: 850px;
-            aspect-ratio: 16 / 9;
-            background: #080808;
-            border-radius: 20px;
-            border: 2px solid #1a1a1a;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transition: all 0.5s ease;
+            position: relative; width: 92%; max-width: 850px; aspect-ratio: 16 / 9;
+            background: #080808; border-radius: 20px; border: 3px solid #1a1a1a;
+            overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); transition: all 0.5s ease;
         }
 
-        /* QUANDO ESTÁ LIVE, A BORDA FICA VERMELHA */
+        /* QUANDO ESTÁ LIVE, A CAIXA "VIVE" */
         body.is-live .player-wrapper {
-            border-color: #f52a1f;
-            box-shadow: 0 0 30px rgba(245, 42, 31, 0.2);
+            border-color: #f52a1f; box-shadow: 0 0 40px rgba(245, 42, 31, 0.3);
         }
 
-        #offline-ui {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            background: #333;
-            border-radius: 50%;
-            margin-bottom: 10px;
-        }
-
-        .status-text {
-            color: #333;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
-        }
-
-        /* O PLAYER EM SI */
+        /* O VÍDEO DO KICK */
         #player-container {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
+            position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10;
+            display: none; /* Escondido por defeito */
         }
-
-        body.is-live #player-container { display: block; }
-        body.is-live #offline-ui { display: none; }
+        body.is-live #player-container { display: block; } /* Mostra quando está Live */
 
         iframe { width: 100%; height: 100%; border: 0; }
 
-        /* BOTÃO DE SOM */
-        #unmuteBtn {
-            display: none;
-            margin-top: 30px;
-            background: #f52a1f;
-            color: #fff;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 50px;
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.2s;
+        /* --- UI OFFLINE (LOOK TV PROFISSIONAL) --- */
+        #offline-ui {
+            position: absolute; inset: 0;
+            background: #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 5;
         }
 
-        #unmuteBtn:active { transform: scale(0.95); }
+        /* MIRA TÉCNICA (Color Bars) */
+        .color-bars {
+            position: absolute; inset: 0; opacity: 0.15; /* Subtil */
+            background: linear-gradient(90deg, 
+                #fff 0% 14.28%, #ff0 14.28% 28.56%, #0ff 28.56% 42.84%, 
+                #0f0 42.84% 57.12%, #f0f 57.12% 71.4%, #f00 71.4% 85.68%, #00f 85.68% 100%
+            );
+        }
+
+        .offline-content {
+            position: relative; z-index: 6; text-align: center;
+        }
+
+        .logo-offline {
+            color: #333; font-weight: 900; font-size: 20px; letter-spacing: 3px; text-transform: uppercase;
+            margin-bottom: 10px; transition: color 0.5s;
+        }
+
+        .status-offline {
+            color: #1a1a1a; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .dot { width: 8px; height: 8px; background: #1a1a1a; border-radius: 50%; }
+
+        /* Esconde o offline quando está Live */
+        body.is-live #offline-ui { display: none; }
+
+        /* --- BOTÃO DE SOM --- */
+        #unmuteBtn {
+            display: none; margin-top: 30px; background: #f52a1f; color: #fff;
+            border: none; padding: 18px 45px; border-radius: 50px;
+            font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(245, 42, 31, 0.2); transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #unmuteBtn:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(245, 42, 31, 0.3); }
+        #unmuteBtn:active { transform: translateY(1px); }
         body.is-live #unmuteBtn { display: inline-block; }
 
     </style>
 </head>
 <body>
 
-    <div class="logo">FLASHMIX.TV</div>
+    <div class="logo-main">FLASHMIX.TV</div>
 
     <div class="player-wrapper">
         <div id="offline-ui">
-            <div class="status-dot"></div>
-            <div class="status-text">Sinal Offline • Aguardando DJ</div>
+            <div class="color-bars"></div> <div class="offline-content">
+                <div class="logo-offline">FLASHMIX.TV</div>
+                <div class="status-offline">
+                    <div class="dot"></div>
+                    <span>EMISSÃO ENCERRADA</span>
+                </div>
+            </div>
         </div>
 
         <div id="player-container"></div>
     </div>
 
-    <button id="unmuteBtn" onclick="ligarSom()">🔊 OUVIR EM DIRETO</button>
+    <button id="unmuteBtn" onclick="ligarSom()">🔊 ATIVAR SOM EM DIRETO</button>
 
     <script>
-        // CONFIGURAÇÃO DO TEU FIREBASE (O TEU INTERRUPTOR DO IMAC)
-        const FB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
+        // CONFIGURAÇÃO DO FIREBASE (O INTERRUPTOR DO IMAC)
+        const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
         let statusLocal = null;
 
-        async function sincronizarComIMac() {
+        async function sincronizarOBS() {
             try {
-                // O t=Date.now() evita que o browser use memória antiga
-                const res = await fetch(`${FB_URL}?t=${Date.now()}`);
-                const isLive = await res.json();
+                // nocache= obriga o browser a ler a verdade do iMac agora
+                const resposta = await fetch(`${DB_URL}?nocache=${Date.now()}`);
+                const isLive = await resposta.json();
 
                 if (isLive !== statusLocal) {
                     statusLocal = isLive;
-                    const container = document.getElementById('player-container');
-                    const btn = document.getElementById('unmuteBtn');
+                    const videoTarget = document.getElementById('player-container');
+                    const somBtn = document.getElementById('unmuteBtn');
 
                     if (isLive === true) {
-                        // IMAC ESTÁ A EMITIR -> INJETAR O PLAYER
+                        // IMAC ESTÁ LIVE -> MOSTRA PLAYER
                         document.body.classList.add('is-live');
-                        container.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
-                        btn.style.display = 'inline-block';
+                        videoTarget.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
+                        somBtn.style.display = 'inline-block';
                     } else {
-                        // IMAC DESLIGOU -> MATAR O PLAYER NA HORA
+                        // IMAC ESTÁ OFFLINE -> APAGA PLAYER NA HORA
                         document.body.classList.remove('is-live');
-                        container.innerHTML = ""; 
-                        btn.style.display = 'none';
-                        window.stop(); // Pára qualquer download de vídeo pendente
+                        videoTarget.innerHTML = ""; 
+                        somBtn.style.display = 'none';
+                        window.stop(); // Mata o buffer
                     }
                 }
-            } catch (e) {
-                console.log("Erro ao ligar ao servidor...");
-            }
+            } catch (e) { console.log("Erro de ligação..."); }
         }
 
         function ligarSom() {
-            const container = document.getElementById('player-container');
+            const videoTarget = document.getElementById('player-container');
             // Recarrega o player com som ativo
-            container.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
+            videoTarget.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
             document.getElementById('unmuteBtn').style.display = 'none';
         }
 
-        // VERIFICA A CADA 2 SEGUNDOS (ULTRA RÁPIDO)
-        setInterval(sincronizarComIMac, 2000);
-        sincronizarComIMac();
+        // VERIFICA A CADA 2 SEGUNDOS
+        setInterval(sincronizarOBS, 2000);
+        sincronizarOBS();
 
     </script>
 </body>
