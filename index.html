@@ -135,26 +135,30 @@
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
-    // VERIFICAÇÃO TURBO (Usa 2 caminhos para ser mais rápido)
+    // VERIFICAÇÃO ULTRA RÁPIDA (MULTIPLOS CANAIS)
     async function checkStatus() {
       const badge = document.getElementById('badgeWrap');
       const statusTxt = document.getElementById('statusText');
-      
-      const check = async (url) => {
-          const res = await fetch(url);
+      const kickURL = encodeURIComponent('https://kick.com/api/v1/channels/DJLIVETV');
+
+      const fetchStatus = async (proxy) => {
+        try {
+          const res = await fetch(`${proxy}${kickURL}${proxy.includes('?') ? '&' : '?'}_t=${Date.now()}`);
           const data = await res.json();
-          return JSON.parse(data.contents).livestream;
+          const content = data.contents ? JSON.parse(data.contents) : data;
+          return content.livestream || (content.data && content.data.livestream);
+        } catch (e) { return null; }
       };
 
       try {
-        const kickURL = encodeURIComponent('https://kick.com/api/v1/channels/DJLIVETV');
-        // Tenta os dois proxies mais rápidos ao mesmo tempo
-        const results = await Promise.any([
-            check(`https://api.allorigins.win/get?url=${kickURL}&t=${Date.now()}`),
-            check(`https://api.codetabs.com/v1/proxy/?quest=${kickURL}`)
+        // Corre os 3 ao mesmo tempo, o primeiro que responder ganha
+        const isLive = await Promise.any([
+          fetchStatus('https://api.allorigins.win/get?url='),
+          fetchStatus('https://api.codetabs.com/v1/proxy/?quest='),
+          fetchStatus('https://api.allorigins.win/raw?url=')
         ]);
 
-        if(results) { 
+        if(isLive) { 
           badge.classList.add('live'); 
           statusTxt.innerText = "LIVE NOW"; 
         } else { 
@@ -162,13 +166,15 @@
           statusTxt.innerText = "OFFLINE"; 
         }
       } catch(e) {
+        // Se todos falharem ou for offline
+        badge.classList.remove('live');
         statusTxt.innerText = "OFFLINE";
       }
     }
 
     async function load() {
       checkStatus();
-      setInterval(checkStatus, 10000); // Verifica a cada 10 segundos (TURBO)
+      setInterval(checkStatus, 5000); // VERIFICA A CADA 5 SEGUNDOS
 
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
@@ -225,11 +231,13 @@
 
     function addNewDjField() { currentDjs.push({name:'', img:'', style:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name||'', day:'Todos os dias', time:'22:00'}); renderAdmin(); }
+
     async function saveAll() {
       const payload = { djs: currentDjs.filter(d=>d.name), schedule: currentSch, hideDjs: document.getElementById('hideDjs').checked, hideSch: document.getElementById('hideSch').checked };
       await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify(payload) });
       alert("✅ ATUALIZADO!"); location.reload();
     }
+
     function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; renderAdmin(); }}
     function toggleAdmin() { const a = document.getElementById('adminArea'); a.style.display = a.style.display==='block'?'none':'block'; a.scrollIntoView(); }
     load();
