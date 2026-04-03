@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DJ LIVE TV | FLASHMIX</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
@@ -21,22 +20,19 @@
     .is-live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1s infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-    /* PLAYER FIXO */
+    /* PLAYER */
     .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
-    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 900; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 900; font-size: 12px; cursor: pointer; }
 
     .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
     .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
-    
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 50px 1fr 100px 80px; padding: 12px 15px; border-bottom: 1px solid #111; align-items: center; gap: 10px; }
     .sch-row.live-now { background: rgba(245, 42, 31, 0.08); border-left: 4px solid #f52a1f; }
     .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
-    
-    footer { padding: 30px; text-align: center; color: #333; font-size: 10px; }
   </style>
 </head>
 <body id="bodyTag">
@@ -45,7 +41,7 @@
   </nav>
 
   <div class="container">
-    <div style="text-align:center" id="badgeWrap"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">A VERIFICAR...</span></div></div>
+    <div style="text-align:center" id="badgeWrap"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">A SINCRONIZAR...</span></div></div>
     
     <div class="player-container">
       <div class="player-aspect">
@@ -70,17 +66,29 @@
     async function checkStatus() {
       const body = document.getElementById('bodyTag');
       const statusTxt = document.getElementById('statusText');
+      
       try {
-        const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`);
+        // FORÇAMOS O WORKER A IGNORAR O CACHE COM UM TIMESTAMP ÚNICO (?t=...)
+        const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+        });
         const data = await res.json();
         
-        if (data && data.livestream) {
+        // Se o livestream do Kick for NULL, o status TEM de ser OFFLINE
+        if (data && data.livestream && data.livestream !== null) {
           body.classList.add('is-live');
           statusTxt.innerText = "LIVE NOW";
         } else {
           body.classList.remove('is-live');
           statusTxt.innerText = "OFFLINE";
+          // Se o player estiver a "mentir", fazemos refresh apenas ao iframe
+          const iframe = document.getElementById('kickIframe');
+          if(body.dataset.lastState === "live") {
+             iframe.src = iframe.src; 
+          }
         }
+        body.dataset.lastState = data.livestream ? "live" : "offline";
       } catch (e) {
         statusTxt.innerText = "OFFLINE";
       }
@@ -88,7 +96,7 @@
 
     async function load() {
       checkStatus(); 
-      setInterval(checkStatus, 10000); // Verifica a cada 10 seg
+      setInterval(checkStatus, 10000); // Verifica a cada 10 seg com força total
 
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
@@ -110,7 +118,7 @@
       }).join('');
     }
 
-    function toggleAdmin() { if(prompt("Senha:") === '1234') alert("Usa o Firebase."); }
+    function toggleAdmin() { if(prompt("Senha:") === '1234') alert("Aceda ao Firebase."); }
     load();
   </script>
 </body>
