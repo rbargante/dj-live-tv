@@ -5,177 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DJ LIVE TV | FLASHMIX</title>
   <style>
-    /* RESET E BASE */
-    html { scroll-behavior: smooth; }
-    body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; }
+    .top-nav { padding: 15px; border-bottom: 1px solid #222; text-align: center; }
+    .logo { font-weight: 900; color: #f52a1f; letter-spacing: 2px; }
     
-    /* NAVEGAÇÃO */
-    .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
-    .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
-    .logo { font-weight: 900; font-size: 18px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; }
-    .nav-links a { color: #aaa; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 10px; text-transform: uppercase; }
-
-    .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
-
-    /* PLAYER CONTAINER (SEMPRE LÁ) */
     .player-container { 
-      position: relative; 
-      width: 100%; 
-      border-radius: 15px; 
-      overflow: hidden; 
-      background: #0a0a0a; 
-      border: 1px solid #222; 
-      margin-top: 10px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: relative; width: 100%; max-width: 900px; margin: 20px auto; 
+      border-radius: 15px; overflow: hidden; background: #0a0a0a; border: 1px solid #222;
     }
-    .player-aspect { 
-      position: relative; 
-      width: 100%; 
-      padding-top: 56.25%; 
-      background: #000; 
-    }
-
-    /* MENSAGEM QUE APARECE POR BAIXO DO IFRAME */
-    #offline-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #0a0a0a;
-      color: #333;
-      z-index: 1;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 11px;
-      text-align: center;
-    }
-
-    .player-aspect iframe { 
-      position: absolute; 
-      inset: 0; 
-      width: 100%; 
-      height: 100%; 
-      border: 0; 
-      z-index: 2; 
-    }
+    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
     
-    #unmuteOverlay { 
-      position: absolute; bottom: 20px; right: 20px; z-index: 10; background: #f52a1f; color: #fff; 
-      border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; cursor: pointer;
-      display: none;
+    /* MENSAGEM AUTOMÁTICA DE OFFLINE */
+    #offline-overlay {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; background: #000; 
+      color: #444; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
     }
 
-    /* ÚLTIMOS VÍDEOS */
-    .section-title { text-align: center; margin: 40px 0 20px; font-size: 18px; font-weight: 900; text-transform: uppercase; }
-    .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-    .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; overflow: hidden; transition: 0.3s; cursor: pointer; }
-    .card-v:hover { border-color: #f52a1f; }
-    .card-v img { width: 100%; display: block; }
-
-    footer { padding: 40px; text-align: center; color: #222; font-size: 10px; }
+    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 5; }
+    
+    #unmuteBtn { 
+      display: none; margin: 20px auto; background: #f52a1f; color: #fff; border: none; 
+      padding: 12px 25px; border-radius: 50px; font-weight: 900; cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-  <nav class="top-nav">
-    <div class="nav-inner">
-      <div class="logo">FLASHMIX.TV</div>
-      <div class="nav-links">
-        <a href="#vids">Vídeos</a>
-        <a href="javascript:void(0)" onclick="toggleAdmin()">Painel</a>
-      </div>
-    </div>
-  </nav>
+  <div class="top-nav"><div class="logo">FLASHMIX.TV</div></div>
 
-  <div class="container">
-    
-    <div class="player-container">
-      <div class="player-aspect" id="playerWrapper">
-        <div id="offline-overlay">
-            <div style="font-size: 30px; margin-bottom: 10px;">📻</div>
-            SINAL OFFLINE • AGUARDANDO DJ
-        </div>
-        </div>
-      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
+  <div class="player-container">
+    <div class="player-aspect" id="playerWrapper">
+      <div id="offline-overlay">📡 SINAL OFFLINE • AGUARDANDO DJ</div>
     </div>
-
-    <div id="vids">
-      <h2 class="section-title">Últimos Sets Gravados</h2>
-      <div id="videoGrid" class="grid-vids"></div>
-    </div>
-
   </div>
-
-  <footer>© 2026 FLASHMIX TV</footer>
+  
+  <button id="unmuteBtn" onclick="unmute()">🔊 OUVIR EM DIRETO</button>
 
   <script>
-    // LINKS DO TEU NOVO WORKER E DO WORKER DE VÍDEOS
     const STATUS_WORKER = "https://djlivetv.ricardobargante.workers.dev/";
-    const VIDEOS_WORKER = "https://blue-cherry-d10a.ricardobargante.workers.dev/videos";
-    
     let isLiveState = null;
 
-    // Função para o botão de som (Mobile)
-    function unmutePlayer() {
-      const iframe = document.querySelector('#playerWrapper iframe');
-      if(iframe) {
-        iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
-        document.getElementById('unmuteOverlay').style.display = 'none';
-      }
-    }
-
-    // Função que verifica se estás ON ou OFF
-    async function syncPlayer() {
+    async function checkAutoStatus() {
       try {
-        const res = await fetch(`${STATUS_WORKER}?t=${Date.now()}`, { cache: "no-store" });
+        const res = await fetch(`${STATUS_WORKER}?t=${Date.now()}`);
         const data = await res.json();
-        const liveNow = data?.live === true;
-
-        if (liveNow !== isLiveState) {
-          isLiveState = liveNow;
+        
+        if (data.live !== isLiveState) {
+          isLiveState = data.live;
           const wrapper = document.getElementById('playerWrapper');
-          const btn = document.getElementById('unmuteOverlay');
+          const btn = document.getElementById('unmuteBtn');
 
-          if (liveNow) {
-            // OBS LIGADO -> Cria o player
-            wrapper.innerHTML += `<iframe src="https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}" allowfullscreen></iframe>`;
+          if (data.live) {
+            // OBS FICOU ON -> INJETA O PLAYER
+            wrapper.innerHTML += `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
             btn.style.display = 'block';
-            console.log("Sinal detetado: LIVE ON");
           } else {
-            // OBS DESLIGADO -> Apaga o iframe
+            // OBS FICOU OFF -> REMOVE O PLAYER
             const iframe = wrapper.querySelector('iframe');
             if (iframe) iframe.remove();
             btn.style.display = 'none';
-            console.log("Sinal perdido: LIVE OFF");
           }
         }
-      } catch (e) { console.log("Erro ao ligar ao Worker de Status."); }
+      } catch (e) { console.log("Erro de conexão"); }
     }
 
-    // Função para carregar os vídeos do outro Worker
-    async function loadVideos() {
-      try {
-        const rv = await fetch(VIDEOS_WORKER);
-        const vids = await rv.json();
-        document.getElementById('videoGrid').innerHTML = vids.slice(0, 4).map(v => `
-          <div class="card-v" onclick="window.open('${v.source}','_self')">
-            <img src="${v.thumbnail.src}">
-            <p style="font-size:11px; padding:10px; margin:0; font-weight:700;">${v.session_title}</p>
-          </div>`).join('');
-      } catch(e) { console.log("Erro ao carregar vídeos."); }
+    function unmute() {
+      const iframe = document.querySelector('iframe');
+      if(iframe) iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+      document.getElementById('unmuteBtn').style.display = 'none';
     }
 
-    function init() {
-      syncPlayer();
-      loadVideos();
-      setInterval(syncPlayer, 5000); // Verifica status a cada 5 segundos
-    }
-
-    function toggleAdmin() { if(prompt("Senha:") === '1234') { alert("Admin em construção..."); } }
-
-    init();
+    // VERIFICAÇÃO RÁPIDA (3 SEGUNDOS)
+    setInterval(checkAutoStatus, 3000);
+    checkAutoStatus();
   </script>
 </body>
 </html>
