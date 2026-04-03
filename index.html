@@ -3,180 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DJ LIVE TV | FLASHMIX</title>
+    <title>FLASHMIX.TV | PRO DJ PLATFORM</title>
     <style>
-        * { box-sizing: border-box; }
+        :root { --kick-red: #f52a1f; --bg-dark: #050505; --card-bg: #111; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body { 
             margin: 0; background: #000; color: #fff; 
-            font-family: 'Arial Black', sans-serif; 
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; padding: 10px; overflow-x: hidden;
+            min-height: 100vh; overflow-x: hidden;
         }
 
+        /* --- LOGO --- */
         .main-header { 
-            padding: 20px; font-weight: 900; color: #fff; 
-            letter-spacing: 8px; font-size: clamp(24px, 5vw, 42px); 
-            text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-            text-align: center;
+            padding: 30px; font-weight: 900; color: #fff; 
+            letter-spacing: 10px; font-size: clamp(28px, 6vw, 48px); 
+            text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            cursor: pointer;
         }
 
-        /* --- THE PLAYER --- */
-        .player-wrapper {
-            position: relative; width: 98%; max-width: 1100px; aspect-ratio: 16 / 9;
-            background: #050505; border-radius: 35px; border: 5px solid #f52a1f;
-            box-shadow: 0 0 30px rgba(245, 42, 31, 0.2); overflow: hidden; margin-bottom: 20px;
+        /* --- PRO PLAYER (GIANT & NEON) --- */
+        .stage {
+            position: relative; width: 96%; max-width: 1200px; aspect-ratio: 16 / 9;
+            background: #000; border-radius: clamp(20px, 4vw, 40px); 
+            border: 4px solid #222; box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            overflow: hidden; margin-bottom: 40px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body.is-live .player-wrapper, body.viewing-replay .player-wrapper {
-            border: 6px solid transparent;
-            background: linear-gradient(#050505, #050505) padding-box,
-                        linear-gradient(90deg, #f52a1f, #ff6b6b, #f52a1f) border-box;
+        /* LIVE STATE: CHASING NEON */
+        body.is-live .stage, body.is-replay .stage {
+            border-color: transparent;
+            background: linear-gradient(#000, #000) padding-box,
+                        linear-gradient(90deg, var(--kick-red), #ff6b6b, var(--kick-red)) border-box;
             background-size: 200% 100%;
-            animation: neonFlow 1.2s linear infinite;
+            animation: neonMove 1.5s linear infinite;
+            box-shadow: 0 0 60px rgba(245, 42, 31, 0.4);
         }
 
-        @keyframes neonFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+        @keyframes neonMove { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-        #player-target { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20; display: none; }
-        body.is-live #player-target, body.viewing-replay #player-target { display: block; }
+        #screen { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20; display: none; }
+        body.is-live #screen, body.is-replay #screen { display: block; }
         iframe { width: 100%; height: 100%; border: 0; }
 
-        #offline-screen {
-            position: absolute; inset: 0; background: radial-gradient(circle, #151515 0%, #000 100%);
+        /* STANDBY UI */
+        #standby {
+            position: absolute; inset: 0; background: radial-gradient(circle at center, #111 0%, #000 100%);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
-
-        .dot { width: 15px; height: 15px; background: #f52a1f; border-radius: 50%; box-shadow: 0 0 15px #f52a1f; animation: fastBlink 1s infinite; }
-        @keyframes fastBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-
-        /* --- CONTENT --- */
-        .container { width: 98%; max-width: 1100px; padding-bottom: 80px; }
-        .section-title { color: #f52a1f; font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 50px 0 25px 0; border-left: 6px solid #f52a1f; padding-left: 15px; }
-
-        /* AUTOMATIC REPLAYS GRID */
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .video-card { 
-            background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; 
-            transition: 0.3s; cursor: pointer; text-decoration: none;
+        .status-pill {
+            background: rgba(255,255,255,0.05); padding: 15px 40px; border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 15px;
         }
-        .video-card:hover { border-color: #f52a1f; transform: translateY(-5px); }
-        .video-thumb { width: 100%; aspect-ratio: 16/9; background: #111; display: flex; align-items: center; justify-content: center; position: relative; }
-        .video-thumb::after { content: 'PLAY REPLAY'; font-size: 10px; color: #fff; border: 1px solid #333; padding: 5px 10px; }
-        .video-meta { padding: 15px; }
-        .video-meta h4 { margin: 0; font-size: 13px; color: #fff; }
+        .live-dot { 
+            width: 14px; height: 14px; background: var(--kick-red); border-radius: 50%; 
+            box-shadow: 0 0 15px var(--kick-red); animation: blink 1.2s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; scale: 1.1; } 50% { opacity: 0.3; scale: 0.9; } }
+
+        /* --- CONTENT WRAPPER --- */
+        .content { width: 96%; max-width: 1200px; padding-bottom: 100px; }
+        .row-title { 
+            font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+            margin: 40px 0 20px; color: #fff; border-left: 5px solid var(--kick-red); padding-left: 15px;
+        }
+
+        /* VIDEO GRID (AUTO-LOADED) */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { 
+            background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a;
+            transition: 0.4s; cursor: pointer; text-decoration: none; position: relative;
+        }
+        .card:hover { border-color: var(--kick-red); transform: translateY(-8px); }
+        .card-thumb { 
+            width: 100%; aspect-ratio: 16/9; background: #000; display: flex; align-items: center; justify-content: center;
+            background-size: cover; background-position: center;
+        }
+        .card-thumb::after { content: 'PLAY'; font-size: 11px; font-weight: 900; color: #fff; padding: 8px 20px; border: 1px solid #fff; border-radius: 5px; opacity: 0; transition: 0.3s; }
+        .card:hover .card-thumb::after { opacity: 1; background: rgba(245, 42, 31, 0.8); border-color: transparent; }
+        .card-info { padding: 15px; }
+        .card-info h4 { margin: 0; font-size: 14px; color: #eee; line-height: 1.4; }
 
         /* DJ LINEUP (6 DJs) */
-        .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
-        .dj-card { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 20px; text-align: center; }
-        .dj-photo { width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 15px auto; border: 2px solid #333; }
+        .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+        .dj-box { background: var(--card-bg); border-radius: 25px; padding: 25px; text-align: center; border: 1px solid #1a1a1a; }
+        .dj-avatar { width: 90px; height: 90px; background: #222; border-radius: 50%; margin: 0 auto 15px; border: 3px solid #333; }
+        .dj-box h3 { font-size: 15px; margin: 0; color: #fff; letter-spacing: 1px; }
+        .dj-box span { font-size: 10px; color: var(--kick-red); font-weight: bold; text-transform: uppercase; }
 
-        #actionBtn { display: none; margin: 20px auto; background: #f52a1f; color: #fff; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-        body.is-live #actionBtn, body.viewing-replay #actionBtn { display: block; }
+        /* FLOATING ACTION BUTTON */
+        #unmuteBtn { 
+            display: none; position: fixed; bottom: 30px; right: 30px; z-index: 100;
+            background: var(--kick-red); color: #fff; border: none; padding: 20px 40px; 
+            border-radius: 100px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 40px rgba(245, 42, 31, 0.5);
+        }
+        body.is-live #unmuteBtn, body.is-replay #unmuteBtn { display: block; }
     </style>
 </head>
-<body id="app">
+<body id="root">
 
     <div class="main-header" onclick="window.location.reload()">FLASHMIX.TV</div>
 
-    <div class="player-wrapper">
-        <div id="offline-screen">
-            <div style="font-size: clamp(30px, 8vw, 60px); letter-spacing: 12px; margin-bottom: 20px;">FLASHMIX</div>
-            <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.6); padding: 15px 40px; border-radius: 50px; border: 1px solid #222;">
-                <div class="dot"></div>
-                <span style="color: #fff; font-size: 16px; letter-spacing: 4px; font-weight: 900;">OFFLINE</span>
+    <div class="stage">
+        <div id="standby">
+            <div style="font-size: clamp(35px, 10vw, 75px); letter-spacing: 15px; font-weight: 900; margin-bottom: 25px;">FLASHMIX</div>
+            <div class="status-pill">
+                <div class="live-dot"></div>
+                <span style="font-size: 16px; letter-spacing: 5px; font-weight: 900; color: #888;">OFFLINE</span>
             </div>
         </div>
-        <div id="player-target"></div>
+        <div id="screen"></div>
     </div>
 
-    <button id="actionBtn" onclick="enableAudio()">🔊 UNMUTE SESSION</button>
+    <button id="unmuteBtn" onclick="toggleAudio()">🔊 UNMUTE LIVE</button>
 
-    <div class="container">
+    <div class="content">
         
-        <div class="section-title">Latest Replays</div>
-        <div id="replays-container" class="video-grid">
-            <p style="color:#444">Loading latest videos...</p>
+        <div class="row-title">Recent Sessions</div>
+        <div id="replays" class="grid">
+            <p style="color:#222">Syncing with Kick Cloud...</p>
         </div>
 
-        <div class="section-title">Our DJs</div>
+        <div class="row-title">Flashmix Residents</div>
         <div class="dj-grid">
-            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ BARGANTE</h3><p style="color:#f52a1f; font-size:10px;">Resident</p></div></div>
-            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 01</h3><p style="color:#f52a1f; font-size:10px;">Tech House</p></div></div>
-            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 02</h3><p style="color:#f52a1f; font-size:10px;">Deep House</p></div></div>
-            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 03</h3><p style="color:#f52a1f; font-size:10px;">Open Format</p></div></div>
-            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 04</h3><p style="color:#f52a1f; font-size:10px;">Techno</p></div></div>
-            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 05</h3><p style="color:#f52a1f; font-size:10px;">Afro House</p></div></div>
+            <div class="dj-box"><div class="dj-avatar"></div><h3>DJ BARGANTE</h3><span>Tech House</span></div>
+            <div class="dj-box"><div class="dj-avatar"></div><h3>DJ GUEST 01</h3><span>Melodic</span></div>
+            <div class="dj-box"><div class="dj-avatar"></div><h3>DJ GUEST 02</h3><span>Deep House</span></div>
+            <div class="dj-box"><div class="dj-avatar"></div><h3>DJ GUEST 03</h3><span>Techno</span></div>
+            <div class="dj-box"><div class="dj-avatar"></div><h3>DJ GUEST 04</h3><span>80s/90s</span></div>
+            <div class="dj-box"><div class="dj-avatar"></div><h3>DJ GUEST 05</h3><span>Open Format</span></div>
         </div>
 
     </div>
 
     <script>
-        const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
-        const KICK_USER = "djlivetv";
-        let currentStatus = null;
-        let isWatchingReplay = false;
+        const FIREBASE = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
+        const KICK_ID = "djlivetv";
+        let liveStatus = null;
+        let watchingVOD = false;
 
-        // FUNÇÃO AUTOMÁTICA PARA BUSCAR VÍDEOS DO KICK
+        // 1. AUTO-LOAD VIDEOS (SMART RSS PROXY)
         async function fetchVideos() {
             try {
-                // Usamos uma ferramenta que converte o Kick em dados para o site
-                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://kick.com/${KICK_USER}/rss`);
-                const data = await response.json();
-                const container = document.getElementById('replays-container');
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://kick.com/${KICK_ID}/rss`);
+                const data = await res.json();
+                const container = document.getElementById('replays');
                 container.innerHTML = "";
 
-                data.items.slice(0, 4).forEach(item => {
-                    // Extrair ID do vídeo do link do Kick
-                    const videoId = item.link.split('/').pop();
+                data.items.slice(0, 8).forEach(vid => {
+                    const id = vid.link.split('/').pop();
                     container.innerHTML += `
-                        <div class="video-card" onclick="loadReplay('https://player.kick.com/video/${videoId}')">
-                            <div class="video-thumb" style="background-image: url('${item.thumbnail}')"></div>
-                            <div class="video-meta"><h4>${item.title}</h4></div>
+                        <div class="card" onclick="playVOD('${id}')">
+                            <div class="card-thumb" style="background-image: url('${vid.thumbnail}')"></div>
+                            <div class="card-info"><h4>${vid.title}</h4></div>
                         </div>
                     `;
                 });
-            } catch (e) {
-                document.getElementById('replays-container').innerHTML = "<p style='color:#222'>Replays ready on Kick.com</p>";
+            } catch (e) { 
+                document.getElementById('replays').innerHTML = "<p style='color:#333'>Library available on Kick.com</p>";
             }
         }
 
-        async function autoCheck() {
-            if (isWatchingReplay) return;
+        // 2. IMAC KILL-SWITCH SYNC
+        async function syncIMac() {
+            if (watchingVOD) return;
             try {
-                const r = await fetch(`${DB_URL}?nocache=${Date.now()}`);
+                const r = await fetch(`${FIREBASE}?t=${Date.now()}`);
                 const isLive = await r.json();
-                if (isLive !== currentStatus) {
-                    currentStatus = isLive;
-                    const body = document.getElementById('app');
-                    const target = document.getElementById('player-target');
+
+                if (isLive !== liveStatus) {
+                    liveStatus = isLive;
+                    const body = document.getElementById('root');
+                    const screen = document.getElementById('screen');
+                    
                     if (isLive === true) {
-                        body.classList.add('is-live');
-                        target.innerHTML = `<iframe src="https://player.kick.com/${KICK_USER}?muted=true" allowfullscreen></iframe>`;
+                        body.className = 'is-live';
+                        screen.innerHTML = `<iframe src="https://player.kick.com/${KICK_ID}?muted=true" allowfullscreen></iframe>`;
                     } else {
-                        body.classList.remove('is-live');
-                        target.innerHTML = ""; 
+                        body.className = '';
+                        screen.innerHTML = "";
+                        window.stop();
                     }
                 }
-            } catch (e) { }
+            } catch (e) {}
         }
 
-        function loadReplay(url) {
-            isWatchingReplay = true;
-            document.getElementById('app').classList.add('viewing-replay');
-            document.getElementById('player-target').innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+        // 3. VOD PLAYER (STAYS ON SITE)
+        function playVOD(id) {
+            watchingVOD = true;
+            document.getElementById('root').className = 'is-replay';
+            document.getElementById('screen').innerHTML = `<iframe src="https://player.kick.com/video/${id}" allowfullscreen></iframe>`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function enableAudio() {
-            if (!isWatchingReplay) {
-                document.getElementById('player-target').innerHTML = `<iframe src="https://player.kick.com/${KICK_USER}?muted=false" allowfullscreen></iframe>`;
+        function toggleAudio() {
+            if (!watchingVOD) {
+                document.getElementById('screen').innerHTML = `<iframe src="https://player.kick.com/${KICK_ID}?muted=false" allowfullscreen></iframe>`;
             }
-            document.getElementById('actionBtn').style.display = 'none';
+            document.getElementById('unmuteBtn').style.display = 'none';
         }
 
-        setInterval(autoCheck, 4000);
-        autoCheck();
-        fetchVideos(); // Corre logo ao abrir o site
+        // INTERVALS
+        setInterval(syncIMac, 3000);
+        syncIMac();
+        fetchVideos();
     </script>
 </body>
 </html>
