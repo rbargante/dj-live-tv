@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DJ LIVE TV | FLASHMIX</title>
   <style>
+    /* RESET E BASE */
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     
+    /* NAVEGAÇÃO */
     .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
     .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
     .logo { font-weight: 900; font-size: 18px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; }
@@ -15,7 +17,7 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
 
-    /* PLAYER SEMPRE VISÍVEL */
+    /* PLAYER CONTAINER (SEMPRE LÁ) */
     .player-container { 
       position: relative; 
       width: 100%; 
@@ -29,11 +31,11 @@
     .player-aspect { 
       position: relative; 
       width: 100%; 
-      padding-top: 56.25%; /* 16:9 */
+      padding-top: 56.25%; 
       background: #000; 
     }
 
-    /* MENSAGEM QUE APARECE QUANDO O PLAYER É REMOVIDO */
+    /* MENSAGEM QUE APARECE POR BAIXO DO IFRAME */
     #offline-overlay {
       position: absolute;
       inset: 0;
@@ -41,12 +43,13 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #000;
+      background: #0a0a0a;
       color: #333;
       z-index: 1;
       text-transform: uppercase;
       letter-spacing: 2px;
       font-size: 11px;
+      text-align: center;
     }
 
     .player-aspect iframe { 
@@ -55,7 +58,7 @@
       width: 100%; 
       height: 100%; 
       border: 0; 
-      z-index: 2; /* Fica por cima do overlay quando existe */
+      z-index: 2; 
     }
     
     #unmuteOverlay { 
@@ -64,10 +67,11 @@
       display: none;
     }
 
-    /* RESTO DO SITE */
+    /* ÚLTIMOS VÍDEOS */
     .section-title { text-align: center; margin: 40px 0 20px; font-size: 18px; font-weight: 900; text-transform: uppercase; }
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-    .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; overflow: hidden; }
+    .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; overflow: hidden; transition: 0.3s; cursor: pointer; }
+    .card-v:hover { border-color: #f52a1f; }
     .card-v img { width: 100%; display: block; }
 
     footer { padding: 40px; text-align: center; color: #222; font-size: 10px; }
@@ -79,7 +83,8 @@
     <div class="nav-inner">
       <div class="logo">FLASHMIX.TV</div>
       <div class="nav-links">
-        <a href="#vids">Vídeos</a><a href="javascript:void(0)" onclick="toggleAdmin()">Admin</a>
+        <a href="#vids">Vídeos</a>
+        <a href="javascript:void(0)" onclick="toggleAdmin()">Painel</a>
       </div>
     </div>
   </nav>
@@ -89,29 +94,30 @@
     <div class="player-container">
       <div class="player-aspect" id="playerWrapper">
         <div id="offline-overlay">
-            <div style="font-size: 24px; margin-bottom: 10px;">📻</div>
-            Sinal Offline • Aguardando OBS
+            <div style="font-size: 30px; margin-bottom: 10px;">📻</div>
+            SINAL OFFLINE • AGUARDANDO DJ
         </div>
         </div>
       <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
     </div>
 
     <div id="vids">
-      <h2 class="section-title">Últimos Sets</h2>
+      <h2 class="section-title">Últimos Sets Gravados</h2>
       <div id="videoGrid" class="grid-vids"></div>
     </div>
 
-    <div id="adminArea" style="display:none; padding: 20px; background: #080808; border: 1px solid #f52a1f; margin-top: 20px; border-radius: 10px;">
-       <button onclick="saveAll()" style="width:100%; padding: 15px; background: #28a745; color: white; border: none; font-weight: bold;">PUBLICAR</button>
-    </div>
   </div>
 
   <footer>© 2026 FLASHMIX TV</footer>
 
   <script>
-    const STATUS_WORKER = "https://calm-violet-826b.ricardobargante.workers.dev/";
+    // LINKS DO TEU NOVO WORKER E DO WORKER DE VÍDEOS
+    const STATUS_WORKER = "https://djlivetv.ricardobargante.workers.dev/";
+    const VIDEOS_WORKER = "https://blue-cherry-d10a.ricardobargante.workers.dev/videos";
+    
     let isLiveState = null;
 
+    // Função para o botão de som (Mobile)
     function unmutePlayer() {
       const iframe = document.querySelector('#playerWrapper iframe');
       if(iframe) {
@@ -120,6 +126,7 @@
       }
     }
 
+    // Função que verifica se estás ON ou OFF
     async function syncPlayer() {
       try {
         const res = await fetch(`${STATUS_WORKER}?t=${Date.now()}`, { cache: "no-store" });
@@ -132,41 +139,41 @@
           const btn = document.getElementById('unmuteOverlay');
 
           if (liveNow) {
-            // INJETA O PLAYER POR CIMA DO AVISO
+            // OBS LIGADO -> Cria o player
             wrapper.innerHTML += `<iframe src="https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}" allowfullscreen></iframe>`;
             btn.style.display = 'block';
-            console.log("OBS LIGADO: Player Injetado.");
+            console.log("Sinal detetado: LIVE ON");
           } else {
-            // REMOVE APENAS O IFRAME, O AVISO "OFFLINE" QUE ESTÁ POR BAIXO APARECE
+            // OBS DESLIGADO -> Apaga o iframe
             const iframe = wrapper.querySelector('iframe');
             if (iframe) iframe.remove();
             btn.style.display = 'none';
-            console.log("OBS DESLIGADO: Player Removido.");
+            console.log("Sinal perdido: LIVE OFF");
           }
         }
-      } catch (e) { console.log("Erro ao verificar status."); }
+      } catch (e) { console.log("Erro ao ligar ao Worker de Status."); }
     }
 
-    async function init() {
-      syncPlayer();
-      setInterval(syncStatus, 5000); // Check a cada 5 segundos
-
-      // Carregar vídeos (exemplo simplificado)
+    // Função para carregar os vídeos do outro Worker
+    async function loadVideos() {
       try {
-        const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        const rv = await fetch(VIDEOS_WORKER);
         const vids = await rv.json();
         document.getElementById('videoGrid').innerHTML = vids.slice(0, 4).map(v => `
-          <div class="card-v">
+          <div class="card-v" onclick="window.open('${v.source}','_self')">
             <img src="${v.thumbnail.src}">
-            <p style="font-size:11px; padding:10px;">${v.session_title}</p>
+            <p style="font-size:11px; padding:10px; margin:0; font-weight:700;">${v.session_title}</p>
           </div>`).join('');
-      } catch(e) {}
+      } catch(e) { console.log("Erro ao carregar vídeos."); }
     }
 
-    // Função de correção para o setInterval (chama a função correta)
-    function syncStatus() { syncPlayer(); }
+    function init() {
+      syncPlayer();
+      loadVideos();
+      setInterval(syncPlayer, 5000); // Verifica status a cada 5 segundos
+    }
 
-    function toggleAdmin() { if(prompt("Senha:") === '1234') document.getElementById('adminArea').style.display = 'block'; }
+    function toggleAdmin() { if(prompt("Senha:") === '1234') { alert("Admin em construção..."); } }
 
     init();
   </script>
