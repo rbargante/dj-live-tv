@@ -13,12 +13,19 @@
     .nav-links a { color: #aaa; text-decoration: none; font-size: 10px; font-weight: 700; padding: 5px 8px; text-transform: uppercase; }
     .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
     
-    .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #0a0a0a; border: 1px solid #222; margin-top: 10px; display: block; }
-    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+    /* DESIGN DO PLAYER E OFFLINE */
+    .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; margin-top: 10px; display: none; }
+    .is-live .player-container { display: block; }
+    
+    #offlineBox { width: 100%; border-radius: 12px; background: #0a0a0a; border: 1px dashed #333; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; color: #444; }
+    .is-live #offlineBox { display: none; }
+
+    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
-    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4); }
-    .section-title { text-align: center; margin: 30px 0 15px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
+    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; }
+    
+    .section-title { text-align: center; margin: 30px 0 15px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
     .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
     .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
@@ -28,11 +35,11 @@
     .sch-row { display: grid; grid-template-columns: 40px 1fr 70px; padding: 12px; border-bottom: 1px solid #111; align-items: center; gap: 8px; }
     .sch-dj-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
     .sch-time { font-family: monospace; font-size: 13px; font-weight: bold; color: #f52a1f; text-align: right; }
+    
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 20px; margin-top: 40px; display: none; }
     .admin-input { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
     .btn-publish { background: #28a745; color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 20px; }
     footer { padding: 40px 20px; text-align: center; color: #444; font-size: 10px; }
-    @media (max-width: 600px) { .grid-djs { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body id="mainSite">
@@ -41,13 +48,17 @@
   </nav>
 
   <div class="container">
+    <div id="offlineBox"><div style="font-size:30px">📻</div><br>SINAL OFFLINE • AGUARDANDO OBS</div>
+
     <div class="player-container">
       <div class="player-aspect"><iframe id="kickIframe" src="" allowfullscreen></iframe></div>
-      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 SOM NO TELEMÓVEL</button>
+      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
     </div>
+
     <div id="vids"><h2 class="section-title">Últimos Sets</h2><div id="videoGrid" class="grid-vids"></div></div>
     <div id="secDjs"><h2 class="section-title" id="djs">Nossa Equipa</h2><div id="djGrid" class="grid-djs"></div></div>
     <div id="secSch"><h2 class="section-title" id="schedule">Broadcast Schedule</h2><div id="scheduleList" class="sch-container"></div></div>
+
     <div id="adminArea" class="admin-section">
       <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
       <div id="adminDjList"></div><button onclick="addNewDjField()" class="admin-input" style="background:#222;">+ ADICIONAR DJ</button>
@@ -59,41 +70,42 @@
 
 <script>
   const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-  let currentDjs = []; let currentSch = []; let isLiveState = null;
+  let currentDjs = []; let currentSch = []; let isLiveState = false;
 
   function unmutePlayer() {
-    const iframe = document.getElementById('kickIframe');
-    iframe.src = `https://player.kick.com/DJLIVETV?muted=false&r=${Date.now()}`;
+    document.getElementById('kickIframe').src = "https://player.kick.com/DJLIVETV?muted=false";
     document.getElementById('unmuteOverlay').style.display = 'none';
   }
 
-  async function syncPlayer() {
+  async function checkLive() {
+    const site = document.getElementById('mainSite');
     const iframe = document.getElementById('kickIframe');
+    
     try {
-      const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`, { cache: "no-store" });
+      const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`);
       const data = await res.json();
-      const liveNow = data?.live === true;
+      
+      const liveNow = data.live === true;
 
-      // SÓ MUDA SE HOUVER ALTERAÇÃO REAL DE ESTADO
       if (liveNow !== isLiveState) {
-        console.log("Mudança de estado detetada: ", liveNow);
         isLiveState = liveNow;
-        
-        // RESET TOTAL DO IFRAME
-        iframe.src = "about:blank"; 
-        
-        setTimeout(() => {
-          // Se for LIVE, carrega o vídeo. Se for OFF, carrega a página offline do Kick sem lixo.
-          const freshUrl = `https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}`;
-          iframe.src = freshUrl;
-        }, 500);
+        if (liveNow) {
+          site.classList.add('is-live');
+          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+        } else {
+          site.classList.remove('is-live');
+          iframe.src = "";
+        }
       }
-    } catch (e) { console.error("Erro sync", e); }
+    } catch (e) {
+      site.classList.remove('is-live');
+      iframe.src = "";
+    }
   }
 
   async function load() {
-    syncPlayer();
-    setInterval(syncPlayer, 10000); // Verifica a cada 10 seg
+    checkLive();
+    setInterval(checkLive, 15000);
 
     try {
       const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
