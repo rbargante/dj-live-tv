@@ -1,89 +1,176 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>DJ LIVE TV | FLASHMIX</title>
-  <style>
-    body { margin: 0; background: #000; color: #fff; font-family: sans-serif; text-align: center; }
-    .logo { padding: 30px; font-weight: 900; color: #f52a1f; letter-spacing: 3px; font-size: 24px; }
-    
-    /* CONTENTOR DO PLAYER */
-    #player-zone { 
-      position: relative; width: 92%; max-width: 800px; margin: 0 auto; 
-      border-radius: 20px; overflow: hidden; background: #080808; border: 1px solid #1a1a1a;
-      min-height: 200px; display: flex; align-items: center; justify-content: center;
-    }
-    
-    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; display: none; }
-    
-    /* MENSAGEM OFFLINE */
-    #offline-ui { color: #333; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
-
-    /* QUANDO ESTIVER LIVE */
-    .is-live #player-zone { border-color: #f52a1f; }
-    .is-live .player-aspect { display: block; }
-    .is-live #offline-ui { display: none; }
-
-    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    
-    #unmuteBtn { 
-      display: none; margin: 25px auto; background: #f52a1f; color: #fff; border: none; 
-      padding: 15px 35px; border-radius: 50px; font-weight: 900; cursor: pointer;
-    }
-    .is-live #unmuteBtn { display: inline-block; }
-  </style>
-</head>
-<body id="site-root">
-
-  <div class="logo">FLASHMIX.TV</div>
-
-  <div id="player-zone">
-    <div id="offline-ui">SINAL OFFLINE</div>
-    <div class="player-aspect" id="inject-target"></div>
-  </div>
-  
-  <button id="unmuteBtn" onclick="forceUnmute()">🔊 ATIVAR SOM</button>
-
-  <script>
-    const WORKER = "https://djlivetv.ricardobargante.workers.dev/";
-    let isLive = null;
-
-    async function checkSinal() {
-      try {
-        // Pedimos ao worker com timestamp para evitar cache do browser
-        const res = await fetch(`${WORKER}?nocache=${Date.now()}`, { cache: "no-store" });
-        const data = await res.json();
-        
-        if (data.live !== isLive) {
-          isLive = data.live;
-          const root = document.getElementById('site-root');
-          const target = document.getElementById('inject-target');
-
-          if (data.live) {
-            root.classList.add('is-live');
-            // Criamos o iframe do zero
-            target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true&autoplay=true" allowfullscreen></iframe>`;
-          } else {
-            root.classList.remove('is-live');
-            // MATAMOS O PLAYER: Removemos o código do iframe completamente
-            target.innerHTML = "";
-            // Forçamos o browser a parar qualquer stream pendente
-            window.stop();
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DJ LIVE TV | FLASHMIX</title>
+    <style>
+        /* DESIGN FLASHMIX */
+        body { 
+            margin: 0; 
+            background: #000; 
+            color: #fff; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
-      } catch (e) { console.log("Erro de ligação."); }
-    }
 
-    function forceUnmute() {
-      const target = document.getElementById('inject-target');
-      target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false&autoplay=true" allowfullscreen></iframe>`;
-      document.getElementById('unmuteBtn').style.display = 'none';
-    }
+        .logo { 
+            padding: 20px; 
+            font-weight: 900; 
+            color: #f52a1f; 
+            letter-spacing: 4px; 
+            font-size: 26px; 
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(245, 42, 31, 0.4);
+        }
 
-    // Verifica a cada 3 segundos para ser o mais rápido possível
-    setInterval(checkSinal, 3000);
-    checkSinal();
-  </script>
+        /* CONTENTOR DO PLAYER */
+        .player-wrapper {
+            position: relative;
+            width: 92%;
+            max-width: 850px;
+            aspect-ratio: 16 / 9;
+            background: #080808;
+            border-radius: 20px;
+            border: 2px solid #1a1a1a;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+        }
+
+        /* QUANDO ESTÁ LIVE, A BORDA FICA VERMELHA */
+        body.is-live .player-wrapper {
+            border-color: #f52a1f;
+            box-shadow: 0 0 30px rgba(245, 42, 31, 0.2);
+        }
+
+        #offline-ui {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .status-text {
+            color: #333;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* O PLAYER EM SI */
+        #player-container {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+        }
+
+        body.is-live #player-container { display: block; }
+        body.is-live #offline-ui { display: none; }
+
+        iframe { width: 100%; height: 100%; border: 0; }
+
+        /* BOTÃO DE SOM */
+        #unmuteBtn {
+            display: none;
+            margin-top: 30px;
+            background: #f52a1f;
+            color: #fff;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s;
+        }
+
+        #unmuteBtn:active { transform: scale(0.95); }
+        body.is-live #unmuteBtn { display: inline-block; }
+
+    </style>
+</head>
+<body>
+
+    <div class="logo">FLASHMIX.TV</div>
+
+    <div class="player-wrapper">
+        <div id="offline-ui">
+            <div class="status-dot"></div>
+            <div class="status-text">Sinal Offline • Aguardando DJ</div>
+        </div>
+
+        <div id="player-container"></div>
+    </div>
+
+    <button id="unmuteBtn" onclick="ligarSom()">🔊 OUVIR EM DIRETO</button>
+
+    <script>
+        // CONFIGURAÇÃO DO TEU FIREBASE (O TEU INTERRUPTOR DO IMAC)
+        const FB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
+        let statusLocal = null;
+
+        async function sincronizarComIMac() {
+            try {
+                // O t=Date.now() evita que o browser use memória antiga
+                const res = await fetch(`${FB_URL}?t=${Date.now()}`);
+                const isLive = await res.json();
+
+                if (isLive !== statusLocal) {
+                    statusLocal = isLive;
+                    const container = document.getElementById('player-container');
+                    const btn = document.getElementById('unmuteBtn');
+
+                    if (isLive === true) {
+                        // IMAC ESTÁ A EMITIR -> INJETAR O PLAYER
+                        document.body.classList.add('is-live');
+                        container.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
+                        btn.style.display = 'inline-block';
+                    } else {
+                        // IMAC DESLIGOU -> MATAR O PLAYER NA HORA
+                        document.body.classList.remove('is-live');
+                        container.innerHTML = ""; 
+                        btn.style.display = 'none';
+                        window.stop(); // Pára qualquer download de vídeo pendente
+                    }
+                }
+            } catch (e) {
+                console.log("Erro ao ligar ao servidor...");
+            }
+        }
+
+        function ligarSom() {
+            const container = document.getElementById('player-container');
+            // Recarrega o player com som ativo
+            container.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
+            document.getElementById('unmuteBtn').style.display = 'none';
+        }
+
+        // VERIFICA A CADA 2 SEGUNDOS (ULTRA RÁPIDO)
+        setInterval(sincronizarComIMac, 2000);
+        sincronizarComIMac();
+
+    </script>
 </body>
 </html>
