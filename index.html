@@ -47,7 +47,6 @@
     .live-now .sch-time { color: #f52a1f; }
     .sch-status { font-size: 10px; font-weight: 900; color: #f52a1f; text-align: right; visibility: hidden; }
     .live-now .sch-status { visibility: visible; }
-    .next-row .sch-status { visibility: visible; color: #888; }
 
     /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 15px; margin-top: 40px; display: none; }
@@ -74,7 +73,7 @@
 
   <div class="container">
     <div style="text-align:center" id="badgeWrap">
-      <div id="statusBadge"><span id="statusDot"></span> <span id="statusText">OFFLINE</span></div>
+      <div id="statusBadge"><span id="statusDot"></span> <span id="statusText">CHECKING...</span></div>
     </div>
 
     <div class="player-container">
@@ -140,10 +139,11 @@
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
-    // ARRANJA O BADGE USANDO O KICK (Proxy seguro)
+    // VERIFICAÇÃO AUTOMÁTICA SEM PRECISAR DE REFRESH
     async function checkStatus() {
       try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://kick.com/api/v1/channels/DJLIVETV')}`);
+        // Usamos um timestamp aleatório no final da URL para o navegador não "viciar" no resultado antigo
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://kick.com/api/v1/channels/DJLIVETV')}&nocache=${Date.now()}`);
         const data = await res.json();
         const kickData = JSON.parse(data.contents);
         
@@ -157,12 +157,14 @@
           badge.classList.remove('live'); 
           statusTxt.innerText = "OFFLINE"; 
         }
-      } catch(e) {}
+      } catch(e) {
+        console.log("A verificar status...");
+      }
     }
 
     async function load() {
-      checkStatus();
-      setInterval(checkStatus, 30000); // Verifica a cada 30 segundos
+      checkStatus(); // Verifica mal abre
+      setInterval(checkStatus, 20000); // Verifica sozinho de 20 em 20 segundos
 
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
@@ -208,16 +210,24 @@
 
     function renderAdmin() {
       document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><input class="admin-input" value="${d.name}" oninput="currentDjs[${i}].name=this.value"><input class="admin-input" value="${d.img}" oninput="currentDjs[${i}].img=this.value"><button onclick="currentDjs.splice(${i},1);renderAdmin()" style="color:red; background:none; border:none; cursor:pointer;">X</button></div>`).join('');
-      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><select onchange="currentSch[${i}].dj=this.value">${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}</select><select onchange="currentSch[${i}].day=this.value">${daysArr.map(d => `<option ${s.day==d?'selected':''}>${d}</option>`).join('')}</select><select onchange="currentSch[${i}].time=this.value">${hoursArr.map(h => `<option ${s.time==h?'selected':''}>${h}</option>`).join('')}</select><button onclick="currentSch.splice(${i},1);renderAdmin()" style="color:red; background:none; border:none; cursor:pointer;">X</button></div>`).join('');
+      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `
+        <div style="display:flex; gap:5px; margin-bottom:5px;">
+          <select onchange="currentSch[${i}].dj=this.value">${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}</select>
+          <select onchange="currentSch[${i}].day=this.value">${daysArr.map(d => `<option ${s.day==d?'selected':''}>${d}</option>`).join('')}</select>
+          <select onchange="currentSch[${i}].time=this.value">${hoursArr.map(h => `<option ${s.time==h?'selected':''}>${h}</option>`).join('')}</select>
+          <button onclick="currentSch.splice(${i},1);renderAdmin()" style="color:red; background:none; border:none; cursor:pointer;">X</button>
+        </div>`).join('');
     }
 
     function addNewDjField() { currentDjs.push({name:'', img:'', style:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name||'', day:'Todos os dias', time:'22:00'}); renderAdmin(); }
+
     async function saveAll() {
       const payload = { djs: currentDjs.filter(d=>d.name), schedule: currentSch, hideDjs: document.getElementById('hideDjs').checked, hideSch: document.getElementById('hideSch').checked };
       await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify(payload) });
       alert("✅ ATUALIZADO!"); location.reload();
     }
+
     function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; renderAdmin(); }}
     function toggleAdmin() { const a = document.getElementById('adminArea'); a.style.display = a.style.display==='block'?'none':'block'; a.scrollIntoView(); }
     load();
