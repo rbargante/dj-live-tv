@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DJ LIVE TV | FLASHMIX</title>
   <style>
+    /* BASE E RESET */
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     
@@ -16,29 +17,30 @@
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
     .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
 
-    /* PLAYER KICK FIXO */
+    /* PLAYER CONTAINER DINÂMICO */
     .player-container { 
-      position: relative; 
-      width: 100%; 
-      border-radius: 15px; 
-      overflow: hidden; 
-      background: #0a0a0a; 
-      border: 1px solid #222; 
-      margin-top: 10px; 
+      position: relative; width: 100%; border-radius: 15px; overflow: hidden; 
+      background: #0a0a0a; border: 1px solid #222; margin-top: 10px;
+      min-height: 250px; display: flex; align-items: center; justify-content: center;
     }
-    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; display: none; }
+    .is-live .player-aspect { display: block; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
+    #offlineMsg { color: #444; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+    .is-live #offlineMsg { display: none; }
+
     #unmuteOverlay { 
       position: absolute; bottom: 20px; right: 20px; z-index: 10; background: #f52a1f; color: #fff; 
-      border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; cursor: pointer;
+      border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; cursor: pointer; display: none;
     }
+    .is-live #unmuteOverlay { display: block; }
 
     /* GRIDS */
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
     .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
     .card-v img { width: 100%; display: block; }
-    .card-v h3 { font-size: 13px; padding: 12px; margin: 0; }
+    .card-v h3 { font-size: 13px; padding: 12px; margin: 0; font-weight: 600; }
 
     .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
     .card-dj { text-align: center; background: #0a0a0a; padding: 20px; border-radius: 15px; border: 1px solid #111; }
@@ -58,7 +60,7 @@
     @media (max-width: 600px) { .grid-djs { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
-<body>
+<body id="mainBody">
 
   <nav class="top-nav">
     <div class="nav-inner">
@@ -72,10 +74,9 @@
 
   <div class="container">
     
-    <div class="player-container">
-      <div class="player-aspect">
-        <iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
-      </div>
+    <div class="player-container" id="pContainer">
+      <div id="offlineMsg">Sinal Offline • Aguardando OBS</div>
+      <div class="player-aspect" id="playerWrapper"></div>
       <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
     </div>
 
@@ -84,7 +85,7 @@
     <div id="secSch"><h2 class="section-title" id="schedule">Horário</h2><div id="scheduleList" class="sch-container"></div></div>
 
     <div id="adminArea" class="admin-section">
-      <h2 style="color:#f52a1f; text-align:center;">COMANDO DE DADOS</h2>
+      <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
       <div id="adminDjList"></div><button onclick="addNewDjField()" style="width:100%; margin-bottom:10px;">+ NOVO DJ</button>
       <div id="adminSchList"></div><button onclick="addNewSchField()" style="width:100%; margin-bottom:10px;">+ NOVO HORÁRIO</button>
       <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR</button>
@@ -95,14 +96,43 @@
 
   <script>
     const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-    let currentDjs = []; let currentSch = [];
+    const STATUS_WORKER = "https://calm-violet-826b.ricardobargante.workers.dev/";
+    let currentDjs = []; let currentSch = []; let isLiveState = null;
 
     function unmutePlayer() {
-      document.getElementById('kickIframe').src = "https://player.kick.com/DJLIVETV?muted=false";
+      const iframe = document.querySelector('#playerWrapper iframe');
+      if(iframe) iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
+    // SINCRONIZAÇÃO DIRETA COM O WORKER (SALTA O MAKE)
+    async function syncStatus() {
+      try {
+        const res = await fetch(`${STATUS_WORKER}?t=${Date.now()}`, { cache: "no-store" });
+        const data = await res.json();
+        const liveNow = data?.live === true;
+
+        if (liveNow !== isLiveState) {
+          isLiveState = liveNow;
+          const body = document.getElementById('mainBody');
+          const wrapper = document.getElementById('playerWrapper');
+
+          if (liveNow) {
+            body.classList.add('is-live');
+            wrapper.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}" allowfullscreen></iframe>`;
+          } else {
+            body.classList.remove('is-live');
+            wrapper.innerHTML = ""; // REMOVE O PLAYER NA HORA
+            console.log("OFFLINE: Player removido.");
+          }
+        }
+      } catch(e) { console.error("Sync error"); }
+    }
+
     async function init() {
+      syncStatus();
+      setInterval(syncStatus, 5000); // Check a cada 5 segundos
+
       // Vídeos
       try {
         const resV = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
