@@ -7,87 +7,89 @@
     <style>
         body { 
             margin: 0; background: #000; color: #fff; 
-            font-family: 'Arial Black', sans-serif; 
+            font-family: 'Arial Black', Gadget, sans-serif; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;
             overflow: hidden;
         }
 
         .main-header { 
-            padding: 20px; font-weight: 900; color: #f52a1f; letter-spacing: 8px; font-size: 35px; 
+            padding: 20px; font-weight: 900; color: #f52a1f; letter-spacing: 8px; font-size: clamp(24px, 5vw, 40px); 
             text-transform: uppercase; text-shadow: 0 0 20px rgba(245, 42, 31, 0.8);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        /* PLAYER WRAPPER WITH NEON EFFECT */
+        /* SUPER NEON WRAPPER */
         .player-wrapper {
             position: relative; width: 94%; max-width: 900px; aspect-ratio: 16 / 9;
-            background: #050505; border-radius: 30px; overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-            border: 4px solid #111; /* Default border when offline */
+            background: #050505; border-radius: 30px; 
+            display: flex; align-items: center; justify-content: center;
+            /* NEON CINZA QUANDO OFFLINE */
+            border: 5px solid #1a1a1a;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            transition: all 0.5s ease;
         }
 
-        /* THE RUNNING NEON BORDER */
+        /* NEON VERMELHO VIVO QUANDO LIVE */
         body.is-live .player-wrapper {
-            border: 4px solid transparent;
+            border: 5px solid transparent;
             background: linear-gradient(#050505, #050505) padding-box,
                         linear-gradient(90deg, #f52a1f, #ff6b6b, #f52a1f) border-box;
             background-size: 200% 100%;
-            animation: neonMove 1.5s linear infinite;
-            box-shadow: 0 0 40px rgba(245, 42, 31, 0.6);
+            animation: neonFlow 1.5s linear infinite;
+            box-shadow: 0 0 60px rgba(245, 42, 31, 0.7);
         }
 
-        @keyframes neonMove {
+        @keyframes neonFlow {
             0% { background-position: 0% 50%; }
             100% { background-position: 200% 50%; }
         }
 
-        /* VIDEO AREA */
         #player-target {
             position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20;
-            display: none;
+            display: none; border-radius: 25px; overflow: hidden;
         }
         body.is-live #player-target { display: block; }
-        iframe { width: 100%; height: 100%; border: 0; border-radius: 26px; }
+        iframe { width: 100%; height: 100%; border: 0; }
 
-        /* OFFLINE SCREEN (VISIBLE & CLEAN) */
+        /* OFFLINE SCREEN */
         #offline-screen {
             position: absolute; inset: 0;
-            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            background: radial-gradient(circle, #111 0%, #000 100%);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 10;
+            z-index: 10; border-radius: 25px;
         }
 
-        .brand-name { font-size: 45px; letter-spacing: 10px; opacity: 0.8; margin-bottom: 20px; color: #fff; }
+        .brand-name { font-size: clamp(30px, 8vw, 60px); letter-spacing: 12px; opacity: 0.9; margin-bottom: 20px; }
         
         .status-badge {
-            background: rgba(255,255,255,0.05); padding: 15px 40px; border-radius: 50px;
+            background: rgba(255,255,255,0.05); padding: 15px 35px; border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 15px;
         }
 
         .dot { 
-            width: 15px; height: 15px; background: #f52a1f; border-radius: 50%; 
+            width: 14px; height: 14px; background: #f52a1f; border-radius: 50%; 
             box-shadow: 0 0 15px #f52a1f; animation: pulseRed 2s infinite;
         }
 
         @keyframes pulseRed {
-            0% { opacity: 0.3; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 0.3; transform: scale(0.9); }
+            0%, 100% { opacity: 0.2; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.2); }
         }
 
-        .status-msg { color: #888; font-size: 16px; letter-spacing: 4px; font-weight: bold; }
+        .status-msg { color: #aaa; font-size: 14px; letter-spacing: 3px; font-weight: bold; text-transform: uppercase; }
 
         body.is-live #offline-screen { display: none; }
 
-        /* BIG RED ACTION BUTTON */
+        /* UNMUTE BUTTON */
         #actionBtn {
             display: none; margin-top: 40px; background: #f52a1f; color: #fff;
-            border: none; padding: 25px 70px; border-radius: 100px;
-            font-weight: 900; font-size: 20px; cursor: pointer; text-transform: uppercase;
-            box-shadow: 0 10px 40px rgba(245, 42, 31, 0.5); transition: 0.3s;
+            border: none; padding: 22px 60px; border-radius: 100px;
+            font-weight: 900; font-size: 18px; cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 10px 40px rgba(245, 42, 31, 0.4); transition: 0.3s;
+            z-index: 100;
         }
 
-        #actionBtn:hover { transform: scale(1.05); background: #ff3e33; }
+        #actionBtn:hover { transform: scale(1.05); box-shadow: 0 15px 50px rgba(245, 42, 31, 0.6); }
         body.is-live #actionBtn { display: inline-block; }
 
     </style>
@@ -101,7 +103,7 @@
             <div class="brand-name">FLASHMIX</div>
             <div class="status-badge">
                 <div class="dot"></div>
-                <span class="status-msg">SYSTEM READY / OFFLINE</span>
+                <span class="status-msg">SYSTEM READY / STANDBY</span>
             </div>
         </div>
         <div id="player-target"></div>
@@ -110,11 +112,13 @@
     <button id="actionBtn" onclick="enableAudio()">🔊 UNMUTE LIVE SESSION</button>
 
     <script>
+        // O link do teu Firebase que já está a funcionar no teu iMac
         const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
         let currentStatus = null;
 
-        async function updateSite() {
+        async function autoCheck() {
             try {
+                // Fetch sem cache para ser instantâneo
                 const r = await fetch(`${DB_URL}?t=${Date.now()}`);
                 const isLive = await r.json();
 
@@ -122,6 +126,7 @@
                     currentStatus = isLive;
                     const body = document.getElementById('app');
                     const target = document.getElementById('player-target');
+                    const btn = document.getElementById('actionBtn');
 
                     if (isLive === true) {
                         body.classList.add('is-live');
@@ -129,10 +134,11 @@
                     } else {
                         body.classList.remove('is-live');
                         target.innerHTML = ""; 
+                        btn.style.display = 'none';
                         window.stop();
                     }
                 }
-            } catch (e) {}
+            } catch (e) { console.log("Reconnecting..."); }
         }
 
         function enableAudio() {
@@ -140,8 +146,9 @@
             document.getElementById('actionBtn').style.display = 'none';
         }
 
-        setInterval(updateSite, 2000);
-        updateSite();
+        // Verifica a cada 2 segundos. O site está sempre "vigilante".
+        setInterval(autoCheck, 2000);
+        autoCheck();
     </script>
 </body>
 </html>
