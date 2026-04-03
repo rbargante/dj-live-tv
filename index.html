@@ -8,86 +8,82 @@
     body { margin: 0; background: #000; color: #fff; font-family: sans-serif; text-align: center; }
     .logo { padding: 30px; font-weight: 900; color: #f52a1f; letter-spacing: 3px; font-size: 24px; }
     
-    /* CONTENTOR DO PLAYER (Sempre no mesmo sítio) */
-    .player-box { 
+    /* CONTENTOR DO PLAYER */
+    #player-zone { 
       position: relative; width: 92%; max-width: 800px; margin: 0 auto; 
       border-radius: 20px; overflow: hidden; background: #080808; border: 1px solid #1a1a1a;
+      min-height: 200px; display: flex; align-items: center; justify-content: center;
     }
-    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
     
-    /* MENSAGEM QUE FICA POR TRÁS */
-    #offline-status {
-      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: #333; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; z-index: 1;
-    }
+    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; display: none; }
+    
+    /* MENSAGEM OFFLINE */
+    #offline-ui { color: #333; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
 
-    /* O PLAYER EM SI */
-    #player-inject { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 10; }
+    /* QUANDO ESTIVER LIVE */
+    .is-live #player-zone { border-color: #f52a1f; }
+    .is-live .player-aspect { display: block; }
+    .is-live #offline-ui { display: none; }
+
+    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
     #unmuteBtn { 
       display: none; margin: 25px auto; background: #f52a1f; color: #fff; border: none; 
       padding: 15px 35px; border-radius: 50px; font-weight: 900; cursor: pointer;
     }
+    .is-live #unmuteBtn { display: inline-block; }
   </style>
 </head>
-<body>
+<body id="site-root">
 
   <div class="logo">FLASHMIX.TV</div>
 
-  <div class="player-box">
-    <div class="player-aspect" id="mainWrapper">
-      <div id="offline-status">
-        <div style="font-size: 40px; margin-bottom: 10px;">🔇</div>
-        SINAL OFFLINE • DJ EM REPOUSO
-      </div>
-      <div id="player-target"></div>
-    </div>
+  <div id="player-zone">
+    <div id="offline-ui">SINAL OFFLINE</div>
+    <div class="player-aspect" id="inject-target"></div>
   </div>
   
-  <button id="unmuteBtn" onclick="forceUnmute()">🔊 OUVIR EM DIRETO</button>
+  <button id="unmuteBtn" onclick="forceUnmute()">🔊 ATIVAR SOM</button>
 
   <script>
-    // O teu worker limpo
     const WORKER = "https://djlivetv.ricardobargante.workers.dev/";
     let isLive = null;
 
-    async function updateSite() {
+    async function checkSinal() {
       try {
-        const res = await fetch(`${WORKER}?t=${Date.now()}`, { cache: "no-store" });
+        // Pedimos ao worker com timestamp para evitar cache do browser
+        const res = await fetch(`${WORKER}?nocache=${Date.now()}`, { cache: "no-store" });
         const data = await res.json();
         
         if (data.live !== isLive) {
           isLive = data.live;
-          const target = document.getElementById('player-target');
-          const btn = document.getElementById('unmuteBtn');
+          const root = document.getElementById('site-root');
+          const target = document.getElementById('inject-target');
 
           if (data.live) {
-            console.log("A INJETAR PLAYER...");
-            // Injeta o iframe do zero
-            target.innerHTML = `<iframe id="player-inject" src="https://player.kick.com/DJLIVETV?muted=true&autoplay=true" allowfullscreen></iframe>`;
-            btn.style.display = 'block';
+            root.classList.add('is-live');
+            // Criamos o iframe do zero
+            target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true&autoplay=true" allowfullscreen></iframe>`;
           } else {
-            console.log("A REMOVER PLAYER (KILL SWITCH)...");
-            // APAGA O PLAYER DO SITE. Ele não pode congelar se não existir!
-            target.innerHTML = ""; 
-            btn.style.display = 'none';
-            // Pára qualquer carregamento pendente do browser
+            root.classList.remove('is-live');
+            // MATAMOS O PLAYER: Removemos o código do iframe completamente
+            target.innerHTML = "";
+            // Forçamos o browser a parar qualquer stream pendente
             window.stop();
           }
         }
-      } catch (e) { console.log("Erro de Sync"); }
+      } catch (e) { console.log("Erro de ligação."); }
     }
 
     function forceUnmute() {
-      const target = document.getElementById('player-target');
-      // Recarrega o player com som
-      target.innerHTML = `<iframe id="player-inject" src="https://player.kick.com/DJLIVETV?muted=false&autoplay=true" allowfullscreen></iframe>`;
+      const target = document.getElementById('inject-target');
+      target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false&autoplay=true" allowfullscreen></iframe>`;
       document.getElementById('unmuteBtn').style.display = 'none';
     }
 
-    // Verifica a cada 4 segundos
-    setInterval(updateSite, 4000);
-    updateSite();
+    // Verifica a cada 3 segundos para ser o mais rápido possível
+    setInterval(checkSinal, 3000);
+    checkSinal();
   </script>
 </body>
 </html>
