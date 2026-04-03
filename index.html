@@ -8,7 +8,6 @@
     html { scroll-behavior: smooth; }
     body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     
-    /* NAV MOBILE FRIENDLY */
     .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
     .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; }
     .logo { font-weight: 900; font-size: 16px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; }
@@ -16,28 +15,27 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
 
-    /* PLAYER CONTAINER - FIXO PARA NÃO MENTIR */
+    /* PLAYER - SEMPRE VISÍVEL E ADAPTADO PARA MOBILE */
     .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #0a0a0a; border: 1px solid #222; margin-top: 10px; }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
-    /* BOTÃO SOM MOBILE */
     #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4); }
 
     .section-title { text-align: center; margin: 30px 0 15px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
 
-    /* GRIDS ADAPTÁVEIS */
+    /* GRIDS MOBILE */
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
     .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
     
-    .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
     .card-dj { text-align: center; background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #1a1a1a; }
-    .card-dj img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #f52a1f; margin-bottom: 10px; }
+    .card-dj img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #f52a1f; margin-bottom: 8px; }
 
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
-    .sch-row { display: grid; grid-template-columns: 45px 1fr 80px; padding: 12px; border-bottom: 1px solid #111; align-items: center; gap: 10px; }
-    .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
-    .sch-time { font-family: monospace; font-size: 14px; font-weight: bold; color: #f52a1f; text-align: right; }
+    .sch-row { display: grid; grid-template-columns: 40px 1fr 70px; padding: 12px; border-bottom: 1px solid #111; align-items: center; gap: 8px; }
+    .sch-dj-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
+    .sch-time { font-family: monospace; font-size: 13px; font-weight: bold; color: #f52a1f; text-align: right; }
 
     /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 20px; margin-top: 40px; display: none; }
@@ -46,12 +44,9 @@
     
     footer { padding: 40px 20px; text-align: center; color: #444; font-size: 10px; }
 
-    /* AJUSTES MOBILE EXTRA */
     @media (max-width: 600px) {
-      .grid-djs { grid-template-columns: 1fr 100px 1fr; } /* Layout 2 por linha ou focado */
       .grid-djs { grid-template-columns: repeat(2, 1fr); }
-      .logo { font-size: 14px; }
-      .nav-links { display: flex; gap: 2px; }
+      .section-title { font-size: 16px; }
     }
   </style>
 </head>
@@ -71,9 +66,9 @@
   <div class="container">
     <div class="player-container">
       <div class="player-aspect" id="playerWrapper">
-        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#333; font-size:12px;">A aguardar sinal do OBS...</div>
+        <iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
       </div>
-      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
+      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 SOM NO TELEMÓVEL</button>
     </div>
 
     <div id="vids">
@@ -94,9 +89,9 @@
     <div id="adminArea" class="admin-section">
       <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
       <div id="adminDjList"></div>
-      <button onclick="addNewDjField()" class="admin-input" style="background:#222;">+ DJ</button>
+      <button onclick="addNewDjField()" class="admin-input" style="background:#222;">+ ADICIONAR DJ</button>
       <div id="adminSchList"></div>
-      <button onclick="addNewSchField()" class="admin-input" style="background:#222;">+ HORÁRIO</button>
+      <button onclick="addNewSchField()" class="admin-input" style="background:#222;">+ ADICIONAR HORÁRIO</button>
       <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR</button>
     </div>
   </div>
@@ -107,53 +102,40 @@
     const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
     let currentDjs = []; 
     let currentSch = [];
-    let isCurrentlyLive = false;
 
-    // ATIVA O PLAYER SEM REFRESH
-    async function autoCheckLive() {
+    function unmutePlayer() {
+      const iframe = document.getElementById('kickIframe');
+      iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+      document.getElementById('unmuteOverlay').style.display = 'none';
+    }
+
+    // TENTA ARRANCAR O LIVE SOZINHO SE LIGARES O OBS
+    async function refreshPlayerStatus() {
       try {
         const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`);
         const data = await res.json();
-        const liveNow = !!(data && data.livestream);
-
-        if (liveNow && !isCurrentlyLive) {
-          // Ligaste o OBS! Injetar o player
-          document.getElementById('playerWrapper').innerHTML = `<iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
-          isCurrentlyLive = true;
-        } else if (!liveNow && isCurrentlyLive) {
-          // Desligaste o OBS! Limpar o player
-          document.getElementById('playerWrapper').innerHTML = `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#333; font-size:12px;">STREAM OFFLINE</div>`;
-          isCurrentlyLive = false;
+        const iframe = document.getElementById('kickIframe');
+        
+        // Se o OBS ligou e o iframe estava "morto", recarrega ele
+        if(data && data.livestream && iframe.src === "") {
+            iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
         }
       } catch(e) {}
     }
 
-    function unmutePlayer() {
-      const iframe = document.getElementById('kickIframe');
-      if(iframe) {
-        iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
-        document.getElementById('unmuteOverlay').style.display = 'none';
-      } else {
-        alert("A stream ainda não começou no OBS.");
-      }
-    }
-
     async function load() {
-      autoCheckLive();
-      setInterval(autoCheckLive, 15000); // Verifica a cada 15 segundos se ligaste o OBS
+      setInterval(refreshPlayerStatus, 15000); // Tenta detetar o OBS a cada 15 seg
 
-      // Carregar vídeos
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
         const vids = await rv.json();
         document.getElementById('videoGrid').innerHTML = vids.slice(0, 4).map(v => `
           <div class="card-v" onclick="window.open('${v.source}','_self')">
             <img src="${v.thumbnail.src}" style="width:100%">
-            <h3 style="font-size:12px; padding:10px; margin:0;">${v.session_title}</h3>
+            <h3 style="font-size:11px; padding:10px; margin:0;">${v.session_title}</h3>
           </div>`).join('');
       } catch(e) {}
 
-      // Carregar Firebase
       try {
         const rf = await fetch(DB + ".json");
         const data = await rf.json();
@@ -167,7 +149,7 @@
       document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
         <div class="card-dj">
           <img src="${d.img || 'https://via.placeholder.com/150'}">
-          <div style="font-weight:bold; font-size:14px;">${d.name}</div>
+          <div style="font-weight:bold; font-size:13px;">${d.name}</div>
         </div>`).join('');
       
       document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
@@ -175,7 +157,7 @@
         return `
           <div class="sch-row">
             <img src="${dj.img}" class="sch-dj-thumb">
-            <div style="font-size:14px; font-weight:600;">${s.dj}</div>
+            <div style="font-size:13px; font-weight:600;">${s.dj}</div>
             <div class="sch-time">${s.time}</div>
           </div>`;
       }).join('');
