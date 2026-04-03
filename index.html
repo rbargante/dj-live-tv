@@ -14,11 +14,9 @@
     .nav-links a { color: #aaa; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 10px; text-transform: uppercase; }
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
     
-    /* BADGE DESIGN */
     #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 10px; font-weight: 900; margin-bottom: 15px; }
     #statusDot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
     
-    /* QUANDO ESTIVER LIVE (AUTOMÁTICO) */
     .live #statusBadge { border-color: #f52a1f; color: #f52a1f; }
     .live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1.5s infinite; }
     
@@ -34,7 +32,6 @@
     .card-dj { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; padding: 12px; text-align: center; }
     .card-dj img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #222; margin-bottom: 8px; }
 
-    /* SCHEDULE DESIGN */
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 50px 1fr 100px 80px 80px; padding: 12px 15px; border-bottom: 1px solid #111; align-items: center; gap: 10px; }
     .sch-row.live-now { background: rgba(245, 42, 31, 0.08); border-left: 4px solid #f52a1f; }
@@ -48,7 +45,6 @@
     .sch-status { font-size: 10px; font-weight: 900; color: #f52a1f; text-align: right; visibility: hidden; }
     .live-now .sch-status { visibility: visible; }
 
-    /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 15px; margin-top: 40px; display: none; }
     .admin-card { background: #111; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #222; }
     .admin-input, select { width: 100%; padding: 10px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
@@ -73,7 +69,7 @@
 
   <div class="container">
     <div style="text-align:center" id="badgeWrap">
-      <div id="statusBadge"><span id="statusDot"></span> <span id="statusText">CHECKING...</span></div>
+      <div id="statusBadge"><span id="statusDot"></span> <span id="statusText">A VERIFICAR...</span></div>
     </div>
 
     <div class="player-container">
@@ -139,18 +135,26 @@
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
-    // VERIFICAÇÃO AUTOMÁTICA SEM PRECISAR DE REFRESH
+    // VERIFICAÇÃO TURBO (Usa 2 caminhos para ser mais rápido)
     async function checkStatus() {
+      const badge = document.getElementById('badgeWrap');
+      const statusTxt = document.getElementById('statusText');
+      
+      const check = async (url) => {
+          const res = await fetch(url);
+          const data = await res.json();
+          return JSON.parse(data.contents).livestream;
+      };
+
       try {
-        // Usamos um timestamp aleatório no final da URL para o navegador não "viciar" no resultado antigo
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://kick.com/api/v1/channels/DJLIVETV')}&nocache=${Date.now()}`);
-        const data = await res.json();
-        const kickData = JSON.parse(data.contents);
-        
-        const badge = document.getElementById('badgeWrap');
-        const statusTxt = document.getElementById('statusText');
-        
-        if(kickData.livestream) { 
+        const kickURL = encodeURIComponent('https://kick.com/api/v1/channels/DJLIVETV');
+        // Tenta os dois proxies mais rápidos ao mesmo tempo
+        const results = await Promise.any([
+            check(`https://api.allorigins.win/get?url=${kickURL}&t=${Date.now()}`),
+            check(`https://api.codetabs.com/v1/proxy/?quest=${kickURL}`)
+        ]);
+
+        if(results) { 
           badge.classList.add('live'); 
           statusTxt.innerText = "LIVE NOW"; 
         } else { 
@@ -158,13 +162,13 @@
           statusTxt.innerText = "OFFLINE"; 
         }
       } catch(e) {
-        console.log("A verificar status...");
+        statusTxt.innerText = "OFFLINE";
       }
     }
 
     async function load() {
-      checkStatus(); // Verifica mal abre
-      setInterval(checkStatus, 20000); // Verifica sozinho de 20 em 20 segundos
+      checkStatus();
+      setInterval(checkStatus, 10000); // Verifica a cada 10 segundos (TURBO)
 
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
@@ -221,13 +225,11 @@
 
     function addNewDjField() { currentDjs.push({name:'', img:'', style:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name||'', day:'Todos os dias', time:'22:00'}); renderAdmin(); }
-
     async function saveAll() {
       const payload = { djs: currentDjs.filter(d=>d.name), schedule: currentSch, hideDjs: document.getElementById('hideDjs').checked, hideSch: document.getElementById('hideSch').checked };
       await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify(payload) });
       alert("✅ ATUALIZADO!"); location.reload();
     }
-
     function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; renderAdmin(); }}
     function toggleAdmin() { const a = document.getElementById('adminArea'); a.style.display = a.style.display==='block'?'none':'block'; a.scrollIntoView(); }
     load();
