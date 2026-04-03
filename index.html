@@ -14,29 +14,25 @@
         }
 
         .main-header { 
-            padding: 20px; font-weight: 900; color: #ffffff; 
+            padding: 20px; font-weight: 900; color: #fff; 
             letter-spacing: 8px; font-size: clamp(24px, 5vw, 42px); 
-            text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            text-align: center; cursor: pointer;
+            text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            text-align: center;
         }
 
-        /* --- GIANT PLAYER --- */
+        /* --- THE PLAYER --- */
         .player-wrapper {
             position: relative; width: 98%; max-width: 1100px; aspect-ratio: 16 / 9;
-            background: #050505; border-radius: 30px; 
-            display: flex; align-items: center; justify-content: center;
-            border: 5px solid #f52a1f; box-shadow: 0 0 30px rgba(245, 42, 31, 0.2);
-            transition: all 0.5s ease; overflow: hidden; margin-bottom: 20px;
+            background: #050505; border-radius: 35px; border: 5px solid #f52a1f;
+            box-shadow: 0 0 30px rgba(245, 42, 31, 0.2); overflow: hidden; margin-bottom: 20px;
         }
 
-        /* NEON ACTIVE EFFECT */
         body.is-live .player-wrapper, body.viewing-replay .player-wrapper {
             border: 6px solid transparent;
             background: linear-gradient(#050505, #050505) padding-box,
                         linear-gradient(90deg, #f52a1f, #ff6b6b, #f52a1f) border-box;
             background-size: 200% 100%;
             animation: neonFlow 1.2s linear infinite;
-            box-shadow: 0 0 60px rgba(245, 42, 31, 0.5);
         }
 
         @keyframes neonFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
@@ -57,33 +53,25 @@
         .container { width: 98%; max-width: 1100px; padding-bottom: 80px; }
         .section-title { color: #f52a1f; font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 50px 0 25px 0; border-left: 6px solid #f52a1f; padding-left: 15px; }
 
-        /* REPLAYS (VIDEOS FROM KICK) */
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        /* AUTOMATIC REPLAYS GRID */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .video-card { 
             background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; 
-            transition: 0.3s; cursor: pointer; position: relative;
+            transition: 0.3s; cursor: pointer; text-decoration: none;
         }
-        .video-card:hover { border-color: #f52a1f; transform: scale(1.02); }
-        .video-thumb { 
-            width: 100%; aspect-ratio: 16/9; background: #111; 
-            display: flex; align-items: center; justify-content: center;
-            background-image: url('https://via.placeholder.com/640x360/111/f52a1f?text=KICK+REPLAY');
-            background-size: cover;
-        }
-        .video-thumb::after { content: '▶'; font-size: 40px; color: #fff; text-shadow: 0 0 20px #000; }
-        .video-meta { padding: 15px; background: #080808; }
-        .video-meta h4 { margin: 0; font-size: 14px; color: #fff; text-transform: uppercase; }
+        .video-card:hover { border-color: #f52a1f; transform: translateY(-5px); }
+        .video-thumb { width: 100%; aspect-ratio: 16/9; background: #111; display: flex; align-items: center; justify-content: center; position: relative; }
+        .video-thumb::after { content: 'PLAY REPLAY'; font-size: 10px; color: #fff; border: 1px solid #333; padding: 5px 10px; }
+        .video-meta { padding: 15px; }
+        .video-meta h4 { margin: 0; font-size: 13px; color: #fff; }
 
-        /* DJ LINEUP */
-        .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .dj-card { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 15px; display: flex; align-items: center; gap: 15px; }
-        .dj-photo { width: 60px; height: 60px; background: #1a1a1a; border-radius: 50%; border: 1px solid #333; flex-shrink: 0; }
-        .dj-info h3 { margin: 0; font-size: 16px; }
-        .dj-info p { margin: 3px 0 0 0; font-size: 10px; color: #f52a1f; font-weight: bold; }
+        /* DJ LINEUP (6 DJs) */
+        .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+        .dj-card { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 20px; text-align: center; }
+        .dj-photo { width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 15px auto; border: 2px solid #333; }
 
         #actionBtn { display: none; margin: 20px auto; background: #f52a1f; color: #fff; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
         body.is-live #actionBtn, body.viewing-replay #actionBtn { display: block; }
-
     </style>
 </head>
 <body id="app">
@@ -106,86 +94,89 @@
     <div class="container">
         
         <div class="section-title">Latest Replays</div>
-        <div class="video-grid">
-            <div class="video-card" onclick="loadReplay('https://player.kick.com/video/90a46323-c90d-456c-897c-501b80261905')">
-                <div class="video-thumb"></div>
-                <div class="video-meta"><h4>House Session #01</h4></div>
-            </div>
-            
-            <div class="video-card" onclick="loadReplay('https://player.kick.com/video/ID_DO_VIDEO_AQUI')">
-                <div class="video-thumb"></div>
-                <div class="video-meta"><h4>Techno Mix Recap</h4></div>
-            </div>
+        <div id="replays-container" class="video-grid">
+            <p style="color:#444">Loading latest videos...</p>
         </div>
 
-        <div class="section-title">Flashmix DJs</div>
+        <div class="section-title">Our DJs</div>
         <div class="dj-grid">
-            <div class="dj-card">
-                <div class="dj-photo"></div>
-                <div class="dj-info"><h3>DJ BARGANTE</h3><p>Main Resident</p></div>
-            </div>
-            <div class="dj-card">
-                <div class="dj-photo"></div>
-                <div class="dj-info"><h3>DJ GUEST X</h3><p>Tech House</p></div>
-            </div>
+            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ BARGANTE</h3><p style="color:#f52a1f; font-size:10px;">Resident</p></div></div>
+            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 01</h3><p style="color:#f52a1f; font-size:10px;">Tech House</p></div></div>
+            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 02</h3><p style="color:#f52a1f; font-size:10px;">Deep House</p></div></div>
+            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 03</h3><p style="color:#f52a1f; font-size:10px;">Open Format</p></div></div>
+            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 04</h3><p style="color:#f52a1f; font-size:10px;">Techno</p></div></div>
+            <div class="dj-card"><div class="dj-photo"></div><div class="dj-info"><h3>DJ GUEST 05</h3><p style="color:#f52a1f; font-size:10px;">Afro House</p></div></div>
         </div>
 
     </div>
 
     <script>
         const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
+        const KICK_USER = "djlivetv";
         let currentStatus = null;
         let isWatchingReplay = false;
 
-        async function autoCheck() {
-            if (isWatchingReplay) return; // Se estiver a ver um replay, não interrompe
+        // FUNÇÃO AUTOMÁTICA PARA BUSCAR VÍDEOS DO KICK
+        async function fetchVideos() {
+            try {
+                // Usamos uma ferramenta que converte o Kick em dados para o site
+                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://kick.com/${KICK_USER}/rss`);
+                const data = await response.json();
+                const container = document.getElementById('replays-container');
+                container.innerHTML = "";
 
+                data.items.slice(0, 4).forEach(item => {
+                    // Extrair ID do vídeo do link do Kick
+                    const videoId = item.link.split('/').pop();
+                    container.innerHTML += `
+                        <div class="video-card" onclick="loadReplay('https://player.kick.com/video/${videoId}')">
+                            <div class="video-thumb" style="background-image: url('${item.thumbnail}')"></div>
+                            <div class="video-meta"><h4>${item.title}</h4></div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                document.getElementById('replays-container').innerHTML = "<p style='color:#222'>Replays ready on Kick.com</p>";
+            }
+        }
+
+        async function autoCheck() {
+            if (isWatchingReplay) return;
             try {
                 const r = await fetch(`${DB_URL}?nocache=${Date.now()}`);
                 const isLive = await r.json();
-
                 if (isLive !== currentStatus) {
                     currentStatus = isLive;
                     const body = document.getElementById('app');
                     const target = document.getElementById('player-target');
                     if (isLive === true) {
                         body.classList.add('is-live');
-                        target.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f52a1f;font-weight:bold;">LIVE SIGNAL DETECTED...</div>`;
-                        setTimeout(() => {
-                            target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
-                        }, 5000); 
+                        target.innerHTML = `<iframe src="https://player.kick.com/${KICK_USER}?muted=true" allowfullscreen></iframe>`;
                     } else {
                         body.classList.remove('is-live');
                         target.innerHTML = ""; 
-                        window.stop();
                     }
                 }
             } catch (e) { }
         }
 
-        // FUNÇÃO PARA CARREGAR O VÍDEO NO PLAYER DO TOPO
-        function loadReplay(videoUrl) {
+        function loadReplay(url) {
             isWatchingReplay = true;
-            const body = document.getElementById('app');
-            const target = document.getElementById('player-target');
-            
-            body.classList.remove('is-live');
-            body.classList.add('viewing-replay');
-            
-            target.innerHTML = `<iframe src="${videoUrl}" allowfullscreen></iframe>`;
+            document.getElementById('app').classList.add('viewing-replay');
+            document.getElementById('player-target').innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function enableAudio() {
-            // Se estiver em live, recarrega com som. Se for replay, o som já costuma vir ativo.
             if (!isWatchingReplay) {
-                document.getElementById('player-target').innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
+                document.getElementById('player-target').innerHTML = `<iframe src="https://player.kick.com/${KICK_USER}?muted=false" allowfullscreen></iframe>`;
             }
             document.getElementById('actionBtn').style.display = 'none';
         }
 
         setInterval(autoCheck, 4000);
         autoCheck();
+        fetchVideos(); // Corre logo ao abrir o site
     </script>
 </body>
 </html>
