@@ -14,35 +14,30 @@
             min-height: 100vh; padding: 10px;
         }
 
-        /* --- HEADER WHITE --- */
         .main-header { 
             padding: 20px; font-weight: 900; color: #ffffff; 
             letter-spacing: 10px; font-size: clamp(26px, 6vw, 45px); 
             text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
         }
 
-        /* --- MAIN LIVE PLAYER (KICK) --- */
+        /* --- PLAYER STAGE --- */
         .player-stage {
             position: relative; width: 98%; max-width: 1100px; aspect-ratio: 16 / 9;
-            background: #050505; border-radius: 30px; 
-            border: 5px solid var(--neon-red);
-            box-shadow: 0 0 30px rgba(245, 42, 31, 0.2); 
-            overflow: hidden; margin-bottom: 20px;
+            background: #050505; border-radius: 30px; border: 5px solid var(--neon-red);
+            box-shadow: 0 0 30px rgba(245, 42, 31, 0.2); overflow: hidden; margin-bottom: 20px;
         }
 
-        body.is-live .player-stage {
+        body.is-live .player-stage, body.viewing-replay .player-stage {
             border-color: transparent;
             background: linear-gradient(#050505, #050505) padding-box,
                         linear-gradient(90deg, var(--neon-red), #ff6b6b, var(--neon-red)) border-box;
-            background-size: 200% 100%;
-            animation: neonFlow 1.2s linear infinite;
-            box-shadow: 0 0 60px rgba(245, 42, 31, 0.6);
+            background-size: 200% 100%; animation: neonFlow 1.2s linear infinite;
         }
 
         @keyframes neonFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
         #player-content { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20; display: none; }
-        body.is-live #player-content { display: block; }
+        body.is-live #player-content, body.viewing-replay #player-content { display: block; }
         iframe { width: 100%; height: 100%; border: 0; }
 
         /* STANDBY UI */
@@ -52,39 +47,38 @@
         }
         .dot { width: 18px; height: 18px; background: var(--neon-red); border-radius: 50%; box-shadow: 0 0 15px var(--neon-red); animation: blink 1s infinite; margin-bottom: 10px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-        .offline-tag { font-size: 25px; letter-spacing: 5px; color: #fff; font-weight: 900; }
 
-        /* --- ARCHIVE EMBEDDED LIST --- */
+        /* --- THE VIDEO LIBRARY GRID --- */
         .container { width: 98%; max-width: 1100px; }
-        .row-title { color: var(--neon-red); font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 40px 0 20px 0; border-left: 6px solid var(--neon-red); padding-left: 15px; }
+        .row-title { color: var(--neon-red); font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 40px 0 25px 0; border-left: 6px solid var(--neon-red); padding-left: 15px; }
 
-        .archive-list-wrapper {
-            width: 100%; background: #080808; border-radius: 20px; 
-            border: 1px solid #1a1a1a; overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            position: relative;
+        .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 50px; }
+        .video-card { background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; transition: 0.3s; cursor: pointer; }
+        .video-card:hover { border-color: var(--neon-red); transform: translateY(-5px); }
+        
+        .thumb-box { 
+            width: 100%; aspect-ratio: 1 / 1; background: #111; 
+            background-size: cover; background-position: center; 
+            display: flex; align-items: flex-end; 
         }
-
-        /* --- DJ LINEUP --- */
-        .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin: 40px 0 60px 0; }
-        .dj-card { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 20px; text-align: center; }
-        .dj-pic { width: 60px; height: 60px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 10px; border: 1px solid #333; }
-        .dj-card h3 { margin: 0; font-size: 11px; color: #fff; letter-spacing: 1px; }
+        .play-tag { background: rgba(245, 42, 31, 0.9); color: #fff; width: 100%; padding: 8px; text-align: center; font-size: 9px; font-weight: bold; letter-spacing: 2px; }
+        
+        .video-info { padding: 15px; text-align: center; }
+        .video-info h4 { margin: 0; font-size: 11px; color: #fff; text-transform: uppercase; letter-spacing: 1px; height: 30px; overflow: hidden; }
 
         #unmuteBtn { display: none; margin: 0 auto 20px auto; background: var(--neon-red); color: #fff; border: none; padding: 15px 40px; border-radius: 100px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
         body.is-live #unmuteBtn { display: block; }
-
     </style>
 </head>
 <body id="app">
 
-    <div class="main-header">FLASHMIX.TV</div>
+    <div class="main-header" onclick="window.location.reload()">FLASHMIX.TV</div>
 
     <div class="player-stage">
         <div id="standby-ui">
-            <div style="font-size: clamp(30px, 10vw, 65px); letter-spacing: 12px; margin-bottom: 15px; text-align:center;">FLASHMIX</div>
+            <div style="font-size: clamp(30px, 10vw, 65px); letter-spacing: 12px; margin-bottom: 15px;">FLASHMIX</div>
             <div class="dot"></div>
-            <span class="offline-tag">OFFLINE</span>
+            <span style="font-size: 20px; letter-spacing: 5px; font-weight: 900;">OFFLINE</span>
         </div>
         <div id="player-content"></div>
     </div>
@@ -92,35 +86,52 @@
     <button id="unmuteBtn" onclick="enableAudio()">🔊 UNMUTE LIVE</button>
 
     <div class="container">
-        
         <div class="row-title">Flashmix Video Library</div>
-        <div class="archive-list-wrapper">
-            <iframe src="https://archive.org/embed/?query=uploader%3A%28ricardo-dj-tv%40live.com%29&sort=-publicdate&output=embed" 
-                    width="100%" height="600" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
+        <div id="library-list" class="library-grid">
+            <p style="color:#444; padding-left:15px;">Searching Archive.org for ricardobargante@live.com...</p>
         </div>
-
-        <div class="row-title">Flashmix Residents</div>
-        <div class="dj-grid">
-            <div class="dj-card"><div class="dj-pic"></div><h3>DJ BARGANTE</h3></div>
-            <div class="dj-card"><div class="dj-pic"></div><h3>DJ GUEST 01</h3></div>
-            <div class="dj-card"><div class="dj-pic"></div><h3>DJ GUEST 02</h3></div>
-            <div class="dj-card"><div class="dj-pic"></div><h3>DJ GUEST 03</h3></div>
-            <div class="dj-card"><div class="dj-pic"></div><h3>DJ GUEST 04</h3></div>
-            <div class="dj-card"><div class="dj-pic"></div><h3>DJ GUEST 05</h3></div>
-        </div>
-
     </div>
 
     <script>
         const FIREBASE = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
-        let currentStatus = null;
+        // O uploader exato que mostraste na imagem
+        const UPLOADER = "ricardobargante%40live.com";
+        let liveStatus = null;
+        let isWatchingLibrary = false;
+
+        async function fetchArchive() {
+            try {
+                // Procuramos por todos os itens do teu email, ordenados por data
+                const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A%28${UPLOADER}%29&fl%5B%5D=identifier&fl%5B%5D=title&sort%5B%5D=addeddate+desc&output=json`);
+                const data = await res.json();
+                const list = document.getElementById('library-list');
+                
+                if (data.response.docs.length > 0) {
+                    list.innerHTML = "";
+                    data.response.docs.forEach(doc => {
+                        list.innerHTML += `
+                            <div class="video-card" onclick="playVideo('${doc.identifier}')">
+                                <div class="thumb-box" style="background-image: url('https://archive.org/services/img/${doc.identifier}')">
+                                    <div class="play-tag">WATCH SESSION</div>
+                                </div>
+                                <div class="video-info">
+                                    <h4>${doc.title}</h4>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    list.innerHTML = "<p style='color:#444'>No videos found for this uploader.</p>";
+                }
+            } catch (e) { list.innerHTML = "<p style='color:#444'>Error connecting to Archive.org</p>"; }
+        }
 
         async function syncLive() {
+            if (isWatchingLibrary) return;
             try {
                 const r = await fetch(`${FIREBASE}?t=${Date.now()}`);
                 const isLive = await r.json();
-                if (isLive !== currentStatus) {
-                    currentStatus = isLive;
+                if (isLive !== liveStatus) {
+                    liveStatus = isLive;
                     const body = document.getElementById('app');
                     const target = document.getElementById('player-content');
                     if (isLive === true) {
@@ -134,13 +145,23 @@
             } catch (e) {}
         }
 
+        function playVideo(id) {
+            isWatchingLibrary = true;
+            document.getElementById('app').classList.add('viewing-replay');
+            document.getElementById('player-content').innerHTML = `<iframe src="https://archive.org/embed/${id}&autoplay=1" allowfullscreen></iframe>`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function enableAudio() {
-            document.getElementById('player-content').innerHTML = `<iframe src="https://player.kick.com/djlivetv?muted=false" allowfullscreen></iframe>`;
+            if (!isWatchingLibrary) {
+                document.getElementById('player-content').innerHTML = `<iframe src="https://player.kick.com/djlivetv?muted=false" allowfullscreen></iframe>`;
+            }
             document.getElementById('unmuteBtn').style.display = 'none';
         }
 
         setInterval(syncLive, 4000);
         syncLive();
+        fetchArchive();
     </script>
 </body>
 </html>
