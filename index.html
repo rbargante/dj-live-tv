@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="preconnect" href="https://archive.org">
-    <title>FLASHMIX.TV | FAST THEATER</title>
+    <title>FLASHMIX.TV | LIVE SYNC</title>
     <style>
         :root { --neon-red: #f52a1f; }
         * { box-sizing: border-box; }
@@ -16,13 +16,13 @@
         }
 
         .main-header { 
-            padding: 20px; font-weight: 900; color: #ffffff; 
+            padding: 20px; font-weight: 900; color: #fff; 
             letter-spacing: 10px; font-size: clamp(26px, 6vw, 45px); 
             text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
             cursor: pointer;
         }
 
-        /* --- MAIN PLAYER STAGE --- */
+        /* --- PLAYER STAGE --- */
         .player-stage {
             position: relative; width: 98%; max-width: 1100px; aspect-ratio: 16 / 9;
             background: #050505; border-radius: 30px; border: 5px solid var(--neon-red);
@@ -50,33 +50,44 @@
         .dot { width: 18px; height: 18px; background: var(--neon-red); border-radius: 50%; box-shadow: 0 0 15px var(--neon-red); animation: blink 1s infinite; margin-bottom: 10px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-        /* --- LIBRARY GRID --- */
+        /* --- BUTTONS --- */
+        .btn-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+
+        .btn {
+            display: none; padding: 15px 35px; border-radius: 100px; border: none;
+            font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(245, 42, 31, 0.4); transition: 0.3s;
+        }
+
+        /* BOTÃO VOLTAR AO LIVE (PISCA) */
+        #backToLiveBtn { background: #fff; color: #000; animation: alertPulse 1s infinite; }
+        @keyframes alertPulse { 0% { box-shadow: 0 0 0px var(--neon-red); } 50% { box-shadow: 0 0 25px var(--neon-red); } 100% { box-shadow: 0 0 0px var(--neon-red); } }
+
+        /* BOTÃO SOM */
+        #unmuteBtn { background: var(--neon-red); color: #fff; }
+
+        body.is-live #unmuteBtn, body.viewing-archive #unmuteBtn { display: inline-block; }
+        /* Mostrar botão "Back to Live" apenas se estiver Live mas a ver Archive */
+        body.is-live.viewing-archive #backToLiveBtn { display: inline-block; }
+
+        /* --- GRID --- */
         .container { width: 98%; max-width: 1100px; }
         .row-title { color: var(--neon-red); font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 40px 0 25px 0; border-left: 6px solid var(--neon-red); padding-left: 15px; }
-
         .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-bottom: 50px; }
         .video-card { background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; transition: 0.3s; cursor: pointer; }
         .video-card:hover { border-color: var(--neon-red); transform: translateY(-5px); }
-        
-        .thumb-box { 
-            width: 100%; aspect-ratio: 1 / 1; background: #111; 
-            background-size: cover; background-position: center; 
-            display: flex; align-items: flex-end; 
-        }
-        .play-tag { background: rgba(245, 42, 31, 0.9); color: #fff; width: 100%; padding: 8px; text-align: center; font-size: 9px; font-weight: bold; letter-spacing: 2px; }
-        
+        .thumb-box { width: 100%; aspect-ratio: 1 / 1; background: #111; background-size: cover; background-position: center; display: flex; align-items: flex-end; }
+        .play-tag { background: rgba(245, 42, 31, 0.9); color: #fff; width: 100%; padding: 8px; text-align: center; font-size: 9px; font-weight: bold; }
         .video-info { padding: 15px; text-align: center; }
         .video-info h4 { margin: 0; font-size: 11px; color: #fff; text-transform: uppercase; letter-spacing: 1px; height: 30px; overflow: hidden; }
 
-        #unmuteBtn { display: none; margin: 0 auto 20px auto; background: var(--neon-red); color: #fff; border: none; padding: 15px 40px; border-radius: 100px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-        body.is-live #unmuteBtn { display: block; }
     </style>
 </head>
 <body id="app">
 
     <div class="main-header" onclick="window.location.reload()">FLASHMIX.TV</div>
 
-    <div class="player-stage" id="main-stage">
+    <div class="player-stage">
         <div id="standby-ui">
             <div style="font-size: clamp(30px, 10vw, 65px); letter-spacing: 12px; margin-bottom: 15px;">FLASHMIX</div>
             <div class="dot"></div>
@@ -85,12 +96,15 @@
         <div id="player-content"></div>
     </div>
 
-    <button id="unmuteBtn" onclick="enableAudio()">🔊 UNMUTE LIVE</button>
+    <div class="btn-container">
+        <button id="unmuteBtn" class="btn" onclick="enableAudio()">🔊 UNMUTE AUDIO</button>
+        <button id="backToLiveBtn" class="btn" onclick="goBackToLive()">⚡ BACK TO LIVE SESSION</button>
+    </div>
 
     <div class="container">
         <div class="row-title">Flashmix Video Library</div>
         <div id="library-list" class="library-grid">
-            <p style="color:#444;">Connecting to archives...</p>
+            <p style="color:#444;">Loading sessions...</p>
         </div>
     </div>
 
@@ -99,58 +113,60 @@
         const UPLOADER = "ricardobargante%40live.com";
         let liveStatus = null;
         let isReplayMode = false;
+        let currentVideoID = "";
 
         async function fetchArchive() {
             try {
                 const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A%28${UPLOADER}%29&fl%5B%5D=identifier&fl%5B%5D=title&sort%5B%5D=addeddate+desc&output=json`);
                 const data = await res.json();
                 const list = document.getElementById('library-list');
-                
                 if (data.response.docs.length > 0) {
                     list.innerHTML = "";
                     data.response.docs.forEach(doc => {
                         list.innerHTML += `
                             <div class="video-card" onclick="openTheater('${doc.identifier}')">
                                 <div class="thumb-box" style="background-image: url('https://archive.org/services/img/${doc.identifier}')">
-                                    <div class="play-tag">WATCH ON MAIN STAGE</div>
+                                    <div class="play-tag">WATCH REPLAY</div>
                                 </div>
-                                <div class="video-info">
-                                    <h4>${doc.title}</h4>
-                                </div>
+                                <div class="video-info"><h4>${doc.title}</h4></div>
                             </div>`;
                     });
                 }
-            } catch (e) { list.innerHTML = "<p>Offline</p>"; }
+            } catch (e) {}
         }
 
         function openTheater(id) {
             isReplayMode = true;
+            currentVideoID = id;
             const body = document.getElementById('app');
             const target = document.getElementById('player-content');
-            
-            body.classList.remove('is-live');
             body.classList.add('viewing-archive');
-            
-            // Adicionado autoplay=1 e muting zero para carregar mais rápido
             target.innerHTML = `<iframe src="https://archive.org/embed/${id}&autoplay=1" allowfullscreen></iframe>`;
-            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        async function syncLive() {
-            if (isReplayMode) return;
+        function goBackToLive() {
+            isReplayMode = false;
+            document.getElementById('app').classList.remove('viewing-archive');
+            syncLive(true); // Força a atualização para o Live
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function syncLive(force = false) {
             try {
                 const r = await fetch(`${FIREBASE}?t=${Date.now()}`);
                 const isLive = await r.json();
-                if (isLive !== currentStatus) {
-                    currentStatus = isLive;
-                    const body = document.getElementById('app');
-                    const target = document.getElementById('player-content');
-                    if (isLive === true) {
-                        body.classList.add('is-live');
+                const body = document.getElementById('app');
+                const target = document.getElementById('player-content');
+
+                // Atualiza o estado global de Live
+                if (isLive) body.classList.add('is-live'); else body.classList.remove('is-live');
+
+                if (isLive !== liveStatus || force) {
+                    liveStatus = isLive;
+                    if (isLive && !isReplayMode) {
                         target.innerHTML = `<iframe src="https://player.kick.com/djlivetv?muted=true" allowfullscreen></iframe>`;
-                    } else {
-                        body.classList.remove('is-live');
+                    } else if (!isLive && !isReplayMode) {
                         target.innerHTML = "";
                     }
                 }
@@ -158,8 +174,11 @@
         }
 
         function enableAudio() {
-            if (!isReplayMode) {
-                document.getElementById('player-content').innerHTML = `<iframe src="https://player.kick.com/djlivetv?muted=false" allowfullscreen></iframe>`;
+            const target = document.getElementById('player-content');
+            if (isReplayMode) {
+                target.innerHTML = `<iframe src="https://archive.org/embed/${currentVideoID}&autoplay=1" allowfullscreen></iframe>`;
+            } else {
+                target.innerHTML = `<iframe src="https://player.kick.com/djlivetv?muted=false" allowfullscreen></iframe>`;
             }
             document.getElementById('unmuteBtn').style.display = 'none';
         }
