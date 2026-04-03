@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="preconnect" href="https://archive.org">
-    <title>FLASHMIX.TV | LIVE SYNC</title>
+    <title>FLASHMIX.TV | OFFICIAL STATION</title>
     <style>
         :root { --neon-red: #f52a1f; }
         * { box-sizing: border-box; }
@@ -52,28 +52,36 @@
 
         /* --- BUTTONS --- */
         .btn-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-
         .btn {
             display: none; padding: 15px 35px; border-radius: 100px; border: none;
             font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase;
-            box-shadow: 0 10px 30px rgba(245, 42, 31, 0.4); transition: 0.3s;
         }
-
-        /* BOTÃO VOLTAR AO LIVE (PISCA) */
         #backToLiveBtn { background: #fff; color: #000; animation: alertPulse 1s infinite; }
-        @keyframes alertPulse { 0% { box-shadow: 0 0 0px var(--neon-red); } 50% { box-shadow: 0 0 25px var(--neon-red); } 100% { box-shadow: 0 0 0px var(--neon-red); } }
-
-        /* BOTÃO SOM */
+        @keyframes alertPulse { 0%, 100% { box-shadow: 0 0 0px var(--neon-red); } 50% { box-shadow: 0 0 25px var(--neon-red); } }
         #unmuteBtn { background: var(--neon-red); color: #fff; }
-
         body.is-live #unmuteBtn, body.viewing-archive #unmuteBtn { display: inline-block; }
-        /* Mostrar botão "Back to Live" apenas se estiver Live mas a ver Archive */
         body.is-live.viewing-archive #backToLiveBtn { display: inline-block; }
 
-        /* --- GRID --- */
+        /* --- LAYOUT SECTIONS --- */
         .container { width: 98%; max-width: 1100px; }
-        .row-title { color: var(--neon-red); font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 40px 0 25px 0; border-left: 6px solid var(--neon-red); padding-left: 15px; }
-        .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-bottom: 50px; }
+        .row-title { color: #fff; font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 50px 0 25px 0; border-left: 6px solid var(--neon-red); padding-left: 15px; }
+
+        /* SCHEDULE TABLE */
+        .schedule-box { width: 100%; background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; overflow: hidden; }
+        .sch-row { display: grid; grid-template-columns: 1fr 1fr 2fr; padding: 15px; border-bottom: 1px solid #1a1a1a; font-size: 12px; }
+        .sch-row:last-child { border-bottom: none; }
+        .sch-day { color: var(--neon-red); font-weight: bold; }
+
+        /* DJ GRID */
+        .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+        .dj-card { background: #080808; border-radius: 25px; border: 1px solid #1a1a1a; padding: 20px; text-align: center; }
+        .dj-photo { width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 15px; border: 2px solid #333; overflow: hidden; }
+        .dj-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .dj-card h3 { margin: 0; font-size: 13px; color: #fff; letter-spacing: 1px; }
+        .dj-card p { margin: 5px 0 0 0; font-size: 9px; color: var(--neon-red); font-weight: bold; text-transform: uppercase; }
+
+        /* LIBRARY GRID */
+        .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 50px; }
         .video-card { background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; transition: 0.3s; cursor: pointer; }
         .video-card:hover { border-color: var(--neon-red); transform: translateY(-5px); }
         .thumb-box { width: 100%; aspect-ratio: 1 / 1; background: #111; background-size: cover; background-position: center; display: flex; align-items: flex-end; }
@@ -98,14 +106,33 @@
 
     <div class="btn-container">
         <button id="unmuteBtn" class="btn" onclick="enableAudio()">🔊 UNMUTE AUDIO</button>
-        <button id="backToLiveBtn" class="btn" onclick="goBackToLive()">⚡ BACK TO LIVE SESSION</button>
+        <button id="backToLiveBtn" class="btn" onclick="goBackToLive()">⚡ BACK TO LIVE</button>
     </div>
 
     <div class="container">
-        <div class="row-title">Flashmix Video Library</div>
-        <div id="library-list" class="library-grid">
-            <p style="color:#444;">Loading sessions...</p>
+        
+        <div class="row-title">Weekly Schedule</div>
+        <div class="schedule-box">
+            <div class="sch-row"><div class="sch-day">FRIDAY</div><div>22:00 - 00:00</div><div>DJ BARGANTE (Live Session)</div></div>
+            <div class="sch-row"><div class="sch-day">SATURDAY</div><div>23:00 - 01:00</div><div>GUEST MIX (Special)</div></div>
+            <div class="sch-row"><div class="sch-day">SUNDAY</div><div>18:00 - 20:00</div><div>SUNSET DEEP HOUSE</div></div>
         </div>
+
+        <div class="row-title">Flashmix DJs</div>
+        <div class="dj-grid">
+            <div class="dj-card"><div class="dj-photo"></div><h3>DJ BARGANTE</h3><p>Tech House</p></div>
+            <div class="dj-card"><div class="dj-photo"></div><h3>DJ GUEST 01</h3><p>Deep House</p></div>
+            <div class="dj-card"><div class="dj-photo"></div><h3>DJ GUEST 02</h3><p>Progressive</p></div>
+            <div class="dj-card"><div class="dj-photo"></div><h3>DJ GUEST 03</h3><p>Afro House</p></div>
+            <div class="dj-card"><div class="dj-photo"></div><h3>DJ GUEST 04</h3><p>Melodic Techno</p></div>
+            <div class="dj-card"><div class="dj-photo"></div><h3>DJ GUEST 05</h3><p>Open Format</p></div>
+        </div>
+
+        <div class="row-title">Video Library</div>
+        <div id="library-list" class="library-grid">
+            <p style="color:#444;">Connecting to archives...</p>
+        </div>
+
     </div>
 
     <script>
@@ -113,7 +140,7 @@
         const UPLOADER = "ricardobargante%40live.com";
         let liveStatus = null;
         let isReplayMode = false;
-        let currentVideoID = "";
+        let currentVid = "";
 
         async function fetchArchive() {
             try {
@@ -126,7 +153,7 @@
                         list.innerHTML += `
                             <div class="video-card" onclick="openTheater('${doc.identifier}')">
                                 <div class="thumb-box" style="background-image: url('https://archive.org/services/img/${doc.identifier}')">
-                                    <div class="play-tag">WATCH REPLAY</div>
+                                    <div class="play-tag">WATCH SESSION</div>
                                 </div>
                                 <div class="video-info"><h4>${doc.title}</h4></div>
                             </div>`;
@@ -136,19 +163,16 @@
         }
 
         function openTheater(id) {
-            isReplayMode = true;
-            currentVideoID = id;
-            const body = document.getElementById('app');
-            const target = document.getElementById('player-content');
-            body.classList.add('viewing-archive');
-            target.innerHTML = `<iframe src="https://archive.org/embed/${id}&autoplay=1" allowfullscreen></iframe>`;
+            isReplayMode = true; currentVid = id;
+            document.getElementById('app').classList.add('viewing-archive');
+            document.getElementById('player-content').innerHTML = `<iframe src="https://archive.org/embed/${id}&autoplay=1" allowfullscreen></iframe>`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function goBackToLive() {
             isReplayMode = false;
             document.getElementById('app').classList.remove('viewing-archive');
-            syncLive(true); // Força a atualização para o Live
+            syncLive(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -158,10 +182,7 @@
                 const isLive = await r.json();
                 const body = document.getElementById('app');
                 const target = document.getElementById('player-content');
-
-                // Atualiza o estado global de Live
                 if (isLive) body.classList.add('is-live'); else body.classList.remove('is-live');
-
                 if (isLive !== liveStatus || force) {
                     liveStatus = isLive;
                     if (isLive && !isReplayMode) {
@@ -176,7 +197,7 @@
         function enableAudio() {
             const target = document.getElementById('player-content');
             if (isReplayMode) {
-                target.innerHTML = `<iframe src="https://archive.org/embed/${currentVideoID}&autoplay=1" allowfullscreen></iframe>`;
+                target.innerHTML = `<iframe src="https://archive.org/embed/${currentVid}&autoplay=1" allowfullscreen></iframe>`;
             } else {
                 target.innerHTML = `<iframe src="https://player.kick.com/djlivetv?muted=false" allowfullscreen></iframe>`;
             }
