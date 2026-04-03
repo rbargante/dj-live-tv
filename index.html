@@ -13,7 +13,7 @@
     .nav-links a { color: #aaa; text-decoration: none; font-size: 10px; font-weight: 700; padding: 5px 8px; text-transform: uppercase; }
     .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
     
-    .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #0a0a0a; border: 1px solid #222; margin-top: 10px; display: block; }
+    .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #0a0a0a; border: 1px solid #222; margin-top: 10px; min-height: 200px; }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
@@ -34,15 +34,17 @@
     footer { padding: 40px 20px; text-align: center; color: #444; font-size: 10px; }
   </style>
 </head>
-<body id="mainSite">
+<body>
   <nav class="top-nav">
     <div class="nav-inner"><div class="logo">FLASHMIX.TV</div><div class="nav-links"><a href="#vids">Sets</a><a href="#djs">DJs</a><a href="#schedule">Horário</a><a href="javascript:void(0)" onclick="toggleAdmin()" style="color:#f52a1f">Admin</a></div></div>
   </nav>
 
   <div class="container">
-    <div class="player-container">
-      <div class="player-aspect"><iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe></div>
-      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 SOM NO TELEMÓVEL</button>
+    <div class="player-container" id="playerContainer">
+      <div class="player-aspect" id="playerWrapper">
+        <iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
+      </div>
+      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 SOM</button>
     </div>
 
     <div id="vids"><h2 class="section-title">Últimos Sets</h2><div id="videoGrid" class="grid-vids"></div></div>
@@ -51,8 +53,8 @@
 
     <div id="adminArea" class="admin-section">
       <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
-      <div id="adminDjList"></div><button onclick="addNewDjField()" class="admin-input" style="background:#222;">+ ADICIONAR DJ</button>
-      <div id="adminSchList"></div><button onclick="addNewSchField()" class="admin-input" style="background:#222;">+ ADICIONAR HORÁRIO</button>
+      <div id="adminDjList"></div><button onclick="addNewDjField()" class="admin-input" style="background:#222;">+ DJ</button>
+      <div id="adminSchList"></div><button onclick="addNewSchField()" class="admin-input" style="background:#222;">+ HORÁRIO</button>
       <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR</button>
     </div>
   </div>
@@ -64,38 +66,35 @@
 
   function unmutePlayer() {
     const iframe = document.getElementById('kickIframe');
-    iframe.src = `https://player.kick.com/DJLIVETV?muted=false&r=${Date.now()}`;
-    document.getElementById('unmuteOverlay').style.display = 'none';
+    if(iframe) {
+        iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+        document.getElementById('unmuteOverlay').style.display = 'none';
+    }
   }
 
-  // FUNÇÃO AGRESSIVA DE SINCRONIZAÇÃO (4 SEGUNDOS)
   async function syncPlayer() {
-    const iframe = document.getElementById('kickIframe');
+    const wrapper = document.getElementById('playerWrapper');
     try {
       const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
-      
       const liveNow = data?.live === true;
-      console.log("Estado detetado:", liveNow);
 
       if (liveNow !== isLiveState) {
         isLiveState = liveNow;
-        const currentMuted = iframe.src.includes("muted=false") ? "false" : "true";
-
-        // RESET REAL
-        iframe.src = "about:blank"; 
-        
-        setTimeout(() => {
-          iframe.src = `https://player.kick.com/DJLIVETV?muted=${currentMuted}&r=${Date.now()}`;
-        }, liveNow ? 250 : 800);
+        if (liveNow) {
+          wrapper.innerHTML = `<iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}" allowfullscreen></iframe>`;
+          document.getElementById('unmuteOverlay').style.display = 'block';
+        } else {
+          wrapper.innerHTML = `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#444; font-size:12px; text-transform:uppercase; letter-spacing:2px;">Sinal Offline • Aguardando OBS</div>`;
+          document.getElementById('unmuteOverlay').style.display = 'none';
+        }
       }
-    } catch (e) { console.error("Erro sync", e); }
+    } catch (e) { console.error("Sync error"); }
   }
 
   async function load() {
-    // Check imediato e depois a cada 4 segundos
-    await syncPlayer();
-    setInterval(syncPlayer, 4000); 
+    syncPlayer();
+    setInterval(syncPlayer, 5000); // Verifica a cada 5 segundos para ser rápido
 
     try {
       const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
