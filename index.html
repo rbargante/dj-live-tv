@@ -15,19 +15,24 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
 
-    /* PLAYER - SEMPRE VISÍVEL E ADAPTADO PARA MOBILE */
-    .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #0a0a0a; border: 1px solid #222; margin-top: 10px; }
+    /* PLAYER DINÂMICO - SÓ APARECE SE TIVER LIVE MESMO */
+    .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #0a0a0a; border: 1px solid #222; margin-top: 10px; display: none; }
+    .is-live .player-container { display: block; }
+    
+    /* MENSAGEM OFFLINE QUANDO OBS ESTÁ DESLIGADO */
+    #offlineMsg { width: 100%; border-radius: 12px; background: #111; border: 1px dashed #333; height: 200px; display: flex; align-items: center; justify-content: center; color: #444; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+    .is-live #offlineMsg { display: none; }
+
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
     .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     
-    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4); }
+    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4); }
 
     .section-title { text-align: center; margin: 30px 0 15px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
 
     /* GRIDS MOBILE */
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
     .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; overflow: hidden; }
-    
     .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
     .card-dj { text-align: center; background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #1a1a1a; }
     .card-dj img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #f52a1f; margin-bottom: 8px; }
@@ -46,11 +51,10 @@
 
     @media (max-width: 600px) {
       .grid-djs { grid-template-columns: repeat(2, 1fr); }
-      .section-title { font-size: 16px; }
     }
   </style>
 </head>
-<body>
+<body id="mainSite">
   <nav class="top-nav">
     <div class="nav-inner">
       <div class="logo">FLASHMIX.TV</div>
@@ -64,9 +68,12 @@
   </nav>
 
   <div class="container">
+    
+    <div id="offlineMsg">Sinal Offline • Aguardando OBS</div>
+
     <div class="player-container">
       <div class="player-aspect" id="playerWrapper">
-        <iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
+        <iframe id="kickIframe" src="" allowfullscreen></iframe>
       </div>
       <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 SOM NO TELEMÓVEL</button>
     </div>
@@ -102,6 +109,7 @@
     const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
     let currentDjs = []; 
     let currentSch = [];
+    let isLiveState = false;
 
     function unmutePlayer() {
       const iframe = document.getElementById('kickIframe');
@@ -109,23 +117,38 @@
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
-    // TENTA ARRANCAR O LIVE SOZINHO SE LIGARES O OBS
-    async function refreshPlayerStatus() {
+    // VERIFICAÇÃO AUTOMÁTICA REALISTA (ANTI-ERRO)
+    async function updateStatus() {
+      const site = document.getElementById('mainSite');
+      const iframe = document.getElementById('kickIframe');
+      
       try {
         const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`);
         const data = await res.json();
-        const iframe = document.getElementById('kickIframe');
         
-        // Se o OBS ligou e o iframe estava "morto", recarrega ele
-        if(data && data.livestream && iframe.src === "") {
-            iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+        // Se houver livestream real no Kick
+        const liveNow = !!(data && data.livestream);
+
+        if (liveNow && !isLiveState) {
+          // LIGASTE O OBS: Liga player
+          isLiveState = true;
+          site.classList.add('is-live');
+          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+        } 
+        else if (!liveNow && isLiveState) {
+          // DESLIGASTE O OBS: Mata player e limpa cache
+          isLiveState = false;
+          site.classList.remove('is-live');
+          iframe.src = ""; 
         }
       } catch(e) {}
     }
 
     async function load() {
-      setInterval(refreshPlayerStatus, 15000); // Tenta detetar o OBS a cada 15 seg
+      updateStatus();
+      setInterval(updateStatus, 10000); // Verifica a cada 10 seg se ligaste/desligaste o OBS
 
+      // Sets
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
         const vids = await rv.json();
@@ -136,31 +159,24 @@
           </div>`).join('');
       } catch(e) {}
 
+      // DJs
       try {
         const rf = await fetch(DB + ".json");
         const data = await rf.json();
         currentDjs = data?.djs || [];
         currentSch = data?.schedule || [];
-        renderSite();
+        
+        document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
+          <div class="card-dj">
+            <img src="${d.img || 'https://via.placeholder.com/150'}">
+            <div style="font-weight:bold; font-size:13px;">${d.name}</div>
+          </div>`).join('');
+        
+        document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
+          const dj = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
+          return `<div class="sch-row"><img src="${dj.img}" class="sch-dj-thumb"><div style="font-size:13px; font-weight:600;">${s.dj}</div><div class="sch-time">${s.time}</div></div>`;
+        }).join('');
       } catch(e) {}
-    }
-
-    function renderSite() {
-      document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
-        <div class="card-dj">
-          <img src="${d.img || 'https://via.placeholder.com/150'}">
-          <div style="font-weight:bold; font-size:13px;">${d.name}</div>
-        </div>`).join('');
-      
-      document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
-        const dj = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
-        return `
-          <div class="sch-row">
-            <img src="${dj.img}" class="sch-dj-thumb">
-            <div style="font-size:13px; font-weight:600;">${s.dj}</div>
-            <div class="sch-time">${s.time}</div>
-          </div>`;
-      }).join('');
     }
 
     function renderAdmin() {
@@ -187,11 +203,7 @@
       alert("✅ ATUALIZADO!"); location.reload();
     }
     function toggleAdmin() {
-      if(prompt("Senha:") === '1234') {
-        document.getElementById('adminArea').style.display = 'block';
-        renderAdmin();
-        document.getElementById('adminArea').scrollIntoView();
-      }
+      if(prompt("Senha:") === '1234') { document.getElementById('adminArea').style.display='block'; renderAdmin(); document.getElementById('adminArea').scrollIntoView(); }
     }
     load();
   </script>
