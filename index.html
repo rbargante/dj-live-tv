@@ -12,19 +12,21 @@
             overflow: hidden;
         }
 
+        /* --- TÍTULO EM BRANCO (WHITE NEON) --- */
         .main-header { 
-            padding: 20px; font-weight: 900; color: #f52a1f; letter-spacing: 8px; font-size: clamp(24px, 5vw, 40px); 
-            text-transform: uppercase; text-shadow: 0 0 20px rgba(245, 42, 31, 0.8);
+            padding: 20px; font-weight: 900; color: #fff; /* White title */
+            letter-spacing: 8px; font-size: clamp(24px, 5vw, 40px); 
+            text-transform: uppercase; text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
             margin-bottom: 15px;
         }
 
-        /* PLAYER WRAPPER - VISIBLE BORDER EVEN OFFLINE */
+        /* --- THE PLAYER BOX (VISIBLE EVEN OFFLINE) --- */
         .player-wrapper {
             position: relative; width: 94%; max-width: 900px; aspect-ratio: 16 / 9;
             background: #050505; border-radius: 30px; 
             display: flex; align-items: center; justify-content: center;
-            border: 5px solid #1a1a1a; /* Visible dark neon border */
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            border: 5px solid #2a2a2a; /* Metallic grey neon border (visible) */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
             transition: all 0.5s ease;
         }
 
@@ -58,27 +60,27 @@
             z-index: 10; border-radius: 25px;
         }
 
-        .brand-name { font-size: clamp(30px, 8vw, 60px); letter-spacing: 12px; opacity: 0.9; margin-bottom: 10px; }
+        .brand-name { font-size: clamp(30px, 8vw, 60px); letter-spacing: 12px; opacity: 0.9; margin-bottom: 15px; }
         
+        /* BIG OFFLINE TEXT DESIGN */
         .status-badge {
-            background: rgba(255,255,255,0.05); padding: 15px 35px; border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.03); padding: 15px 40px; border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
 
         .status-row { display: flex; align-items: center; gap: 15px; }
 
         .dot { 
-            width: 14px; height: 14px; background: #f52a1f; border-radius: 50%; 
-            box-shadow: 0 0 15px #f52a1f; animation: pulseRed 2s infinite;
+            width: 12px; height: 12px; background: #333; border-radius: 50%; transition: 0.5s;
         }
-
-        @keyframes pulseRed {
-            0%, 100% { opacity: 0.2; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.2); }
+        body:not(.is-live) .dot {
+            background: #555; animation: standbyPulse 2s infinite;
         }
+        @keyframes standbyPulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        .status-msg { color: #aaa; font-size: 14px; letter-spacing: 3px; font-weight: bold; text-transform: uppercase; }
-        .sub-msg { color: #444; font-size: 10px; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
+        /* BIGGER OFFLINE MESSAGE */
+        .status-msg { color: #888; font-size: 22px; /* Bigger letters */ letter-spacing: 4px; font-weight: bold; text-transform: uppercase; }
+        .sub-msg { color: #444; font-size: 11px; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
 
         body.is-live #offline-screen { display: none; }
 
@@ -105,8 +107,7 @@
             <div class="status-badge">
                 <div class="status-row">
                     <div class="dot"></div>
-                    <span class="status-msg">SYSTEM READY / OFFLINE</span>
-                </div>
+                    <span class="status-msg">OFFLINE</span> </div>
                 <div class="sub-msg">WAITING FOR DJ...</div>
             </div>
         </div>
@@ -121,7 +122,7 @@
 
         async function autoCheck() {
             try {
-                const r = await fetch(`${DB_URL}?t=${Date.now()}`);
+                const r = await fetch(`${DB_URL}?nocache=${Date.now()}`);
                 const isLive = await r.json();
 
                 if (isLive !== currentStatus) {
