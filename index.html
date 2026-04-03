@@ -18,18 +18,17 @@
             margin-bottom: 15px;
         }
 
-        /* SUPER NEON WRAPPER */
+        /* PLAYER WRAPPER - VISIBLE BORDER EVEN OFFLINE */
         .player-wrapper {
             position: relative; width: 94%; max-width: 900px; aspect-ratio: 16 / 9;
             background: #050505; border-radius: 30px; 
             display: flex; align-items: center; justify-content: center;
-            /* NEON CINZA QUANDO OFFLINE */
-            border: 5px solid #1a1a1a;
+            border: 5px solid #1a1a1a; /* Visible dark neon border */
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
             transition: all 0.5s ease;
         }
 
-        /* NEON VERMELHO VIVO QUANDO LIVE */
+        /* NEON RED FLOW WHEN LIVE */
         body.is-live .player-wrapper {
             border: 5px solid transparent;
             background: linear-gradient(#050505, #050505) padding-box,
@@ -51,7 +50,7 @@
         body.is-live #player-target { display: block; }
         iframe { width: 100%; height: 100%; border: 0; }
 
-        /* OFFLINE SCREEN */
+        /* OFFLINE SCREEN DESIGN */
         #offline-screen {
             position: absolute; inset: 0;
             background: radial-gradient(circle, #111 0%, #000 100%);
@@ -59,12 +58,14 @@
             z-index: 10; border-radius: 25px;
         }
 
-        .brand-name { font-size: clamp(30px, 8vw, 60px); letter-spacing: 12px; opacity: 0.9; margin-bottom: 20px; }
+        .brand-name { font-size: clamp(30px, 8vw, 60px); letter-spacing: 12px; opacity: 0.9; margin-bottom: 10px; }
         
         .status-badge {
             background: rgba(255,255,255,0.05); padding: 15px 35px; border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 15px;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
+
+        .status-row { display: flex; align-items: center; gap: 15px; }
 
         .dot { 
             width: 14px; height: 14px; background: #f52a1f; border-radius: 50%; 
@@ -77,10 +78,10 @@
         }
 
         .status-msg { color: #aaa; font-size: 14px; letter-spacing: 3px; font-weight: bold; text-transform: uppercase; }
+        .sub-msg { color: #444; font-size: 10px; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
 
         body.is-live #offline-screen { display: none; }
 
-        /* UNMUTE BUTTON */
         #actionBtn {
             display: none; margin-top: 40px; background: #f52a1f; color: #fff;
             border: none; padding: 22px 60px; border-radius: 100px;
@@ -89,7 +90,7 @@
             z-index: 100;
         }
 
-        #actionBtn:hover { transform: scale(1.05); box-shadow: 0 15px 50px rgba(245, 42, 31, 0.6); }
+        #actionBtn:hover { transform: scale(1.05); }
         body.is-live #actionBtn { display: inline-block; }
 
     </style>
@@ -102,8 +103,11 @@
         <div id="offline-screen">
             <div class="brand-name">FLASHMIX</div>
             <div class="status-badge">
-                <div class="dot"></div>
-                <span class="status-msg">SYSTEM READY / STANDBY</span>
+                <div class="status-row">
+                    <div class="dot"></div>
+                    <span class="status-msg">SYSTEM READY / OFFLINE</span>
+                </div>
+                <div class="sub-msg">WAITING FOR DJ...</div>
             </div>
         </div>
         <div id="player-target"></div>
@@ -112,13 +116,11 @@
     <button id="actionBtn" onclick="enableAudio()">🔊 UNMUTE LIVE SESSION</button>
 
     <script>
-        // O link do teu Firebase que já está a funcionar no teu iMac
         const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
         let currentStatus = null;
 
         async function autoCheck() {
             try {
-                // Fetch sem cache para ser instantâneo
                 const r = await fetch(`${DB_URL}?t=${Date.now()}`);
                 const isLive = await r.json();
 
@@ -130,7 +132,12 @@
 
                     if (isLive === true) {
                         body.classList.add('is-live');
-                        target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
+                        target.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;letter-spacing:2px;color:#444;">CONNECTING TO STREAM...</div>`;
+                        
+                        setTimeout(() => {
+                            target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
+                        }, 5000); 
+
                     } else {
                         body.classList.remove('is-live');
                         target.innerHTML = ""; 
@@ -138,7 +145,7 @@
                         window.stop();
                     }
                 }
-            } catch (e) { console.log("Reconnecting..."); }
+            } catch (e) { console.log("Searching for signal..."); }
         }
 
         function enableAudio() {
@@ -146,8 +153,7 @@
             document.getElementById('actionBtn').style.display = 'none';
         }
 
-        // Verifica a cada 2 segundos. O site está sempre "vigilante".
-        setInterval(autoCheck, 2000);
+        setInterval(autoCheck, 3000);
         autoCheck();
     </script>
 </body>
