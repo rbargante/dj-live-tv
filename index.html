@@ -17,7 +17,7 @@
         /* --- HEADER --- */
         .main-header { 
             padding: 20px; font-weight: 900; color: #ffffff; 
-            letter-spacing: 8px; font-size: clamp(24px, 5vw, 45px); 
+            letter-spacing: 8px; font-size: clamp(24px, 5vw, 42px); 
             text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
             text-align: center;
         }
@@ -60,40 +60,53 @@
         }
         @keyframes fastBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-        /* --- SECTIONS --- */
-        .container { width: 98%; max-width: 1100px; padding-bottom: 50px; }
+        /* --- CONTENT CONTAINER --- */
+        .container { width: 98%; max-width: 1100px; padding-bottom: 80px; }
 
         .section-title {
-            color: #f52a1f; font-size: 20px; letter-spacing: 4px; text-transform: uppercase;
-            margin: 40px 0 20px 0; border-left: 5px solid #f52a1f; padding-left: 15px;
+            color: #f52a1f; font-size: 22px; letter-spacing: 4px; text-transform: uppercase;
+            margin: 50px 0 25px 0; border-left: 6px solid #f52a1f; padding-left: 15px;
         }
 
         /* SCHEDULE TABLE */
         .schedule-grid {
-            width: 100%; border-collapse: collapse; background: #080808; border-radius: 15px; overflow: hidden;
+            width: 100%; border-collapse: collapse; background: #080808; border-radius: 20px; overflow: hidden;
         }
-        .schedule-grid th, .schedule-grid td { padding: 15px; text-align: left; border-bottom: 1px solid #111; font-size: 14px; }
-        .schedule-grid th { background: #111; color: #666; text-transform: uppercase; }
+        .schedule-grid td { padding: 18px; border-bottom: 1px solid #111; font-size: 14px; }
+        .schedule-grid tr:hover { background: #0f0f0f; }
 
-        /* VIDEO GALLERY (REPLAYS) */
-        .video-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;
+        /* --- DJ LINEUP (6 DJs) --- */
+        .dj-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;
         }
-        .video-card {
-            background: #080808; border-radius: 15px; overflow: hidden; border: 1px solid #111; transition: 0.3s;
+        .dj-card {
+            background: #080808; border-radius: 25px; overflow: hidden; 
+            border: 1px solid #1a1a1a; transition: 0.3s; padding: 15px;
+            display: flex; align-items: center; gap: 20px;
         }
-        .video-card:hover { border-color: #f52a1f; transform: scale(1.02); }
-        .video-thumb { width: 100%; aspect-ratio: 16 / 9; background: #1a1a1a; display: flex; align-items: center; justify-content: center; position: relative; }
-        .video-thumb::after { content: '▶'; color: #fff; font-size: 30px; opacity: 0.5; }
-        .video-info { padding: 15px; }
-        .video-info h4 { margin: 0; font-size: 14px; color: #fff; }
-        .video-info p { margin: 5px 0 0 0; font-size: 11px; color: #555; }
+        .dj-card:hover { border-color: #f52a1f; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(245,42,31,0.1); }
+        
+        .dj-photo {
+            width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%;
+            border: 2px solid #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            color: #444; font-size: 10px;
+        }
+        .dj-info h3 { margin: 0; font-size: 18px; color: #fff; }
+        .dj-info p { margin: 5px 0 0 0; font-size: 11px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
 
-        /* UNMUTE BUTTON */
+        /* REPLAYS SECTION */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .video-card { background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #111; transition: 0.3s; text-decoration: none; display: block; }
+        .video-card:hover { border-color: #f52a1f; }
+        .video-thumb { width: 100%; aspect-ratio: 16/9; background: #111; position: relative; }
+        .video-thumb::after { content: '▶'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 30px; color: #fff; opacity: 0.3; }
+        .video-meta { padding: 15px; }
+        .video-meta h4 { margin: 0; font-size: 14px; color: #fff; }
+
         #actionBtn {
-            display: none; margin: 0 auto 30px auto; background: #f52a1f; color: #fff;
-            border: none; padding: 18px 45px; border-radius: 50px; font-weight: 900; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(245, 42, 31, 0.4);
+            display: none; margin: 20px auto; background: #f52a1f; color: #fff;
+            border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer;
+            text-transform: uppercase; box-shadow: 0 10px 30px rgba(245,42,31,0.4);
         }
         body.is-live #actionBtn { display: block; }
 
@@ -105,10 +118,10 @@
 
     <div class="player-wrapper">
         <div id="offline-screen">
-            <div style="font-size: clamp(30px, 8vw, 60px); letter-spacing: 10px; margin-bottom: 15px;">FLASHMIX</div>
-            <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.5); padding: 10px 30px; border-radius: 50px; border: 1px solid #1a1a1a;">
+            <div style="font-size: clamp(30px, 8vw, 60px); letter-spacing: 12px; margin-bottom: 20px;">FLASHMIX</div>
+            <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.6); padding: 15px 40px; border-radius: 50px; border: 1px solid #222;">
                 <div class="dot"></div>
-                <span style="color: #888; font-size: 14px; letter-spacing: 3px; font-weight: bold;">OFFLINE</span>
+                <span style="color: #fff; font-size: 16px; letter-spacing: 4px; font-weight: 900;">OFFLINE</span>
             </div>
         </div>
         <div id="player-target"></div>
@@ -120,50 +133,68 @@
         
         <div class="section-title">Weekly Schedule</div>
         <table class="schedule-grid">
-            <thead>
-                <tr>
-                    <th>Day</th>
-                    <th>Time (GMT)</th>
-                    <th>DJ / Session</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>FRIDAY</td>
-                    <td style="color:#f52a1f">22:00 - 00:00</td>
-                    <td>DJ BARGANTE <span style="font-size:10px; color:#444;">(LIVE)</span></td>
-                </tr>
-            </tbody>
+            <tr>
+                <td style="color:#f52a1f; font-weight:bold; width:150px;">FRIDAY</td>
+                <td>22:00 - 00:00 (GMT)</td>
+                <td style="font-weight:bold;">DJ BARGANTE <span style="font-size:10px; opacity:0.3;">[LIVE]</span></td>
+            </tr>
         </table>
+
+        <div class="section-title">Flashmix DJs</div>
+        <div class="dj-grid">
+            <div class="dj-card">
+                <div class="dj-photo">PHOTO</div>
+                <div class="dj-info">
+                    <h3>DJ BARGANTE</h3>
+                    <p>House / Tech House</p>
+                </div>
+            </div>
+            <div class="dj-card">
+                <div class="dj-photo">PHOTO</div>
+                <div class="dj-info">
+                    <h3>DJ GUEST X</h3>
+                    <p>Deep & Melodic</p>
+                </div>
+            </div>
+            <div class="dj-card">
+                <div class="dj-photo">PHOTO</div>
+                <div class="dj-info">
+                    <h3>DJ GUEST Y</h3>
+                    <p>Open Format / Club</p>
+                </div>
+            </div>
+            <div class="dj-card">
+                <div class="dj-photo">PHOTO</div>
+                <div class="dj-info">
+                    <h3>DJ GUEST Z</h3>
+                    <p>80s / 90s Hits</p>
+                </div>
+            </div>
+            <div class="dj-card">
+                <div class="dj-photo">PHOTO</div>
+                <div class="dj-info">
+                    <h3>DJ GUEST W</h3>
+                    <p>Techno / Dark</p>
+                </div>
+            </div>
+            <div class="dj-card">
+                <div class="dj-photo">PHOTO</div>
+                <div class="dj-info">
+                    <h3>DJ GUEST K</h3>
+                    <p>Afro House</p>
+                </div>
+            </div>
+        </div>
 
         <div class="section-title">Latest Replays</div>
         <div class="video-grid">
-            <a href="https://kick.com/DJLIVETV" target="_blank" style="text-decoration:none;">
-                <div class="video-card">
-                    <div class="video-thumb"></div>
-                    <div class="video-info">
-                        <h4>House Selection Mix #01</h4>
-                        <p>Streamed 2 days ago</p>
-                    </div>
-                </div>
+            <a href="https://kick.com/DJLIVETV" class="video-card">
+                <div class="video-thumb"></div>
+                <div class="video-meta"><h4>Last Session Recap</h4></div>
             </a>
-            <a href="https://kick.com/DJLIVETV" target="_blank" style="text-decoration:none;">
-                <div class="video-card">
-                    <div class="video-thumb"></div>
-                    <div class="video-info">
-                        <h4>Techno Midnight Session</h4>
-                        <p>Streamed last week</p>
-                    </div>
-                </div>
-            </a>
-            <a href="https://kick.com/DJLIVETV" target="_blank" style="text-decoration:none;">
-                <div class="video-card">
-                    <div class="video-thumb"></div>
-                    <div class="video-info">
-                        <h4>Flashmix Classics Vol. 4</h4>
-                        <p>Streamed 2 weeks ago</p>
-                    </div>
-                </div>
+            <a href="https://kick.com/DJLIVETV" class="video-card">
+                <div class="video-thumb"></div>
+                <div class="video-meta"><h4>Night Mix vol. 12</h4></div>
             </a>
         </div>
 
@@ -182,22 +213,19 @@
                     currentStatus = isLive;
                     const body = document.getElementById('app');
                     const target = document.getElementById('player-target');
-                    const btn = document.getElementById('actionBtn');
-
                     if (isLive === true) {
                         body.classList.add('is-live');
-                        target.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:14px;color:#f52a1f;font-weight:bold;">CONNECTING...</div>`;
+                        target.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f52a1f;font-weight:bold;">CONNECTING LIVE...</div>`;
                         setTimeout(() => {
                             target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
                         }, 5000); 
                     } else {
                         body.classList.remove('is-live');
                         target.innerHTML = ""; 
-                        btn.style.display = 'none';
                         window.stop();
                     }
                 }
-            } catch (e) { console.log("Checking iMac..."); }
+            } catch (e) { }
         }
 
         function enableAudio() {
