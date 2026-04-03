@@ -1,96 +1,174 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DJ LIVE TV | FLASHMIX</title>
-    <style>
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-        header { width: 100%; padding: 20px; text-align: center; border-bottom: 1px solid #222; }
-        .logo { font-weight: 900; font-size: 20px; color: #f52a1f; text-transform: uppercase; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>DJ LIVE TV | FLASHMIX</title>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    
+    .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
+    .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
+    .logo { font-weight: 900; font-size: 18px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; }
+    .nav-links a { color: #aaa; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 10px; text-transform: uppercase; }
 
-        .main-content { width: 100%; max-width: 900px; padding: 15px; box-sizing: border-box; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
 
-        /* ESTADO OFFLINE */
-        #offline-banner {
-            width: 100%; height: 250px; border-radius: 12px; background: #0a0a0a;
-            border: 1px dashed #333; display: flex; align-items: center; justify-content: center;
-            color: #444; text-transform: uppercase; letter-spacing: 2px;
-        }
+    /* PLAYER SEMPRE VISÍVEL */
+    .player-container { 
+      position: relative; 
+      width: 100%; 
+      border-radius: 15px; 
+      overflow: hidden; 
+      background: #0a0a0a; 
+      border: 1px solid #222; 
+      margin-top: 10px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .player-aspect { 
+      position: relative; 
+      width: 100%; 
+      padding-top: 56.25%; /* 16:9 */
+      background: #000; 
+    }
 
-        /* PLAYER (SÓ APARECE QUANDO LIVE) */
-        #player-container {
-            display: none; position: relative; width: 100%; padding-top: 56.25%; 
-            background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #f52a1f;
-        }
-        #player-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    /* MENSAGEM QUE APARECE QUANDO O PLAYER É REMOVIDO */
+    #offline-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      color: #333;
+      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 11px;
+    }
 
-        .is-live #player-container { display: block; }
-        .is-live #offline-banner { display: none; }
+    .player-aspect iframe { 
+      position: absolute; 
+      inset: 0; 
+      width: 100%; 
+      height: 100%; 
+      border: 0; 
+      z-index: 2; /* Fica por cima do overlay quando existe */
+    }
+    
+    #unmuteOverlay { 
+      position: absolute; bottom: 20px; right: 20px; z-index: 10; background: #f52a1f; color: #fff; 
+      border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; cursor: pointer;
+      display: none;
+    }
 
-        .controls { margin-top: 20px; text-align: center; display: none; }
-        .is-live .controls { display: block; }
-        
-        button { background: #f52a1f; color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; }
-    </style>
+    /* RESTO DO SITE */
+    .section-title { text-align: center; margin: 40px 0 20px; font-size: 18px; font-weight: 900; text-transform: uppercase; }
+    .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+    .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; overflow: hidden; }
+    .card-v img { width: 100%; display: block; }
+
+    footer { padding: 40px; text-align: center; color: #222; font-size: 10px; }
+  </style>
 </head>
-<body id="page-body">
+<body>
 
-    <header><div class="logo">FLASHMIX.TV</div></header>
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <div class="logo">FLASHMIX.TV</div>
+      <div class="nav-links">
+        <a href="#vids">Vídeos</a><a href="javascript:void(0)" onclick="toggleAdmin()">Admin</a>
+      </div>
+    </div>
+  </nav>
 
-    <div class="main-content">
-        <div id="offline-banner">Sinal Offline • Aguardando OBS</div>
-        
-        <div id="player-container">
-            <div id="player-wrapper"></div>
+  <div class="container">
+    
+    <div class="player-container">
+      <div class="player-aspect" id="playerWrapper">
+        <div id="offline-overlay">
+            <div style="font-size: 24px; margin-bottom: 10px;">📻</div>
+            Sinal Offline • Aguardando OBS
         </div>
-
-        <div class="controls">
-            <button id="unmuteBtn" onclick="toggleSound()">🔊 ATIVAR SOM</button>
         </div>
+      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
     </div>
 
-    <script>
-        const WORKER_URL = "https://calm-violet-826b.ricardobargante.workers.dev/";
-        let isLive = null;
+    <div id="vids">
+      <h2 class="section-title">Últimos Sets</h2>
+      <div id="videoGrid" class="grid-vids"></div>
+    </div>
 
-        function toggleSound() {
-            const wrapper = document.getElementById('player-wrapper');
-            wrapper.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
-            document.getElementById('unmuteBtn').style.display = 'none';
+    <div id="adminArea" style="display:none; padding: 20px; background: #080808; border: 1px solid #f52a1f; margin-top: 20px; border-radius: 10px;">
+       <button onclick="saveAll()" style="width:100%; padding: 15px; background: #28a745; color: white; border: none; font-weight: bold;">PUBLICAR</button>
+    </div>
+  </div>
+
+  <footer>© 2026 FLASHMIX TV</footer>
+
+  <script>
+    const STATUS_WORKER = "https://calm-violet-826b.ricardobargante.workers.dev/";
+    let isLiveState = null;
+
+    function unmutePlayer() {
+      const iframe = document.querySelector('#playerWrapper iframe');
+      if(iframe) {
+        iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+        document.getElementById('unmuteOverlay').style.display = 'none';
+      }
+    }
+
+    async function syncPlayer() {
+      try {
+        const res = await fetch(`${STATUS_WORKER}?t=${Date.now()}`, { cache: "no-store" });
+        const data = await res.json();
+        const liveNow = data?.live === true;
+
+        if (liveNow !== isLiveState) {
+          isLiveState = liveNow;
+          const wrapper = document.getElementById('playerWrapper');
+          const btn = document.getElementById('unmuteOverlay');
+
+          if (liveNow) {
+            // INJETA O PLAYER POR CIMA DO AVISO
+            wrapper.innerHTML += `<iframe src="https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}" allowfullscreen></iframe>`;
+            btn.style.display = 'block';
+            console.log("OBS LIGADO: Player Injetado.");
+          } else {
+            // REMOVE APENAS O IFRAME, O AVISO "OFFLINE" QUE ESTÁ POR BAIXO APARECE
+            const iframe = wrapper.querySelector('iframe');
+            if (iframe) iframe.remove();
+            btn.style.display = 'none';
+            console.log("OBS DESLIGADO: Player Removido.");
+          }
         }
+      } catch (e) { console.log("Erro ao verificar status."); }
+    }
 
-        async function checkKickStatus() {
-            try {
-                // Força o pedido a saltar o cache com o timestamp ?t=
-                const res = await fetch(`${WORKER_URL}?t=${Date.now()}`, { cache: "no-store" });
-                const data = await res.json();
-                const liveNow = data.live === true;
+    async function init() {
+      syncPlayer();
+      setInterval(syncStatus, 5000); // Check a cada 5 segundos
 
-                if (liveNow !== isLive) {
-                    isLive = liveNow;
-                    const body = document.getElementById('page-body');
-                    const wrapper = document.getElementById('player-wrapper');
+      // Carregar vídeos (exemplo simplificado)
+      try {
+        const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        const vids = await rv.json();
+        document.getElementById('videoGrid').innerHTML = vids.slice(0, 4).map(v => `
+          <div class="card-v">
+            <img src="${v.thumbnail.src}">
+            <p style="font-size:11px; padding:10px;">${v.session_title}</p>
+          </div>`).join('');
+      } catch(e) {}
+    }
 
-                    if (liveNow) {
-                        body.classList.add('is-live');
-                        // Injeta o player do zero
-                        wrapper.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true&r=${Date.now()}" allowfullscreen></iframe>`;
-                        document.getElementById('unmuteBtn').style.display = 'inline-block';
-                    } else {
-                        body.classList.remove('is-live');
-                        // APAGA O PLAYER DO HTML (O vídeo morre na hora!)
-                        wrapper.innerHTML = "";
-                    }
-                }
-            } catch (e) {
-                console.log("Erro ao ligar ao Worker");
-            }
-        }
+    // Função de correção para o setInterval (chama a função correta)
+    function syncStatus() { syncPlayer(); }
 
-        // Verifica de 5 em 5 segundos (Rápido o suficiente)
-        setInterval(checkKickStatus, 5000);
-        checkKickStatus();
-    </script>
+    function toggleAdmin() { if(prompt("Senha:") === '1234') document.getElementById('adminArea').style.display = 'block'; }
+
+    init();
+  </script>
 </body>
 </html>
