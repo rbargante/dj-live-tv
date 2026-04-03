@@ -5,24 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DJ LIVE TV | FLASHMIX</title>
   <style>
-    body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; }
-    .top-nav { padding: 15px; border-bottom: 1px solid #222; text-align: center; }
-    .logo { font-weight: 900; color: #f52a1f; letter-spacing: 2px; }
+    body { margin: 0; background: #000; color: #fff; font-family: sans-serif; text-align: center; }
+    .logo { padding: 20px; font-weight: 900; color: #f52a1f; letter-spacing: 2px; }
     
     .player-container { 
-      position: relative; width: 100%; max-width: 900px; margin: 20px auto; 
+      position: relative; width: 95%; max-width: 800px; margin: 0 auto; 
       border-radius: 15px; overflow: hidden; background: #0a0a0a; border: 1px solid #222;
     }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
     
-    /* MENSAGEM AUTOMÁTICA DE OFFLINE */
-    #offline-overlay {
-      position: absolute; inset: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; background: #000; 
+    #offline-msg {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
       color: #444; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
     }
 
-    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 5; }
+    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 10; }
     
     #unmuteBtn { 
       display: none; margin: 20px auto; background: #f52a1f; color: #fff; border: none; 
@@ -32,53 +29,56 @@
 </head>
 <body>
 
-  <div class="top-nav"><div class="logo">FLASHMIX.TV</div></div>
+  <div class="logo">FLASHMIX.TV</div>
 
   <div class="player-container">
     <div class="player-aspect" id="playerWrapper">
-      <div id="offline-overlay">📡 SINAL OFFLINE • AGUARDANDO DJ</div>
+      <div id="offline-msg">A aguardar sinal do DJ...</div>
     </div>
   </div>
   
-  <button id="unmuteBtn" onclick="unmute()">🔊 OUVIR EM DIRETO</button>
+  <button id="unmuteBtn" onclick="unmute()">🔊 ATIVAR SOM EM DIRETO</button>
 
   <script>
+    // USANDO O TEU NOVO WORKER QUE JÁ ESTÁ A FUNCIONAR
     const STATUS_WORKER = "https://djlivetv.ricardobargante.workers.dev/";
-    let isLiveState = null;
+    let isLive = null;
 
-    async function checkAutoStatus() {
+    async function checkStatus() {
       try {
-        const res = await fetch(`${STATUS_WORKER}?t=${Date.now()}`);
+        // Pedimos ao teu worker. O ?v= garante que o browser não guarda cache
+        const res = await fetch(`${STATUS_WORKER}?v=${Date.now()}`);
         const data = await res.json();
         
-        if (data.live !== isLiveState) {
-          isLiveState = data.live;
+        if (data.live !== isLive) {
+          isLive = data.live;
           const wrapper = document.getElementById('playerWrapper');
           const btn = document.getElementById('unmuteBtn');
 
           if (data.live) {
-            // OBS FICOU ON -> INJETA O PLAYER
-            wrapper.innerHTML += `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
+            // OBS LIGOU: Injetamos o player do zero
+            wrapper.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
             btn.style.display = 'block';
           } else {
-            // OBS FICOU OFF -> REMOVE O PLAYER
-            const iframe = wrapper.querySelector('iframe');
-            if (iframe) iframe.remove();
+            // OBS DESLIGOU: Limpamos TUDO no wrapper para o player morrer logo
+            wrapper.innerHTML = `<div id="offline-msg">Sinal Offline • Voltamos em breve</div>`;
             btn.style.display = 'none';
           }
         }
-      } catch (e) { console.log("Erro de conexão"); }
+      } catch (e) { console.log("Erro de ligação"); }
     }
 
     function unmute() {
       const iframe = document.querySelector('iframe');
-      if(iframe) iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
-      document.getElementById('unmuteBtn').style.display = 'none';
+      if(iframe) {
+        iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+        document.getElementById('unmuteBtn').style.display = 'none';
+      }
     }
 
-    // VERIFICAÇÃO RÁPIDA (3 SEGUNDOS)
-    setInterval(checkAutoStatus, 3000);
-    checkAutoStatus();
+    // Verifica a cada 4 segundos. É o equilíbrio ideal
+    setInterval(checkStatus, 4000);
+    checkStatus();
   </script>
 </body>
 </html>
