@@ -10,13 +10,45 @@
     body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     
     /* NAVEGAÇÃO */
-    .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
+    .top-nav { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
     .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
     .logo { font-weight: 900; font-size: 18px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; }
     .nav-links a { color: #aaa; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 10px; text-transform: uppercase; }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
     .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+
+    /* PLAYER KICK */
+    .player-container { 
+      position: relative; 
+      width: 100%; 
+      border-radius: 15px; 
+      overflow: hidden; 
+      background: #0a0a0a; 
+      border: 1px solid #222; 
+      margin-top: 10px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .player-aspect { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+    .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    
+    /* BOTÃO SOM MOBILE */
+    #unmuteOverlay { 
+      position: absolute; 
+      bottom: 20px; 
+      right: 20px; 
+      z-index: 10; 
+      background: #f52a1f; 
+      color: #fff; 
+      border: none; 
+      padding: 12px 20px; 
+      border-radius: 50px; 
+      font-weight: 900; 
+      font-size: 12px; 
+      cursor: pointer; 
+      box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4);
+      text-transform: uppercase;
+    }
 
     /* GRID VÍDEOS */
     .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
@@ -50,6 +82,7 @@
     @media (max-width: 600px) {
       .grid-djs { grid-template-columns: repeat(2, 1fr); }
       .logo { font-size: 15px; }
+      #unmuteOverlay { padding: 10px 15px; font-size: 10px; bottom: 10px; right: 10px; }
     }
   </style>
 </head>
@@ -69,6 +102,13 @@
 
   <div class="container">
     
+    <div class="player-container">
+      <div class="player-aspect">
+        <iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
+      </div>
+      <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
+    </div>
+
     <div id="vids">
       <h2 class="section-title">Últimos Sets</h2>
       <div id="videoGrid" class="grid-vids">
@@ -109,14 +149,19 @@
   <footer>FLASHMIX TV — © 2026</footer>
 
   <script>
-    // Configurações Base
     const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
     const VIDEOS_WORKER = "https://blue-cherry-d10a.ricardobargante.workers.dev/videos";
     
     let currentDjs = []; 
     let currentSch = [];
 
-    // 1. Carregar Dados ao Iniciar
+    // Função para o Som no Mobile
+    function unmutePlayer() {
+      const iframe = document.getElementById('kickIframe');
+      iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+      document.getElementById('unmuteOverlay').style.display = 'none';
+    }
+
     async function init() {
       // Carregar Vídeos
       try {
@@ -129,7 +174,7 @@
           </div>`).join('');
       } catch(e) { console.error("Erro vídeos"); }
 
-      // Carregar Firebase (DJs e Schedule)
+      // Carregar Firebase
       try {
         const resF = await fetch(DB_URL + ".json");
         const data = await resF.json();
@@ -139,16 +184,13 @@
       } catch(e) { console.error("Erro Firebase"); }
     }
 
-    // 2. Renderizar Site
     function renderSite() {
-      // Render DJs
       document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
         <div class="card-dj">
           <img src="${d.img || 'https://via.placeholder.com/150'}">
           <h3>${d.name}</h3>
         </div>`).join('');
       
-      // Render Horários
       document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
         const dj = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
         return `
@@ -160,9 +202,7 @@
       }).join('');
     }
 
-    // 3. Funções do Painel Admin
     function renderAdmin() {
-      // Lista de DJs no Admin
       document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `
         <div style="display:flex; gap:10px; margin-bottom:10px;">
           <input class="admin-input" placeholder="Nome" value="${d.name}" oninput="currentDjs[${i}].name=this.value">
@@ -170,7 +210,6 @@
           <button onclick="currentDjs.splice(${i},1);renderAdmin()" style="background:#f52a1f; color:#fff; border:none; border-radius:5px; cursor:pointer; padding:0 15px;">X</button>
         </div>`).join('');
 
-      // Lista de Horários no Admin
       document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `
         <div style="display:flex; gap:10px; margin-bottom:10px;">
           <select class="admin-input" onchange="currentSch[${i}].dj=this.value">
@@ -200,7 +239,6 @@
       }
     }
 
-    // Iniciar tudo
     init();
   </script>
 </body>
