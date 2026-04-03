@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FLASHMIX.TV | THEATER MODE</title>
+    <link rel="preconnect" href="https://archive.org">
+    <title>FLASHMIX.TV | FAST THEATER</title>
     <style>
         :root { --neon-red: #f52a1f; }
         * { box-sizing: border-box; }
@@ -28,7 +29,6 @@
             box-shadow: 0 0 30px rgba(245, 42, 31, 0.2); overflow: hidden; margin-bottom: 20px;
         }
 
-        /* NEON ACTIVE EFFECT */
         body.is-live .player-stage, body.viewing-archive .player-stage {
             border-color: transparent;
             background: linear-gradient(#050505, #050505) padding-box,
@@ -43,7 +43,6 @@
         body.is-live #player-content, body.viewing-archive #player-content { display: block; }
         iframe { width: 100%; height: 100%; border: 0; }
 
-        /* STANDBY UI */
         #standby-ui {
             position: absolute; inset: 0; background: radial-gradient(circle, #151515 0%, #000 100%);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
@@ -91,7 +90,7 @@
     <div class="container">
         <div class="row-title">Flashmix Video Library</div>
         <div id="library-list" class="library-grid">
-            <p style="color:#444; padding-left:15px;">Loading sessions...</p>
+            <p style="color:#444;">Connecting to archives...</p>
         </div>
     </div>
 
@@ -124,7 +123,6 @@
             } catch (e) { list.innerHTML = "<p>Offline</p>"; }
         }
 
-        // CARREGA O VÍDEO NO PLAYER DE CIMA E FAZ SCROLL
         function openTheater(id) {
             isReplayMode = true;
             const body = document.getElementById('app');
@@ -133,14 +131,14 @@
             body.classList.remove('is-live');
             body.classList.add('viewing-archive');
             
+            // Adicionado autoplay=1 e muting zero para carregar mais rápido
             target.innerHTML = `<iframe src="https://archive.org/embed/${id}&autoplay=1" allowfullscreen></iframe>`;
             
-            // Scroll suave para o topo para ver o vídeo
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function syncLive() {
-            if (isReplayMode) return; // Não interrompe se estiver a ver a biblioteca
+            if (isReplayMode) return;
             try {
                 const r = await fetch(`${FIREBASE}?t=${Date.now()}`);
                 const isLive = await r.json();
