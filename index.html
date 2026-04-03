@@ -6,7 +6,6 @@
     <title>DJ LIVE TV | FLASHMIX</title>
     <style>
         * { box-sizing: border-box; }
-        
         body { 
             margin: 0; background: #000; color: #fff; 
             font-family: 'Arial Black', sans-serif; 
@@ -14,12 +13,11 @@
             min-height: 100vh; padding: 10px; overflow-x: hidden;
         }
 
-        /* --- HEADER --- */
         .main-header { 
             padding: 20px; font-weight: 900; color: #ffffff; 
             letter-spacing: 8px; font-size: clamp(24px, 5vw, 42px); 
             text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            text-align: center;
+            text-align: center; cursor: pointer;
         }
 
         /* --- GIANT PLAYER --- */
@@ -31,7 +29,8 @@
             transition: all 0.5s ease; overflow: hidden; margin-bottom: 20px;
         }
 
-        body.is-live .player-wrapper {
+        /* NEON ACTIVE EFFECT */
+        body.is-live .player-wrapper, body.viewing-replay .player-wrapper {
             border: 6px solid transparent;
             background: linear-gradient(#050505, #050505) padding-box,
                         linear-gradient(90deg, #f52a1f, #ff6b6b, #f52a1f) border-box;
@@ -40,13 +39,10 @@
             box-shadow: 0 0 60px rgba(245, 42, 31, 0.5);
         }
 
-        @keyframes neonFlow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-        }
+        @keyframes neonFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
         #player-target { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20; display: none; }
-        body.is-live #player-target { display: block; }
+        body.is-live #player-target, body.viewing-replay #player-target { display: block; }
         iframe { width: 100%; height: 100%; border: 0; }
 
         #offline-screen {
@@ -54,67 +50,45 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
 
-        .dot { 
-            width: 15px; height: 15px; background: #f52a1f; border-radius: 50%; 
-            box-shadow: 0 0 15px #f52a1f; animation: fastBlink 1s infinite;
-        }
+        .dot { width: 15px; height: 15px; background: #f52a1f; border-radius: 50%; box-shadow: 0 0 15px #f52a1f; animation: fastBlink 1s infinite; }
         @keyframes fastBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-        /* --- CONTENT CONTAINER --- */
+        /* --- CONTENT --- */
         .container { width: 98%; max-width: 1100px; padding-bottom: 80px; }
+        .section-title { color: #f52a1f; font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 50px 0 25px 0; border-left: 6px solid #f52a1f; padding-left: 15px; }
 
-        .section-title {
-            color: #f52a1f; font-size: 22px; letter-spacing: 4px; text-transform: uppercase;
-            margin: 50px 0 25px 0; border-left: 6px solid #f52a1f; padding-left: 15px;
-        }
-
-        /* SCHEDULE TABLE */
-        .schedule-grid {
-            width: 100%; border-collapse: collapse; background: #080808; border-radius: 20px; overflow: hidden;
-        }
-        .schedule-grid td { padding: 18px; border-bottom: 1px solid #111; font-size: 14px; }
-        .schedule-grid tr:hover { background: #0f0f0f; }
-
-        /* --- DJ LINEUP (6 DJs) --- */
-        .dj-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;
-        }
-        .dj-card {
-            background: #080808; border-radius: 25px; overflow: hidden; 
-            border: 1px solid #1a1a1a; transition: 0.3s; padding: 15px;
-            display: flex; align-items: center; gap: 20px;
-        }
-        .dj-card:hover { border-color: #f52a1f; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(245,42,31,0.1); }
-        
-        .dj-photo {
-            width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%;
-            border: 2px solid #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-            color: #444; font-size: 10px;
-        }
-        .dj-info h3 { margin: 0; font-size: 18px; color: #fff; }
-        .dj-info p { margin: 5px 0 0 0; font-size: 11px; color: #f52a1f; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
-
-        /* REPLAYS SECTION */
+        /* REPLAYS (VIDEOS FROM KICK) */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .video-card { background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #111; transition: 0.3s; text-decoration: none; display: block; }
-        .video-card:hover { border-color: #f52a1f; }
-        .video-thumb { width: 100%; aspect-ratio: 16/9; background: #111; position: relative; }
-        .video-thumb::after { content: '▶'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 30px; color: #fff; opacity: 0.3; }
-        .video-meta { padding: 15px; }
-        .video-meta h4 { margin: 0; font-size: 14px; color: #fff; }
-
-        #actionBtn {
-            display: none; margin: 20px auto; background: #f52a1f; color: #fff;
-            border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer;
-            text-transform: uppercase; box-shadow: 0 10px 30px rgba(245,42,31,0.4);
+        .video-card { 
+            background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; 
+            transition: 0.3s; cursor: pointer; position: relative;
         }
-        body.is-live #actionBtn { display: block; }
+        .video-card:hover { border-color: #f52a1f; transform: scale(1.02); }
+        .video-thumb { 
+            width: 100%; aspect-ratio: 16/9; background: #111; 
+            display: flex; align-items: center; justify-content: center;
+            background-image: url('https://via.placeholder.com/640x360/111/f52a1f?text=KICK+REPLAY');
+            background-size: cover;
+        }
+        .video-thumb::after { content: '▶'; font-size: 40px; color: #fff; text-shadow: 0 0 20px #000; }
+        .video-meta { padding: 15px; background: #080808; }
+        .video-meta h4 { margin: 0; font-size: 14px; color: #fff; text-transform: uppercase; }
+
+        /* DJ LINEUP */
+        .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .dj-card { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .dj-photo { width: 60px; height: 60px; background: #1a1a1a; border-radius: 50%; border: 1px solid #333; flex-shrink: 0; }
+        .dj-info h3 { margin: 0; font-size: 16px; }
+        .dj-info p { margin: 3px 0 0 0; font-size: 10px; color: #f52a1f; font-weight: bold; }
+
+        #actionBtn { display: none; margin: 20px auto; background: #f52a1f; color: #fff; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        body.is-live #actionBtn, body.viewing-replay #actionBtn { display: block; }
 
     </style>
 </head>
 <body id="app">
 
-    <div class="main-header">FLASHMIX.TV</div>
+    <div class="main-header" onclick="window.location.reload()">FLASHMIX.TV</div>
 
     <div class="player-wrapper">
         <div id="offline-screen">
@@ -127,75 +101,33 @@
         <div id="player-target"></div>
     </div>
 
-    <button id="actionBtn" onclick="enableAudio()">🔊 UNMUTE LIVE SESSION</button>
+    <button id="actionBtn" onclick="enableAudio()">🔊 UNMUTE SESSION</button>
 
     <div class="container">
         
-        <div class="section-title">Weekly Schedule</div>
-        <table class="schedule-grid">
-            <tr>
-                <td style="color:#f52a1f; font-weight:bold; width:150px;">FRIDAY</td>
-                <td>22:00 - 00:00 (GMT)</td>
-                <td style="font-weight:bold;">DJ BARGANTE <span style="font-size:10px; opacity:0.3;">[LIVE]</span></td>
-            </tr>
-        </table>
+        <div class="section-title">Latest Replays</div>
+        <div class="video-grid">
+            <div class="video-card" onclick="loadReplay('https://player.kick.com/video/90a46323-c90d-456c-897c-501b80261905')">
+                <div class="video-thumb"></div>
+                <div class="video-meta"><h4>House Session #01</h4></div>
+            </div>
+            
+            <div class="video-card" onclick="loadReplay('https://player.kick.com/video/ID_DO_VIDEO_AQUI')">
+                <div class="video-thumb"></div>
+                <div class="video-meta"><h4>Techno Mix Recap</h4></div>
+            </div>
+        </div>
 
         <div class="section-title">Flashmix DJs</div>
         <div class="dj-grid">
             <div class="dj-card">
-                <div class="dj-photo">PHOTO</div>
-                <div class="dj-info">
-                    <h3>DJ BARGANTE</h3>
-                    <p>House / Tech House</p>
-                </div>
+                <div class="dj-photo"></div>
+                <div class="dj-info"><h3>DJ BARGANTE</h3><p>Main Resident</p></div>
             </div>
             <div class="dj-card">
-                <div class="dj-photo">PHOTO</div>
-                <div class="dj-info">
-                    <h3>DJ GUEST X</h3>
-                    <p>Deep & Melodic</p>
-                </div>
+                <div class="dj-photo"></div>
+                <div class="dj-info"><h3>DJ GUEST X</h3><p>Tech House</p></div>
             </div>
-            <div class="dj-card">
-                <div class="dj-photo">PHOTO</div>
-                <div class="dj-info">
-                    <h3>DJ GUEST Y</h3>
-                    <p>Open Format / Club</p>
-                </div>
-            </div>
-            <div class="dj-card">
-                <div class="dj-photo">PHOTO</div>
-                <div class="dj-info">
-                    <h3>DJ GUEST Z</h3>
-                    <p>80s / 90s Hits</p>
-                </div>
-            </div>
-            <div class="dj-card">
-                <div class="dj-photo">PHOTO</div>
-                <div class="dj-info">
-                    <h3>DJ GUEST W</h3>
-                    <p>Techno / Dark</p>
-                </div>
-            </div>
-            <div class="dj-card">
-                <div class="dj-photo">PHOTO</div>
-                <div class="dj-info">
-                    <h3>DJ GUEST K</h3>
-                    <p>Afro House</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">Latest Replays</div>
-        <div class="video-grid">
-            <a href="https://kick.com/DJLIVETV" class="video-card">
-                <div class="video-thumb"></div>
-                <div class="video-meta"><h4>Last Session Recap</h4></div>
-            </a>
-            <a href="https://kick.com/DJLIVETV" class="video-card">
-                <div class="video-thumb"></div>
-                <div class="video-meta"><h4>Night Mix vol. 12</h4></div>
-            </a>
         </div>
 
     </div>
@@ -203,8 +135,11 @@
     <script>
         const DB_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
         let currentStatus = null;
+        let isWatchingReplay = false;
 
         async function autoCheck() {
+            if (isWatchingReplay) return; // Se estiver a ver um replay, não interrompe
+
             try {
                 const r = await fetch(`${DB_URL}?nocache=${Date.now()}`);
                 const isLive = await r.json();
@@ -215,7 +150,7 @@
                     const target = document.getElementById('player-target');
                     if (isLive === true) {
                         body.classList.add('is-live');
-                        target.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f52a1f;font-weight:bold;">CONNECTING LIVE...</div>`;
+                        target.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f52a1f;font-weight:bold;">LIVE SIGNAL DETECTED...</div>`;
                         setTimeout(() => {
                             target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
                         }, 5000); 
@@ -228,12 +163,28 @@
             } catch (e) { }
         }
 
+        // FUNÇÃO PARA CARREGAR O VÍDEO NO PLAYER DO TOPO
+        function loadReplay(videoUrl) {
+            isWatchingReplay = true;
+            const body = document.getElementById('app');
+            const target = document.getElementById('player-target');
+            
+            body.classList.remove('is-live');
+            body.classList.add('viewing-replay');
+            
+            target.innerHTML = `<iframe src="${videoUrl}" allowfullscreen></iframe>`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function enableAudio() {
-            document.getElementById('player-target').innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
+            // Se estiver em live, recarrega com som. Se for replay, o som já costuma vir ativo.
+            if (!isWatchingReplay) {
+                document.getElementById('player-target').innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
+            }
             document.getElementById('actionBtn').style.display = 'none';
         }
 
-        setInterval(autoCheck, 3000);
+        setInterval(autoCheck, 4000);
         autoCheck();
     </script>
 </body>
