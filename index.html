@@ -15,31 +15,31 @@
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
     #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 10px; font-weight: 900; margin-bottom: 15px; }
     #statusDot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
+    .live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    
     .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
     .player-aspect iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 900; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
-    
-    /* VÍDEOS GRID */
-    .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
-    .card-v { background: #0a0a0a; border-radius: 10px; overflow: hidden; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
-    .card-v img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
-    .card-v h3 { font-size: 13px; padding: 10px; margin: 0; }
 
-    /* EQUIPA & SCHEDULE */
+    .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+    .grid-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+    .card-v { background: #0a0a0a; border-radius: 10px; border: 1px solid #222; cursor: pointer; }
     .grid-djs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
     .card-dj { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; padding: 12px; text-align: center; }
-    .card-dj img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; border: 2px solid #222; }
+    .card-dj img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #222; margin-bottom: 8px; }
+
     .sch-container { background: #0a0a0a; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
     .sch-row { display: grid; grid-template-columns: 50px 1fr 80px 70px; padding: 12px 15px; border-bottom: 1px solid #111; align-items: center; gap: 10px; }
-    .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #222; }
-    .btn-more { display: block; margin: 20px auto; background: none; border: 1px solid #333; color: #888; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 11px; }
+    .sch-row.live-now { background: rgba(245, 42, 31, 0.08); }
+    .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
+    .live-now .sch-dj-thumb { border-color: #f52a1f; box-shadow: 0 0 10px rgba(245, 42, 31, 0.3); }
 
     /* ADMIN */
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 15px; margin-top: 40px; display: none; }
     .admin-card { background: #111; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #222; }
-    .admin-input, select { width: 100%; padding: 10px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
+    .admin-input, select { width: 100%; padding: 10px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
     .btn-publish { background: #28a745; color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 15px; }
 
     @media (max-width: 600px) { .sch-row { grid-template-columns: 40px 1fr 60px; } .sch-day { display: none; } }
@@ -60,7 +60,7 @@
   </nav>
 
   <div class="container">
-    <div style="text-align:center"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">OFFLINE</span></div></div>
+    <div style="text-align:center" id="badgeWrap"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">OFFLINE</span></div></div>
     <div class="player-container">
       <div class="player-aspect"><iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe></div>
       <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 ATIVAR SOM</button>
@@ -69,7 +69,6 @@
     <div id="vids">
       <h2 class="section-title">Últimos Sets</h2>
       <div id="videoGrid" class="grid-vids"></div>
-      <button class="btn-more" id="btnV" onclick="toggleVidsDisplay()">Ver Mais Vídeos</button>
     </div>
 
     <div id="secDjs">
@@ -83,12 +82,19 @@
     </div>
 
     <div id="adminArea" class="admin-section">
-      <h2 style="color:#f52a1f; text-align:center; font-size: 16px;">COMANDO CLOUD</h2>
+      <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
       <div id="loginBox">
         <input id="pass" type="password" class="admin-input" placeholder="Senha">
         <button onclick="login()" class="admin-input" style="background:#f52a1f; color:white; font-weight:bold;">ENTRAR</button>
       </div>
       <div id="dashBox" style="display:none">
+        
+        <div class="admin-card">
+          <h3>Visibilidade</h3>
+          <label style="display:block; margin-bottom:10px;"><input type="checkbox" id="hideDjs"> Ocultar Secção Equipa</label>
+          <label style="display:block;"><input type="checkbox" id="hideSch"> Ocultar Secção Horário</label>
+        </div>
+
         <div class="admin-card">
           <h3>Equipa</h3>
           <div id="adminDjList"></div>
@@ -99,8 +105,8 @@
           <div id="adminSchList"></div>
           <button onclick="addNewSchField()" class="admin-input" style="background:#222; cursor:pointer">+ Horário</button>
         </div>
-        <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR E SAIR</button>
-        <button onclick="location.reload()" class="admin-input" style="background:#333; margin-top:10px;">CANCELAR</button>
+        <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR NO SITE E SAIR</button>
+        <button onclick="location.reload()" class="admin-input" style="background:#333; margin-top:10px; cursor:pointer">CANCELAR</button>
       </div>
     </div>
   </div>
@@ -109,46 +115,59 @@
 
   <script>
     const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-    let allVids = []; let vAll = false;
-    let currentDjs = []; let currentSch = [];
+    let allVids = [];
+    let currentDjs = [];
+    let currentSch = [];
 
     function unmutePlayer() {
       document.getElementById('kickIframe').src = "https://player.kick.com/DJLIVETV?muted=false";
       document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
+    async function checkStatus() {
+      try {
+        const res = await fetch("https://kick.com/api/v1/channels/DJLIVETV");
+        const data = await res.json();
+        const badge = document.getElementById('badgeWrap');
+        if(data.livestream) {
+          badge.classList.add('live');
+          document.getElementById('statusText').innerText = "LIVE NOW";
+        } else {
+          badge.classList.remove('live');
+          document.getElementById('statusText').innerText = "OFFLINE";
+        }
+      } catch(e) {}
+    }
+
     async function load() {
-      // 1. VÍDEOS (LIGAÇÃO AO WORKER)
+      checkStatus();
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
-        allVids = await rv.json(); renderVids();
+        allVids = await rv.json();
+        document.getElementById('videoGrid').innerHTML = allVids.slice(0, 4).map(v => `<div class="card-v" onclick="window.open('${v.source}','_self')"><img src="${v.thumbnail.src}" style="width:100%"><h3 style="font-size:13px; padding:10px;">${v.session_title}</h3></div>`).join('');
       } catch(e) {}
 
-      // 2. FIREBASE (DJs e Schedule)
       const rf = await fetch(DB + ".json");
       const data = await rf.json();
-      currentDjs = data?.djs || [{name:"Admin", img:"https://via.placeholder.com/150", style:"House"}];
-      currentSch = Array.isArray(data?.schedule) ? data.schedule : [];
+      currentDjs = data?.djs || [];
+      currentSch = data?.schedule || [];
+      
+      document.getElementById('secDjs').style.display = data?.hideDjs ? 'none' : 'block';
+      document.getElementById('secSch').style.display = data?.hideSch ? 'none' : 'block';
+      document.getElementById('hideDjs').checked = data?.hideDjs || false;
+      document.getElementById('hideSch').checked = data?.hideSch || false;
+
       renderSite();
       if(document.getElementById('dashBox').style.display === 'block') renderAdmin();
     }
 
-    function renderVids() {
-      const lim = vAll ? allVids.length : 4;
-      document.getElementById('videoGrid').innerHTML = allVids.slice(0, lim).map(v => `
-        <div class="card-v" onclick="window.open('${v.source}','_self')">
-          <img src="${v.thumbnail.src}"><h3>${v.session_title}</h3>
-        </div>`).join('');
-      document.getElementById('btnV').innerText = vAll ? "Ver Menos" : "Ver Mais Vídeos";
-    }
-
-    function toggleVidsDisplay() { vAll = !vAll; renderVids(); }
-
     function renderSite() {
       document.getElementById('djGrid').innerHTML = currentDjs.map(d => `<div class="card-dj"><img src="${d.img}"><h3>${d.name}</h3><p>${d.style}</p></div>`).join('');
+      const currentHour = new Date().getHours();
       document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
         const dj = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
-        return `<div class="sch-row"><img src="${dj.img}" class="sch-dj-thumb"><div style="font-weight:800">${s.dj}</div><div class="sch-day">${s.day}</div><div style="font-family:monospace; font-weight:bold; color:#f52a1f">${s.time}</div></div>`;
+        const isLive = parseInt(s.time) === currentHour;
+        return `<div class="sch-row ${isLive ? 'live-now' : ''}"><img src="${dj.img}" class="sch-dj-thumb"><div style="font-weight:800">${s.dj}</div><div class="sch-day">${s.day || 'Todos os dias'}</div><div style="font-family:monospace; font-weight:bold; color:#f52a1f; text-align:right">${s.time}</div></div>`;
       }).join('');
     }
 
@@ -159,12 +178,21 @@
 
     function addNewDjField() { currentDjs.push({name:'', img:'', style:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:'', day:'Todos os dias', time:'22:00'}); renderAdmin(); }
-    function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; renderAdmin(); }}
-    function toggleAdmin() { document.getElementById('adminArea').style.display='block'; document.getElementById('adminArea').scrollIntoView(); }
+
     async function saveAll() {
-      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify({djs: currentDjs.filter(d=>d.name), schedule: currentSch}) });
-      alert("✅ PUBLICADO!"); location.reload();
+      const payload = {
+        djs: currentDjs.filter(d=>d.name),
+        schedule: currentSch,
+        hideDjs: document.getElementById('hideDjs').checked,
+        hideSch: document.getElementById('hideSch').checked
+      };
+      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify(payload) });
+      alert("✅ ATUALIZADO!");
+      location.reload();
     }
+
+    function login() { if(document.getElementById('pass').value==='1234'){ document.getElementById('loginBox').style.display='none'; document.getElementById('dashBox').style.display='block'; renderAdmin(); }}
+    function toggleAdmin() { const a = document.getElementById('adminArea'); a.style.display = a.style.display==='block'?'none':'block'; a.scrollIntoView(); }
     load();
   </script>
 </body>
