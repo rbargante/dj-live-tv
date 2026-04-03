@@ -5,46 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DJ LIVE TV | FLASHMIX</title>
     <style>
-        /* DJ CLUB DESIGN - HIGH VISIBILITY */
+        /* FLASHMIX DJ LIVE DESIGN - HIGH VISIBILITY & LIVE NEON */
         body { 
             margin: 0; background: #000; color: #fff; 
-            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;
             overflow: hidden;
         }
 
         .main-header { 
-            padding: 30px; font-weight: 900; color: #f52a1f; letter-spacing: 6px; font-size: 32px; 
-            text-transform: uppercase; text-shadow: 0 0 20px rgba(245, 42, 31, 0.6);
-            animation: neonPulse 2s infinite alternate;
+            padding: 30px; font-weight: 900; color: #f52a1f; letter-spacing: 6px; font-size: 30px; 
+            text-transform: uppercase; text-shadow: 0 0 15px rgba(245, 42, 31, 0.4);
         }
 
-        @keyframes neonPulse {
-            from { opacity: 0.8; text-shadow: 0 0 10px rgba(245, 42, 31, 0.6); }
-            to { opacity: 1; text-shadow: 0 0 25px rgba(245, 42, 31, 0.9); }
+        /* --- THE PLAYER CONTAINER --- */
+        .player-wrapper {
+            position: relative; width: 94%; max-width: 880px; aspect-ratio: 16 / 9;
+            background: #080808; border-radius: 24px; overflow: hidden;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.7); transition: transform 0.3s;
         }
 
-        /* PLAYER CONTAINER */
-        .player-box {
-            position: relative; width: 94%; max-width: 900px; aspect-ratio: 16 / 9;
-            background: #050505; border-radius: 24px; border: 4px solid #111;
-            overflow: hidden; box-shadow: 0 30px 100px rgba(0,0,0,0.8); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* THE LIVE NEON BORDER (CHASING EFFECT) */
+        .neon-border {
+            position: absolute; inset: 0; border-radius: 24px; pointer-events: none; z-index: 50;
+            background: 
+                linear-gradient(90deg, #f52a1f 1px, transparent 1px) 0 0 / 200px 100%,
+                linear-gradient(180deg, #f52a1f 1px, transparent 1px) 100% 0 / 100% 200px,
+                linear-gradient(-90deg, #f52a1f 1px, transparent 1px) 100% 100% / 200px 100%,
+                linear-gradient(0deg, #f52a1f 1px, transparent 1px) 0 100% / 100% 200px;
+            opacity: 0; transition: opacity 0.5s;
         }
 
-        body.is-live .player-box {
-            border-color: #f52a1f; box-shadow: 0 0 50px rgba(245, 42, 31, 0.3);
+        /* Only activates when Live is True */
+        body.is-live .neon-border {
+            opacity: 1; animation: neonChase 0.8s linear infinite;
         }
 
-        /* LIVE VIDEO OVERLAY */
+        /* Keyframes for the running border */
+        @keyframes neonChase {
+            0% { background-position: 0 0, 100% 0, 100% 100%, 0 100%; }
+            100% { background-position: -200px 0, 100% -200px, 100% 100%, 0 100%; }
+        }
+
+        /* KICK VIDEO iframe CONTAINER */
         #player-target {
             position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20;
-            display: none;
+            display: none; border-radius: 24px; overflow: hidden;
         }
         body.is-live #player-target { display: block; }
-
         iframe { width: 100%; height: 100%; border: 0; }
 
-        /* --- DJ CLUB OFFLINE UI (HIGH VISIBILITY) --- */
+        /* --- PROFESSIONAL OFFLINE UI (HIGH VISIBILITY) --- */
         #offline-screen {
             position: absolute; inset: 0;
             background: radial-gradient(circle at center, #111 0%, #000 100%);
@@ -52,63 +63,33 @@
             z-index: 10;
         }
 
-        /* ANIMATED WAVEFORM BACKGROUND */
+        /* Standby dot & Animated waves */
         .audio-waves {
             position: absolute; width: 100%; height: 100px; bottom: 0;
-            background: repeating-linear-gradient(90deg, #f52a1f 0%, #f52a1f 2px, transparent 2px, transparent 15px);
-            opacity: 0.1; mask-image: linear-gradient(to top, black, transparent);
-            animation: waveMove 1s steps(10) infinite;
+            background: repeating-linear-gradient(90deg, #f52a1f 0%, #f52a1f 2px, transparent 2px, transparent 12px);
+            opacity: 0.05; animation: waveMove 1s steps(10) infinite;
         }
+        @keyframes waveMove { to { transform: translateY(-5px); } }
 
-        @keyframes waveMove {
-            from { transform: translateY(0); opacity: 0.1; }
-            50% { transform: translateY(-10px); opacity: 0.2; }
-            to { transform: translateY(0); opacity: 0.1; }
-        }
+        .brand-name { color: #fff; font-weight: 900; font-size: 34px; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.9; }
+        .status-badge { display: flex; align-items: center; gap: 10px; }
+        .dot { width: 10px; height: 10px; background: #333; border-radius: 50%; transition: 0.5s; }
+        body:not(.is-live) .dot { background: #444; animation: standbyPulse 2s infinite; }
+        @keyframes standbyPulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        .status-msg { color: #666; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; }
 
-        .offline-text-wrap { position: relative; z-index: 15; text-align: center; }
-
-        .brand-name {
-            color: #fff; font-weight: 900; font-size: 38px; letter-spacing: 8px; 
-            text-transform: uppercase; margin-bottom: 10px; opacity: 0.9;
-        }
-
-        .status-badge {
-            display: inline-flex; align-items: center; gap: 12px;
-            background: rgba(255,255,255,0.05); padding: 10px 25px; border-radius: 100px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .status-light { 
-            width: 12px; height: 12px; background: #222; border-radius: 50%; 
-            box-shadow: 0 0 0px rgba(255,255,255,0); transition: 0.5s;
-        }
-
-        /* OFFLINE PULSE */
-        body:not(.is-live) .status-light {
-            background: #444; animation: standby 2s infinite;
-        }
-
-        @keyframes standby {
-            0% { box-shadow: 0 0 0px #444; }
-            50% { box-shadow: 0 0 15px #666; background: #666; }
-            100% { box-shadow: 0 0 0px #444; }
-        }
-
-        .status-msg {
-            color: #666; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px;
-        }
+        body.is-live #offline-screen { display: none; }
 
         /* --- UNMUTE BUTTON (ULTRA VISIBLE) --- */
         #actionBtn {
             display: none; margin-top: 40px; background: #f52a1f; color: #fff;
-            border: none; padding: 22px 60px; border-radius: 100px;
+            border: none; padding: 20px 50px; border-radius: 100px;
             font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 15px 40px rgba(245, 42, 31, 0.4); transition: all 0.3s;
+            box-shadow: 0 15px 40px rgba(245, 42, 31, 0.3); transition: transform 0.2s, box-shadow 0.2s;
             z-index: 100;
         }
 
-        #actionBtn:hover { transform: translateY(-3px); scale: 1.05; box-shadow: 0 20px 50px rgba(245, 42, 31, 0.6); }
+        #actionBtn:hover { transform: translateY(-2px); scale: 1.05; box-shadow: 0 20px 50px rgba(245, 42, 31, 0.5); }
         #actionBtn:active { transform: translateY(2px); }
         body.is-live #actionBtn { display: inline-block; }
 
@@ -118,15 +99,15 @@
 
     <div class="main-header">FLASHMIX.TV</div>
 
-    <div class="player-box">
+    <div class="player-wrapper">
+        <div class="neon-border"></div>
+
         <div id="offline-screen">
             <div class="audio-waves"></div>
-            <div class="offline-text-wrap">
-                <div class="brand-name">FLASHMIX</div>
-                <div class="status-badge">
-                    <div class="status-light"></div>
-                    <span class="status-msg">Stream Offline</span>
-                </div>
+            <div class="brand-name">FLASHMIX</div>
+            <div class="status-badge">
+                <div class="dot"></div>
+                <span class="status-msg">Stream Offline</span>
             </div>
         </div>
 
@@ -136,40 +117,42 @@
     <button id="actionBtn" onclick="enableAudio()">🔊 Listen Live</button>
 
     <script>
-        // FIREBASE SYNC (IMAC KILL-SWITCH)
+        // CONFIGURAÇÃO DO FIREBASE (O TEU INTERRUPTOR DO IMAC)
         const DATABASE_URL = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/is_live.json";
-        let localStreamStatus = null;
+        let localStatus = null;
 
         async function syncWithOBS() {
             try {
                 // Fetch fresh data from Firebase (updates instantly from your iMac)
-                const response = await fetch(`${DATABASE_URL}?v=${Date.now()}`);
+                const response = await fetch(`${DATABASE_URL}?nocache=${Date.now()}`);
                 const isLive = await response.json();
 
-                if (isLive !== localStreamStatus) {
-                    localStreamStatus = isLive;
+                if (isLive !== localStatus) {
+                    localStatus = isLive;
                     const body = document.getElementById('app');
-                    const target = document.getElementById('player-target');
-                    const btn = document.getElementById('actionBtn');
+                    const videoArea = document.getElementById('player-target');
+                    const unmuteBtn = document.getElementById('actionBtn');
 
                     if (isLive === true) {
-                        // IMAC IS STREAMING -> SHOW PLAYER
+                        // IMAC IS STREAMING -> ACTIVATE LIVE NEON & VIDEO
                         body.classList.add('is-live');
-                        target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
+                        videoArea.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>`;
+                        unmuteBtn.style.display = 'inline-block';
                     } else {
-                        // IMAC STOPPED -> KILL PLAYER INSTANTLY
+                        // IMAC STOPPED -> KILL VIDEO INSTANTLY
                         body.classList.remove('is-live');
-                        target.innerHTML = ""; 
+                        videoArea.innerHTML = ""; 
+                        unmuteBtn.style.display = 'none';
                         window.stop(); // Stop buffering
                     }
                 }
-            } catch (err) { console.error("Sync Error"); }
+            } catch (err) { console.error("Sync..."); }
         }
 
         function enableAudio() {
-            const target = document.getElementById('player-target');
+            const videoArea = document.getElementById('player-target');
             // Reload iframe with sound enabled
-            target.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
+            videoArea.innerHTML = `<iframe src="https://player.kick.com/DJLIVETV?muted=false" allowfullscreen></iframe>`;
             document.getElementById('actionBtn').style.display = 'none';
         }
 
