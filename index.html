@@ -14,19 +14,19 @@
             min-height: 100vh; overflow-x: hidden;
         }
 
-        /* --- HEADER WHITE --- */
+        /* HEADER WHITE NEON */
         .main-header { 
-            padding: 25px; font-weight: 900; color: #ffffff; 
+            padding: 30px; font-weight: 900; color: #ffffff; 
             letter-spacing: 10px; font-size: clamp(26px, 6vw, 45px); 
             text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
             text-align: center; cursor: pointer;
         }
 
-        /* --- STAGE / PLAYER --- */
+        /* THE STAGE */
         .stage {
             position: relative; width: 96%; max-width: 1100px; aspect-ratio: 16 / 9;
             background: #050505; border-radius: 35px; border: 5px solid var(--kick-red);
-            box-shadow: 0 0 30px rgba(245, 42, 31, 0.2); overflow: hidden; margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(245, 42, 31, 0.3); overflow: hidden; margin-bottom: 20px;
         }
 
         body.is-live .stage, body.is-replay .stage {
@@ -35,7 +35,6 @@
                         linear-gradient(90deg, var(--kick-red), #ff6b6b, var(--kick-red)) border-box;
             background-size: 200% 100%;
             animation: neonFlow 1.2s linear infinite;
-            box-shadow: 0 0 60px rgba(245, 42, 31, 0.6);
         }
 
         @keyframes neonFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
@@ -44,21 +43,21 @@
         body.is-live #screen, body.is-replay #screen { display: block; }
         iframe { width: 100%; height: 100%; border: 0; }
 
-        /* STANDBY UI */
+        /* STANDBY DESIGN */
         #standby {
             position: absolute; inset: 0; background: radial-gradient(circle, #151515 0%, #000 100%);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
         .brand-name { font-size: clamp(35px, 10vw, 70px); letter-spacing: 15px; margin-bottom: 20px; color: #fff; }
         .status-pill {
-            background: rgba(0,0,0,0.6); padding: 15px 40px; border-radius: 100px;
-            border: 1px solid rgba(245, 42, 31, 0.3); display: flex; align-items: center; gap: 15px;
+            background: rgba(0,0,0,0.6); padding: 15px 45px; border-radius: 100px;
+            border: 1px solid rgba(245, 42, 31, 0.4); display: flex; align-items: center; gap: 15px;
         }
         .dot { width: 18px; height: 18px; background: var(--kick-red); border-radius: 50%; box-shadow: 0 0 15px var(--kick-red); animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; scale: 1; } 50% { opacity: 0.2; scale: 0.8; } }
-        .status-msg { font-size: 30px; font-weight: 900; letter-spacing: 5px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .status-msg { font-size: clamp(22px, 5vw, 35px); font-weight: 900; letter-spacing: 5px; color: #fff; }
 
-        /* --- CONTENT --- */
+        /* CONTENT */
         .content { width: 96%; max-width: 1100px; padding-bottom: 80px; }
         .row-title { color: var(--kick-red); font-size: 22px; letter-spacing: 4px; text-transform: uppercase; margin: 50px 0 25px 0; border-left: 6px solid var(--kick-red); padding-left: 15px; }
 
@@ -66,16 +65,16 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .card { background: #080808; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; transition: 0.3s; cursor: pointer; }
         .card:hover { border-color: var(--kick-red); transform: translateY(-5px); }
-        .card-thumb { width: 100%; aspect-ratio: 16/9; background: #111; display: flex; align-items: center; justify-content: center; background-size: cover; }
-        .card-thumb::after { content: 'PLAY'; font-size: 10px; border: 1px solid #fff; padding: 5px 15px; background: rgba(0,0,0,0.5); }
+        .card-thumb { width: 100%; aspect-ratio: 16/9; background: #111; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
+        .card-thumb::after { content: 'WATCH SESSION'; font-size: 10px; border: 1px solid #fff; padding: 5px 15px; background: rgba(0,0,0,0.5); font-weight: bold; }
         .card-info { padding: 15px; }
-        .card-info h4 { margin: 0; font-size: 13px; color: #fff; }
+        .card-info h4 { margin: 0; font-size: 13px; color: #fff; text-transform: uppercase; }
 
         /* DJ LINEUP (6 DJs) */
         .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
-        .dj-box { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 20px; text-align: center; }
+        .dj-box { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 25px 10px; text-align: center; }
         .dj-avatar { width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 15px; border: 2px solid #333; }
-        .dj-box h3 { margin: 0; font-size: 14px; color: #fff; }
+        .dj-box h3 { margin: 0; font-size: 14px; color: #fff; letter-spacing: 1px; }
 
         #unmuteBtn { display: none; margin: 20px auto; background: var(--kick-red); color: #fff; border: none; padding: 20px 50px; border-radius: 100px; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 10px 30px rgba(245,42,31,0.4); }
         body.is-live #unmuteBtn, body.is-replay #unmuteBtn { display: block; }
@@ -99,12 +98,12 @@
     <button id="unmuteBtn" onclick="toggleAudio()">🔊 UNMUTE SESSION</button>
 
     <div class="content">
-        <div class="row-title">Latest Replays</div>
+        <div class="row-title">Latest Sessions</div>
         <div id="video-list" class="grid">
-            <p style="color:#222; padding-left:15px;">Loading latest videos...</p>
+            <p style="color:#222; padding-left:15px;">Connecting to Kick Media...</p>
         </div>
 
-        <div class="row-title">Our DJ Lineup</div>
+        <div class="row-title">The Resident DJs</div>
         <div class="dj-grid">
             <div class="dj-box"><div class="dj-avatar"></div><h3>DJ BARGANTE</h3></div>
             <div class="dj-box"><div class="dj-avatar"></div><h3>DJ GUEST 01</h3></div>
@@ -121,22 +120,28 @@
         let currentLive = null;
         let isReplay = false;
 
-        // BUSCA AUTOMÁTICA VIA RSS (Resolve o erro do Kick)
+        // BUSCA AUTOMÁTICA MELHORADA (VOD FINDER)
         async function loadVideos() {
             try {
-                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://kick.com/${CHANNEL}/rss`);
+                // Usamos o serviço do Google como intermediário para o Kick não bloquear
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://kick.com/${CHANNEL}/rss&api_key=oyncy5v8hoxpbe4y2g9l0gq30t8gthqaym41i0r5`);
                 const data = await res.json();
                 const list = document.getElementById('video-list');
-                list.innerHTML = "";
-                data.items.slice(0, 6).forEach(v => {
-                    const id = v.link.split('/').pop();
-                    list.innerHTML += `
-                        <div class="card" onclick="openVideo('${id}')">
-                            <div class="card-thumb" style="background-image: url('${v.thumbnail}')"></div>
-                            <div class="card-info"><h4>${v.title}</h4></div>
-                        </div>`;
-                });
-            } catch (e) { document.getElementById('video-list').innerHTML = "<p style='color:#333'>Check kick.com/djlivetv</p>"; }
+                
+                if (data.items && data.items.length > 0) {
+                    list.innerHTML = "";
+                    data.items.slice(0, 6).forEach(v => {
+                        const id = v.link.split('/').pop();
+                        list.innerHTML += `
+                            <div class="card" onclick="openVideo('${id}')">
+                                <div class="card-thumb" style="background-image: url('${v.thumbnail}')"></div>
+                                <div class="card-info"><h4>${v.title}</h4></div>
+                            </div>`;
+                    });
+                } else { throw new Error(); }
+            } catch (e) { 
+                document.getElementById('video-list').innerHTML = "<p style='color:#333'>Recent videos available on Kick.com/djlivetv</p>"; 
+            }
         }
 
         async function checkLive() {
