@@ -28,7 +28,7 @@
             background: #050505; border-radius: 30px; 
             display: flex; align-items: center; justify-content: center;
             border: 5px solid #f52a1f; box-shadow: 0 0 30px rgba(245, 42, 31, 0.2);
-            transition: all 0.5s ease; overflow: hidden; margin-bottom: 30px;
+            transition: all 0.5s ease; overflow: hidden; margin-bottom: 20px;
         }
 
         body.is-live .player-wrapper {
@@ -60,41 +60,40 @@
         }
         @keyframes fastBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-        /* --- SECTIONS (SCHEDULE & DJ LIST) --- */
+        /* --- SECTIONS --- */
         .container { width: 98%; max-width: 1100px; padding-bottom: 50px; }
 
         .section-title {
             color: #f52a1f; font-size: 20px; letter-spacing: 4px; text-transform: uppercase;
-            margin: 40px 0 20px 0; border-left: 5px solid #f52a1f; padding-left: 15px; text-align: left;
+            margin: 40px 0 20px 0; border-left: 5px solid #f52a1f; padding-left: 15px;
         }
 
         /* SCHEDULE TABLE */
         .schedule-grid {
             width: 100%; border-collapse: collapse; background: #080808; border-radius: 15px; overflow: hidden;
         }
-        .schedule-grid th, .schedule-grid td {
-            padding: 15px; text-align: left; border-bottom: 1px solid #111; font-size: 14px;
-        }
-        .schedule-grid th { background: #111; color: #666; text-transform: uppercase; letter-spacing: 2px; }
-        .schedule-grid tr:hover { background: #0f0f0f; }
-        .time { color: #f52a1f; font-weight: bold; }
-        .dj-name { color: #fff; font-weight: bold; }
+        .schedule-grid th, .schedule-grid td { padding: 15px; text-align: left; border-bottom: 1px solid #111; font-size: 14px; }
+        .schedule-grid th { background: #111; color: #666; text-transform: uppercase; }
 
-        /* DJ LIST */
-        .dj-list {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;
+        /* VIDEO GALLERY (REPLAYS) */
+        .video-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;
         }
-        .dj-card {
-            background: #080808; padding: 20px; border-radius: 15px; text-align: center;
-            border: 1px solid #111; transition: 0.3s;
+        .video-card {
+            background: #080808; border-radius: 15px; overflow: hidden; border: 1px solid #111; transition: 0.3s;
         }
-        .dj-card:hover { border-color: #f52a1f; transform: translateY(-5px); }
-        .dj-card h3 { margin: 0; font-size: 16px; color: #fff; }
-        .dj-card p { margin: 5px 0 0 0; font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 1px; }
+        .video-card:hover { border-color: #f52a1f; transform: scale(1.02); }
+        .video-thumb { width: 100%; aspect-ratio: 16 / 9; background: #1a1a1a; display: flex; align-items: center; justify-content: center; position: relative; }
+        .video-thumb::after { content: '▶'; color: #fff; font-size: 30px; opacity: 0.5; }
+        .video-info { padding: 15px; }
+        .video-info h4 { margin: 0; font-size: 14px; color: #fff; }
+        .video-info p { margin: 5px 0 0 0; font-size: 11px; color: #555; }
 
+        /* UNMUTE BUTTON */
         #actionBtn {
-            display: none; margin: 20px auto; background: #f52a1f; color: #fff;
-            border: none; padding: 15px 40px; border-radius: 50px; font-weight: 900; cursor: pointer;
+            display: none; margin: 0 auto 30px auto; background: #f52a1f; color: #fff;
+            border: none; padding: 18px 45px; border-radius: 50px; font-weight: 900; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(245, 42, 31, 0.4);
         }
         body.is-live #actionBtn { display: block; }
 
@@ -125,46 +124,47 @@
                 <tr>
                     <th>Day</th>
                     <th>Time (GMT)</th>
-                    <th>Show / DJ</th>
+                    <th>DJ / Session</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>FRIDAY</td>
-                    <td class="time">22:00 - 00:00</td>
-                    <td class="dj-name">DJ BARGANTE <span style="font-size:10px; color:#444;">(LIVE)</span></td>
-                </tr>
-                <tr>
-                    <td>SATURDAY</td>
-                    <td class="time">21:00 - 23:00</td>
-                    <td class="dj-name">FLASH SESSION</td>
-                </tr>
-                <tr>
-                    <td>SUNDAY</td>
-                    <td class="time">18:00 - 20:00</td>
-                    <td class="dj-name">RETRO MIX VOL.1</td>
+                    <td style="color:#f52a1f">22:00 - 00:00</td>
+                    <td>DJ BARGANTE <span style="font-size:10px; color:#444;">(LIVE)</span></td>
                 </tr>
             </tbody>
         </table>
 
-        <div class="section-title">Our DJs</div>
-        <div class="dj-list">
-            <div class="dj-card">
-                <h3>DJ BARGANTE</h3>
-                <p>House & Techno</p>
-            </div>
-            <div class="dj-card">
-                <h3>DJ GUEST 01</h3>
-                <p>Open Format</p>
-            </div>
-            <div class="dj-card">
-                <h3>DJ GUEST 02</h3>
-                <p>Classic Rock</p>
-            </div>
-            <div class="dj-card">
-                <h3>DJ GUEST 03</h3>
-                <p>Deep House</p>
-            </div>
+        <div class="section-title">Latest Replays</div>
+        <div class="video-grid">
+            <a href="https://kick.com/DJLIVETV" target="_blank" style="text-decoration:none;">
+                <div class="video-card">
+                    <div class="video-thumb"></div>
+                    <div class="video-info">
+                        <h4>House Selection Mix #01</h4>
+                        <p>Streamed 2 days ago</p>
+                    </div>
+                </div>
+            </a>
+            <a href="https://kick.com/DJLIVETV" target="_blank" style="text-decoration:none;">
+                <div class="video-card">
+                    <div class="video-thumb"></div>
+                    <div class="video-info">
+                        <h4>Techno Midnight Session</h4>
+                        <p>Streamed last week</p>
+                    </div>
+                </div>
+            </a>
+            <a href="https://kick.com/DJLIVETV" target="_blank" style="text-decoration:none;">
+                <div class="video-card">
+                    <div class="video-thumb"></div>
+                    <div class="video-info">
+                        <h4>Flashmix Classics Vol. 4</h4>
+                        <p>Streamed 2 weeks ago</p>
+                    </div>
+                </div>
+            </a>
         </div>
 
     </div>
