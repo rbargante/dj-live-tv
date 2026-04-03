@@ -14,10 +14,11 @@
     .nav-links a { color: #aaa; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 10px; text-transform: uppercase; }
     .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
     
-    #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 10px; font-weight: 900; margin-bottom: 15px; }
+    /* BADGE */
+    #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 10px; font-weight: 900; margin-bottom: 15px; transition: 0.3s; }
     #statusDot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
     .live #statusBadge { border-color: #f52a1f; color: #f52a1f; }
-    .live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1s infinite; }
+    .live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1.5s infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
     .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; }
@@ -36,7 +37,7 @@
     .sch-row { display: grid; grid-template-columns: 50px 1fr 100px 80px 80px; padding: 12px 15px; border-bottom: 1px solid #111; align-items: center; gap: 10px; }
     .sch-row.live-now { background: rgba(245, 42, 31, 0.08); border-left: 4px solid #f52a1f; }
     .sch-dj-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #222; }
-    .live-now .sch-dj-thumb { border-color: #f52a1f; box-shadow: 0 0 10px rgba(245, 42, 31, 0.5); }
+    .live-now .sch-dj-thumb { border-color: #f52a1f; }
     .sch-name { font-weight: 800; font-size: 14px; }
     .sch-time { font-family: monospace; font-size: 13px; font-weight: bold; color: #888; text-align: right; }
     .live-now .sch-time { color: #f52a1f; }
@@ -55,7 +56,7 @@
   </nav>
 
   <div class="container">
-    <div style="text-align:center" id="badgeWrap"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">CHECKING...</span></div></div>
+    <div style="text-align:center" id="badgeWrap"><div id="statusBadge"><span id="statusDot"></span> <span id="statusText">...</span></div></div>
     <div class="player-container"><div class="player-aspect"><iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe></div><button id="unmuteOverlay" onclick="unmutePlayer()">🔊 SOM</button></div>
     <div id="vids"><h2 class="section-title">Últimos Sets</h2><div id="videoGrid" class="grid-vids"></div></div>
     <div id="secDjs"><h2 class="section-title" id="djs">Nossa Equipa</h2><div id="djGrid" class="grid-djs"></div></div>
@@ -64,7 +65,6 @@
     <div id="adminArea" class="admin-section">
       <h2 style="color:#f52a1f; text-align:center;">COMANDO CLOUD</h2>
       <div id="dashBox">
-        <div class="admin-card"><h3>Visibilidade</h3><label><input type="checkbox" id="hideDjs"> Ocultar Equipa</label><br><label><input type="checkbox" id="hideSch"> Ocultar Horário</label></div>
         <div class="admin-card"><h3>Equipa</h3><div id="adminDjList"></div><button onclick="addNewDjField()" class="admin-input" style="background:#222; cursor:pointer">+ DJ</button></div>
         <div class="admin-card"><h3>Horário</h3><div id="adminSchList"></div><button onclick="addNewSchField()" class="admin-input" style="background:#222; cursor:pointer">+ Horário</button></div>
         <button class="btn-publish" onclick="saveAll()">☁️ PUBLICAR E SAIR</button>
@@ -74,26 +74,34 @@
 
   <script>
     const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-    const daysArr = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo", "Todos os dias"];
-    const hoursArr = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
     let currentDjs = []; let currentSch = [];
 
     function unmutePlayer() { document.getElementById('kickIframe').src = "https://player.kick.com/DJLIVETV?muted=false"; document.getElementById('unmuteOverlay').style.display = 'none'; }
 
+    // VERIFICAÇÃO QUE CORRIGE O "SEMPRE LIVE"
     async function checkStatus() {
       const badge = document.getElementById('badgeWrap');
       const statusTxt = document.getElementById('statusText');
       try {
-        // LÊ O TEU WORKER CALM-VIOLET
-        const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/status?_t=${Date.now()}`);
+        // Pedimos ao Worker e forçamos a não usar cache (Date.now)
+        const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/status?nocache=${Date.now()}`);
         const data = await res.json();
-        if(data.live) { badge.classList.add('live'); statusTxt.innerText = "LIVE NOW"; }
-        else { badge.classList.remove('live'); statusTxt.innerText = "OFFLINE"; }
-      } catch(e) { statusTxt.innerText = "OFFLINE"; }
+        
+        // Se o worker disser true e o dado for fresco
+        if(data.live === true) { 
+          badge.classList.add('live'); 
+          statusTxt.innerText = "LIVE NOW"; 
+        } else { 
+          badge.classList.remove('live'); 
+          statusTxt.innerText = "OFFLINE"; 
+        }
+      } catch(e) {
+        statusTxt.innerText = "OFFLINE";
+      }
     }
 
     async function load() {
-      checkStatus(); setInterval(checkStatus, 10000);
+      checkStatus(); setInterval(checkStatus, 15000);
       try {
         const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
         const vids = await rv.json();
@@ -101,8 +109,6 @@
       } catch(e) {}
       const rf = await fetch(DB + ".json"); const data = await rf.json();
       currentDjs = data?.djs || []; currentSch = data?.schedule || [];
-      document.getElementById('secDjs').style.display = data?.hideDjs ? 'none' : 'block';
-      document.getElementById('secSch').style.display = data?.hideSch ? 'none' : 'block';
       renderSite();
     }
 
@@ -119,18 +125,16 @@
 
     function renderAdmin() {
       document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><input class="admin-input" value="${d.name}" oninput="currentDjs[${i}].name=this.value"><input class="admin-input" value="${d.img}" oninput="currentDjs[${i}].img=this.value"><button onclick="currentDjs.splice(${i},1);renderAdmin()" style="color:red; background:none; border:none; cursor:pointer;">X</button></div>`).join('');
-      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><select onchange="currentSch[${i}].dj=this.value">${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}</select><select onchange="currentSch[${i}].day=this.value">${daysArr.map(d => `<option ${s.day==d?'selected':''}>${d}</option>`).join('')}</select><select onchange="currentSch[${i}].time=this.value">${hoursArr.map(h => `<option ${s.time==h?'selected':''}>${h}</option>`).join('')}</select><button onclick="currentSch.splice(${i},1);renderAdmin()" style="color:red; background:none; border:none; cursor:pointer;">X</button></div>`).join('');
+      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><select onchange="currentSch[${i}].dj=this.value">${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}</select><input class="admin-input" value="${s.time}" oninput="currentSch[${i}].time=this.value"><button onclick="currentSch.splice(${i},1);renderAdmin()" style="color:red; background:none; border:none; cursor:pointer;">X</button></div>`).join('');
     }
 
     function addNewDjField() { currentDjs.push({name:'', img:'', style:''}); renderAdmin(); }
     function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name||'', day:'Todos os dias', time:'22:00'}); renderAdmin(); }
     async function saveAll() {
-      const payload = { djs: currentDjs.filter(d=>d.name), schedule: currentSch, hideDjs: document.getElementById('hideDjs').checked, hideSch: document.getElementById('hideSch').checked };
-      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify(payload) });
+      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify({ djs: currentDjs.filter(d=>d.name), schedule: currentSch }) });
       alert("✅ ATUALIZADO!"); location.reload();
     }
-    function login() { if(prompt("Senha:") === '1234'){ document.getElementById('adminArea').style.display='block'; renderAdmin(); }}
-    function toggleAdmin() { login(); }
+    function toggleAdmin() { if(prompt("Senha:") === '1234'){ document.getElementById('adminArea').style.display='block'; renderAdmin(); }}
     load();
   </script>
 </body>
