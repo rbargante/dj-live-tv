@@ -17,12 +17,12 @@
     #statusBadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: #111; border: 1px solid #333; font-size: 10px; font-weight: 900; margin-bottom: 15px; }
     #statusDot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
     .live #statusBadge { border-color: #f52a1f; color: #f52a1f; }
-    .live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1.5s infinite; }
+    .live #statusDot { background: #f52a1f; box-shadow: 0 0 10px #f52a1f; animation: blink 1s infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
     .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
-    .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .player-aspect iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 900; font-size: 12px; cursor: pointer; }
 
     .section-title { text-align: center; margin: 40px 0 20px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
@@ -43,7 +43,7 @@
 
     .admin-section { background: #080808; border: 2px solid #f52a1f; border-radius: 15px; padding: 15px; margin-top: 40px; display: none; }
     .admin-card { background: #111; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #222; }
-    .admin-input, select { width: 100%; padding: 10px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
+    .admin-input, select { width: 100%; padding: 10px; margin: 4px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
     .btn-publish { background: #28a745; color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; text-transform: uppercase; }
 
     footer { padding: 30px; text-align: center; color: #333; font-size: 10px; }
@@ -80,19 +80,16 @@
 
     function unmutePlayer() { document.getElementById('kickIframe').src = "https://player.kick.com/DJLIVETV?muted=false"; document.getElementById('unmuteOverlay').style.display = 'none'; }
 
-    // VERIFICAÇÃO ULTRA-RÁPIDA PELO TEU WORKER DA CLOUDFLARE
     async function checkStatus() {
       const badge = document.getElementById('badgeWrap');
       const statusTxt = document.getElementById('statusText');
       try {
-        // Tenta ler o status do teu Worker calm-violet-826b
+        // LÊ O TEU WORKER CALM-VIOLET
         const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/status?_t=${Date.now()}`);
         const data = await res.json();
         if(data.live) { badge.classList.add('live'); statusTxt.innerText = "LIVE NOW"; }
         else { badge.classList.remove('live'); statusTxt.innerText = "OFFLINE"; }
-      } catch(e) {
-        statusTxt.innerText = "OFFLINE";
-      }
+      } catch(e) { statusTxt.innerText = "OFFLINE"; }
     }
 
     async function load() {
