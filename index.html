@@ -15,16 +15,24 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
 
-    .player-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #0a0a0a; border: 1px solid #222; margin-top: 10px; display: none; }
-    .is-live .player-container { display: block; }
-    
-    #offlineMsg { width: 100%; border-radius: 12px; background: #111; border: 1px dashed #333; height: 200px; display: flex; align-items: center; justify-content: center; color: #444; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
-    .is-live #offlineMsg { display: none; }
-
+    /* PLAYER - SEMPRE VISÍVEL (ESTILO KICK) */
+    .player-container { 
+      position: relative; 
+      width: 100%; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      background: #0a0a0a; 
+      border: 1px solid #222; 
+      margin-top: 10px; 
+      display: block; 
+    }
     .player-aspect { position: relative; width: 100%; padding-top: 56.25%; }
-    .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .player-aspect iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
     
-    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4); display: none; }
+    #unmuteOverlay { position: absolute; bottom: 15px; right: 15px; z-index: 100; background: #f52a1f; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 42, 31, 0.4); }
+
+    /* BADGE PARA O MENU/STATUS */
+    .is-live .logo::after { content: ' • LIVE'; color: #f52a1f; font-size: 10px; vertical-align: middle; }
 
     .section-title { text-align: center; margin: 30px 0 15px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
 
@@ -64,11 +72,10 @@
   </nav>
 
   <div class="container">
-    <div id="offlineMsg">Sinal Offline • Aguardando OBS</div>
-
+    
     <div class="player-container">
       <div class="player-aspect">
-        <iframe id="kickIframe" src="" allowfullscreen></iframe>
+        <iframe id="kickIframe" src="https://player.kick.com/DJLIVETV?muted=true" allowfullscreen></iframe>
       </div>
       <button id="unmuteOverlay" onclick="unmutePlayer()">🔊 SOM NO TELEMÓVEL</button>
     </div>
@@ -100,195 +107,107 @@
 
   <footer>FLASHMIX TV — © 2026</footer>
 
-<script>
-  const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-  const LIVE_STATUS_URL = "https://calm-violet-826b.ricardobargante.workers.dev/";
-  const VIDEOS_URL = "https://blue-cherry-d10a.ricardobargante.workers.dev/videos";
-  const CHANNEL_NAME = "DJLIVETV";
+  <script>
+    const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
+    let currentDjs = []; 
+    let currentSch = [];
+    let isLiveState = false;
 
-  let currentDjs = [];
-  let currentSch = [];
-  let isLiveState = false;
-
-  function getKickPlayerUrl(muted = true) {
-    return `https://player.kick.com/${CHANNEL_NAME}?muted=${muted ? "true" : "false"}`;
-  }
-
-  function setPlayerLive(muted = true) {
-    const iframe = document.getElementById("kickIframe");
-    if (!iframe) return;
-    iframe.src = getKickPlayerUrl(muted);
-  }
-
-  function clearPlayer() {
-    const iframe = document.getElementById("kickIframe");
-    if (!iframe) return;
-    iframe.src = "";
-  }
-
-  function setLiveUI(isLive) {
-    const site = document.getElementById("mainSite");
-    const unmuteBtn = document.getElementById("unmuteOverlay");
-
-    if (isLive) {
-      site.classList.add("is-live");
-      if (unmuteBtn) unmuteBtn.style.display = "block";
-    } else {
-      site.classList.remove("is-live");
-      if (unmuteBtn) unmuteBtn.style.display = "none";
-    }
-  }
-
-  function unmutePlayer() {
-    setPlayerLive(false);
-    const btn = document.getElementById("unmuteOverlay");
-    if (btn) btn.style.display = "none";
-  }
-
-  async function readLiveStatus() {
-    const res = await fetch(`${LIVE_STATUS_URL}?t=${Date.now()}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("Live status request failed");
-
-    const contentType = res.headers.get("content-type") || "";
-
-    if (contentType.includes("application/json")) {
-      const data = await res.json();
-
-      if (typeof data === "boolean") return data;
-      if (typeof data?.live === "boolean") return data.live;
-      if (typeof data?.isLive === "boolean") return data.isLive;
-      if (typeof data?.online === "boolean") return data.online;
-      if (typeof data?.livestream === "boolean") return data.livestream;
-      if (data?.livestream && typeof data.livestream === "object") return true;
-      if (data?.data?.livestream) return true;
-
-      return false;
+    function unmutePlayer() {
+      const iframe = document.getElementById('kickIframe');
+      iframe.src = "https://player.kick.com/DJLIVETV?muted=false";
+      document.getElementById('unmuteOverlay').style.display = 'none';
     }
 
-    const text = (await res.text()).trim().toLowerCase();
-    return text === "live" || text === "true" || text === "online" || text === "1";
-  }
+    async function updateStatus() {
+      const iframe = document.getElementById('kickIframe');
+      const site = document.getElementById('mainSite');
 
-  async function updateStatus() {
-    try {
-      const liveNow = await readLiveStatus();
+      try {
+        const res = await fetch(`https://calm-violet-826b.ricardobargante.workers.dev/?t=${Date.now()}`);
+        const data = await res.json();
+        const liveNow = !!(data && data.livestream);
 
-      if (liveNow && !isLiveState) {
-        isLiveState = true;
-        setLiveUI(true);
-        setPlayerLive(true);
-      } else if (!liveNow && isLiveState) {
-        isLiveState = false;
-        setLiveUI(false);
-        clearPlayer();
-      } else if (liveNow && isLiveState) {
-        setLiveUI(true);
-      } else {
-        setLiveUI(false);
+        if (liveNow && !isLiveState) {
+          isLiveState = true;
+          site.classList.add('is-live');
+          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+        } 
+        else if (!liveNow && isLiveState) {
+          isLiveState = false;
+          site.classList.remove('is-live');
+          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+        } 
+        else if (!iframe.src) {
+          iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
+        }
+      } catch(e) {
+        if (!iframe.src) iframe.src = "https://player.kick.com/DJLIVETV?muted=true";
       }
-    } catch (e) {
-      console.error("Live status error:", e);
-      isLiveState = false;
-      setLiveUI(false);
-      clearPlayer();
-    }
-  }
-
-  async function load() {
-    await updateStatus();
-    setInterval(updateStatus, 10000);
-
-    try {
-      const rv = await fetch(VIDEOS_URL, { cache: "no-store" });
-      const vids = await rv.json();
-
-      document.getElementById("videoGrid").innerHTML = vids.slice(0, 4).map(v => `
-        <div class="card-v" onclick="window.open('${v.source}','_self')">
-          <img src="${v.thumbnail?.src || ''}" style="width:100%">
-          <h3 style="font-size:11px; padding:10px; margin:0;">${v.session_title || 'Sem título'}</h3>
-        </div>
-      `).join("");
-    } catch (e) {
-      console.error("Videos load error:", e);
     }
 
-    try {
-      const rf = await fetch(DB + ".json", { cache: "no-store" });
-      const data = await rf.json();
-      currentDjs = data?.djs || [];
-      currentSch = data?.schedule || [];
+    async function load() {
+      updateStatus();
+      setInterval(updateStatus, 15000); 
 
-      document.getElementById("djGrid").innerHTML = currentDjs.map(d => `
-        <div class="card-dj">
-          <img src="${d.img || 'https://via.placeholder.com/150'}">
-          <div style="font-weight:bold; font-size:13px;">${d.name || ''}</div>
-        </div>
-      `).join("");
+      // Sets
+      try {
+        const rv = await fetch("https://blue-cherry-d10a.ricardobargante.workers.dev/videos");
+        const vids = await rv.json();
+        document.getElementById('videoGrid').innerHTML = vids.slice(0, 4).map(v => `
+          <div class="card-v" onclick="window.open('${v.source}','_self')">
+            <img src="${v.thumbnail.src}" style="width:100%">
+            <h3 style="font-size:11px; padding:10px; margin:0;">${v.session_title}</h3>
+          </div>`).join('');
+      } catch(e) {}
 
-      document.getElementById("scheduleList").innerHTML = currentSch.map(s => {
-        const dj = currentDjs.find(d => d.name === s.dj) || { img: 'https://via.placeholder.com/150' };
-        return `
-          <div class="sch-row">
-            <img src="${dj.img}" class="sch-dj-thumb">
-            <div style="font-size:13px; font-weight:600;">${s.dj || ''}</div>
-            <div class="sch-time">${s.time || ''}</div>
-          </div>
-        `;
-      }).join("");
-    } catch (e) {
-      console.error("Firebase load error:", e);
+      // DJs e Schedule
+      try {
+        const rf = await fetch(DB + ".json");
+        const data = await rf.json();
+        currentDjs = data?.djs || [];
+        currentSch = data?.schedule || [];
+        
+        document.getElementById('djGrid').innerHTML = currentDjs.map(d => `
+          <div class="card-dj">
+            <img src="${d.img || 'https://via.placeholder.com/150'}">
+            <div style="font-weight:bold; font-size:13px;">${d.name}</div>
+          </div>`).join('');
+        
+        document.getElementById('scheduleList').innerHTML = currentSch.map(s => {
+          const dj = currentDjs.find(d => d.name === s.dj) || {img: 'https://via.placeholder.com/150'};
+          return `<div class="sch-row"><img src="${dj.img}" class="sch-dj-thumb"><div style="font-size:13px; font-weight:600;">${s.dj}</div><div class="sch-time">${s.time}</div></div>`;
+        }).join('');
+      } catch(e) {}
     }
-  }
 
-  function renderAdmin() {
-    document.getElementById("adminDjList").innerHTML = currentDjs.map((d, i) => `
-      <div style="display:flex; gap:5px; margin-bottom:10px;">
-        <input class="admin-input" placeholder="Nome" value="${d.name || ''}" oninput="currentDjs[${i}].name=this.value">
-        <input class="admin-input" placeholder="Foto URL" value="${d.img || ''}" oninput="currentDjs[${i}].img=this.value">
-        <button onclick="currentDjs.splice(${i},1);renderAdmin()" style="background:red; color:white; border:none; border-radius:5px; padding:0 10px;">X</button>
-      </div>
-    `).join("");
-
-    document.getElementById("adminSchList").innerHTML = currentSch.map((s, i) => `
-      <div style="display:flex; gap:5px; margin-bottom:10px;">
-        <select class="admin-input" onchange="currentSch[${i}].dj=this.value">
-          ${currentDjs.map(dj => `<option ${s.dj === dj.name ? 'selected' : ''}>${dj.name}</option>`).join("")}
-        </select>
-        <input class="admin-input" placeholder="Hora" value="${s.time || ''}" oninput="currentSch[${i}].time=this.value">
-        <button onclick="currentSch.splice(${i},1);renderAdmin()" style="background:red; color:white; border:none; border-radius:5px; padding:0 10px;">X</button>
-      </div>
-    `).join("");
-  }
-
-  function addNewDjField() {
-    currentDjs.push({ name: "", img: "" });
-    renderAdmin();
-  }
-
-  function addNewSchField() {
-    currentSch.push({ dj: currentDjs[0]?.name || "", time: "" });
-    renderAdmin();
-  }
-
-  async function saveAll() {
-    await fetch(DB + ".json", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ djs: currentDjs, schedule: currentSch })
-    });
-    alert("✅ ATUALIZADO!");
-    location.reload();
-  }
-
-  function toggleAdmin() {
-    if (prompt("Senha:") === "1234") {
-      document.getElementById("adminArea").style.display = "block";
-      renderAdmin();
-      document.getElementById("adminArea").scrollIntoView({ behavior: "smooth" });
+    function renderAdmin() {
+      document.getElementById('adminDjList').innerHTML = currentDjs.map((d, i) => `
+        <div style="display:flex; gap:5px; margin-bottom:10px;">
+          <input class="admin-input" placeholder="Nome" value="${d.name}" oninput="currentDjs[${i}].name=this.value">
+          <input class="admin-input" placeholder="Foto URL" value="${d.img}" oninput="currentDjs[${i}].img=this.value">
+          <button onclick="currentDjs.splice(${i},1);renderAdmin()" style="background:red; color:white; border:none; border-radius:5px; padding:0 10px;">X</button>
+        </div>`).join('');
+      document.getElementById('adminSchList').innerHTML = currentSch.map((s, i) => `
+        <div style="display:flex; gap:5px; margin-bottom:10px;">
+          <select class="admin-input" onchange="currentSch[${i}].dj=this.value">
+            ${currentDjs.map(dj => `<option ${s.dj==dj.name?'selected':''}>${dj.name}</option>`).join('')}
+          </select>
+          <input class="admin-input" placeholder="Hora" value="${s.time}" oninput="currentSch[${i}].time=this.value">
+          <button onclick="currentSch.splice(${i},1);renderAdmin()" style="background:red; color:white; border:none; border-radius:5px; padding:0 10px;">X</button>
+        </div>`).join('');
     }
-  }
 
-  load();
-</script>
+    function addNewDjField() { currentDjs.push({name:'', img:''}); renderAdmin(); }
+    function addNewSchField() { currentSch.push({dj:currentDjs[0]?.name || '', time:''}); renderAdmin(); }
+    async function saveAll() {
+      await fetch(DB + ".json", { method: 'PUT', body: JSON.stringify({ djs: currentDjs, schedule: currentSch }) });
+      alert("✅ ATUALIZADO!"); location.reload();
+    }
+    function toggleAdmin() {
+      if(prompt("Senha:") === '1234') { document.getElementById('adminArea').style.display='block'; renderAdmin(); document.getElementById('adminArea').scrollIntoView(); }
+    }
+    load();
+  </script>
 </body>
 </html>
