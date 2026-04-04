@@ -31,8 +31,8 @@
 
         /* --- ARCHIVE GRID --- */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
-        .video-card { background: #080808; border: 2px solid #333; overflow: hidden; transition: 0.3s; position: relative; }
-        .video-card:hover { border-color: var(--neon-blue); }
+        .video-card { background: #080808; border: 3px solid #444; overflow: hidden; transition: 0.4s; position: relative; }
+        .video-card:hover { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(0, 236, 255, 0.4); transform: translateY(-5px); }
         .video-thumb-container { width: 100%; aspect-ratio: 16/9; cursor: pointer; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; }
         .play-icon { font-size: 30px; color: #fff; background: rgba(245, 42, 31, 0.8); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .archive-iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: none; }
@@ -43,14 +43,11 @@
         .login-card { background: #111; padding: 35px; border: 1px solid var(--neon-red); width: 320px; text-align: center; }
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 20px; }
-        
         .dash-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
         .dash-nav button { flex: 1; padding: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 10px; color: #fff; text-transform: uppercase; }
-
         .dash-section { background: #111; padding: 20px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border: 1px solid #222; font-size: 11px; }
         .btn-group { display: flex; gap: 5px; }
         .edit-btn { background: var(--neon-blue); color: #000; border: none; padding: 5px 8px; cursor: pointer; font-size: 9px; font-weight: bold; }
@@ -65,6 +62,14 @@
         .photo-live { border: 3px solid var(--neon-red) !important; box-shadow: 0 0 10px var(--neon-red); }
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+
+        /* --- SEE MORE BUTTONS --- */
+        .see-more-btn { 
+            display: block; width: 100%; padding: 10px; background: #111; color: var(--neon-blue); 
+            border: 1px solid #222; border-top: none; cursor: pointer; font-size: 10px; 
+            letter-spacing: 2px; text-transform: uppercase; transition: 0.3s;
+        }
+        .see-more-btn:hover { background: #1a1a1a; color: #fff; }
     </style>
 </head>
 <body id="app">
@@ -105,7 +110,6 @@
                 <button onclick="load()" style="background:var(--neon-blue); color:#000;">REFRESH</button>
                 <button onclick="location.reload()" style="background:#1a1a1a;">EXIT</button>
             </div>
-
             <div class="dash-section">
                 <h3>DJs DATABASE</h3>
                 <input type="text" id="dj-n" placeholder="DJ Name">
@@ -114,7 +118,6 @@
                 <button class="action-btn" id="dj-action-btn" onclick="addToDB('djs')">ADD DJ</button>
                 <div id="adm-list-djs" style="margin-top:15px;"></div>
             </div>
-
             <div class="dash-section">
                 <h3>SCHEDULE</h3>
                 <select id="sch-d">
@@ -132,10 +135,15 @@
 
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444;">UK TIME SYNC: --:--</div>
+        
         <div id="schedule" class="row-title">Weekly Schedule</div>
         <div id="pub-sch" class="sch-box"></div>
+        <button id="btn-sch-more" class="see-more-btn" style="display:none;" onclick="toggleList('sch')">See More</button>
+        
         <div id="residents" class="row-title">Residents</div>
         <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
+        <button id="btn-djs-more" class="see-more-btn" style="display:none;" onclick="toggleList('djs')">See More</button>
+        
         <div id="archive" class="row-title">Archive</div>
         <div id="pub-archive" class="video-grid">Loading archive...</div>
     </div>
@@ -144,6 +152,8 @@
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv?muted=false";
         let editingId = null;
+        let showAllSch = false, showAllDjs = false;
+        let globalData = {};
 
         async function fetchArchive() {
             try {
@@ -166,8 +176,7 @@
             const thumb = document.getElementById(`thumb-${id}`);
             const iframe = document.getElementById(`video-${id}`);
             iframe.src = `https://archive.org/embed/${id}?autoplay=1&ui=mini`;
-            thumb.style.display = 'none';
-            iframe.style.display = 'block';
+            thumb.style.display = 'none'; iframe.style.display = 'block';
         }
 
         async function setLive(status) {
@@ -181,92 +190,87 @@
                 document.body.classList.add('is-live');
                 badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on";
                 iframe.src = KICK_URL; iframe.style.display = "block";
-                btnOn.style.background = "#28a745"; btnOn.innerText = "ACTIVE";
-                btnOff.style.background = "#333"; btnOff.innerText = "LIVE OFF";
+                btnOn.style.background = "#28a745"; btnOff.style.background = "#333";
             } else {
                 document.body.classList.remove('is-live');
                 badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off";
                 iframe.src = ""; iframe.style.display = "none";
-                btnOn.style.background = "#333"; btnOn.innerText = "LIVE ON";
-                btnOff.style.background = "#f52a1f"; btnOff.innerText = "DEACTIVATED";
+                btnOn.style.background = "#333"; btnOff.style.background = "#f52a1f";
             }
+        }
+
+        function toggleList(type) {
+            if(type === 'sch') showAllSch = !showAllSch;
+            if(type === 'djs') showAllDjs = !showAllDjs;
+            renderLists();
         }
 
         async function load() {
             const r = await fetch(DB + ".json?t=" + Date.now());
-            const data = await r.json() || {};
-            updateUI(data.is_live);
-            
-            const djsStore = data.djs || {};
-            const djsList = Object.entries(djsStore);
-            document.getElementById('sch-j-drop').innerHTML = djsList.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
-            document.getElementById('pub-djs').innerHTML = djsList.map(([id, d]) => `<div style="text-align:center; background:#080808; padding:20px;"><div style="width:100px; height:100px; background-image:url('${d.img}'); background-size:cover; margin:0 auto 10px; border:2px solid #333;"></div><div>${d.name}</div><div style="color:var(--neon-red); font-size:10px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
-            
-            document.getElementById('adm-list-djs').innerHTML = djsList.map(([id, d]) => `
-                <div class="edit-item">
-                    ${d.name} 
-                    <div class="btn-group">
-                        <button class="edit-btn" onclick='editItem("djs","${id}",${JSON.stringify(d)})'>EDIT</button>
-                        <button class="del-btn" onclick='delItem("djs","${id}")'>DEL</button>
-                    </div>
-                </div>`).join('');
+            globalData = await r.json() || {};
+            updateUI(globalData.is_live);
+            renderLists();
+            fetchArchive();
+        }
 
-            let sch = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
-            document.getElementById('adm-list-sch').innerHTML = sch.map(s => `
-                <div class="edit-item">
-                    ${s.time} - ${s.info} 
-                    <div class="btn-group">
-                        <button class="edit-btn" onclick='editItem("schedule","${s.id}",${JSON.stringify(s)})'>EDIT</button>
-                        <button class="del-btn" onclick='delItem("schedule","${s.id}")'>DEL</button>
-                    </div>
-                </div>`).join('');
+        function renderLists() {
+            const djsStore = globalData.djs || {};
+            const djsList = Object.entries(djsStore);
+            
+            // ADMIN & DROPDOWNS
+            document.getElementById('sch-j-drop').innerHTML = djsList.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
+            document.getElementById('adm-list-djs').innerHTML = djsList.map(([id, d]) => `<div class="edit-item">${d.name} <div class="btn-group"><button class="edit-btn" onclick='editItem("djs","${id}",${JSON.stringify(d)})'>EDIT</button><button class="del-btn" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
+
+            // PUBLIC DJS
+            let djsToShow = showAllDjs ? djsList : djsList.slice(0, 4);
+            document.getElementById('pub-djs').innerHTML = djsToShow.map(([id, d]) => `<div style="text-align:center; background:#080808; padding:20px;"><div style="width:100px; height:100px; background-image:url('${d.img}'); background-size:cover; margin:0 auto 10px; border:2px solid #333;"></div><div>${d.name}</div><div style="color:var(--neon-red); font-size:10px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
+            document.getElementById('btn-djs-more').style.display = djsList.length > 4 ? 'block' : 'none';
+            document.getElementById('btn-djs-more').innerText = showAllDjs ? 'See Less' : 'See More';
+
+            // SCHEDULE
+            let sch = globalData.schedule ? Object.entries(globalData.schedule).map(([id, s]) => ({id, ...s})) : [];
+            document.getElementById('adm-list-sch').innerHTML = sch.map(s => `<div class="edit-item">${s.time} - ${s.info} <div class="btn-group"><button class="edit-btn" onclick='editItem("schedule","${s.id}",${JSON.stringify(s)})'>EDIT</button><button class="del-btn" onclick='delItem("schedule","${s.id}")'>DEL</button></div></div>`).join('');
             
             const timeNow = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
             sch.forEach(s => { s.mins = parseInt(s.time.split(':')[0]) * 60 + parseInt(s.time.split(':')[1]); });
             sch.sort((a,b) => a.mins - b.mins);
+            
             let liveIdx = sch.findLastIndex(s => minsNow >= s.mins);
             if (liveIdx === -1 && sch.length > 0) liveIdx = 0;
             let rotated = sch.length > 0 ? [...sch.slice(liveIdx), ...sch.slice(0, liveIdx)] : [];
             
-            document.getElementById('pub-sch').innerHTML = rotated.map((s, i) => {
+            let schToShow = showAllSch ? rotated : rotated.slice(0, 4);
+            document.getElementById('pub-sch').innerHTML = schToShow.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
                 let badge = (i === 0) ? '<div class="tag-live-now">LIVE NOW</div>' : (i === 1 ? '<div style="background:#444; color:#aaa; padding:5px 8px; font-size:9px; text-align:center;">NEXT</div>' : '');
                 return `<div class="sch-row"><div class="sch-photo ${i===0?'photo-live':''}" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div style="font-size:14px;">${s.info}</div><div>${s.time}</div><div>${badge}</div></div>`;
             }).join('');
-            fetchArchive();
+            document.getElementById('btn-sch-more').style.display = rotated.length > 4 ? 'block' : 'none';
+            document.getElementById('btn-sch-more').innerText = showAllSch ? 'See Less' : 'See More';
         }
 
         async function addToDB(p) {
             let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: document.getElementById('sch-d').value, time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value };
-            let method = editingId ? "PUT" : "POST";
             let url = editingId ? `${DB}${p}/${editingId}.json` : `${DB}${p}.json`;
-            
-            await fetch(url, { method: method, body: JSON.stringify(item) });
-            editingId = null;
-            resetForms();
-            load();
+            await fetch(url, { method: editingId ? "PUT" : "POST", body: JSON.stringify(item) });
+            editingId = null; resetForms(); load();
         }
 
         function editItem(p, id, data) {
             editingId = id;
             if(p === 'djs') {
-                document.getElementById('dj-n').value = data.name;
-                document.getElementById('dj-s').value = data.style;
-                document.getElementById('dj-i').value = data.img;
+                document.getElementById('dj-n').value = data.name; document.getElementById('dj-s').value = data.style; document.getElementById('dj-i').value = data.img;
                 document.getElementById('dj-action-btn').innerText = "UPDATE DJ";
             } else {
-                document.getElementById('sch-d').value = data.day;
-                document.getElementById('sch-t-drop').value = data.time;
-                document.getElementById('sch-j-drop').value = data.info;
+                document.getElementById('sch-d').value = data.day; document.getElementById('sch-t-drop').value = data.time; document.getElementById('sch-j-drop').value = data.info;
                 document.getElementById('sch-action-btn').innerText = "UPDATE SCHEDULE";
             }
         }
 
         function resetForms() {
             document.getElementById('dj-n').value = ""; document.getElementById('dj-s').value = ""; document.getElementById('dj-i').value = "";
-            document.getElementById('dj-action-btn').innerText = "ADD DJ";
-            document.getElementById('sch-action-btn').innerText = "ADD TO SCHEDULE";
+            document.getElementById('dj-action-btn').innerText = "ADD DJ"; document.getElementById('sch-action-btn').innerText = "ADD TO SCHEDULE";
         }
 
         async function delItem(p, id) { if(confirm("Delete?")) { await fetch(`${DB}${p}/${id}.json`, { method: "DELETE" }); load(); } }
