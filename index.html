@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | FINAL SYNC V40</title>
+    <title>FLASHMIX.TV | MANAGER V41</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 80px; }
 
         .top-nav { position: fixed; top: 0; width: 100%; height: 65px; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000; border-bottom: 1px solid #1a1a1a; }
-        .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 8px 20px; border-radius: 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; }
 
         .player-stage { width: 95%; max-width: 1100px; aspect-ratio: 16/9; background: #050505; border-radius: 30px; border: 5px solid var(--neon-red); margin: 0 auto 30px; overflow: hidden; position: relative; }
         body.is-live .player-stage { border-color: transparent; background: linear-gradient(#050505, #050505) padding-box, linear-gradient(90deg, var(--neon-red), #ff6b6b, var(--neon-red)) border-box; background-size: 200% 100%; animation: neonFlow 1.2s linear infinite; }
@@ -20,17 +20,16 @@
 
         /* LOGIN */
         #login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 30px; border-radius: 20px; border: 1px solid var(--neon-red); width: 300px; text-align: center; }
+        .login-card { background: #111; padding: 35px; border-radius: 20px; border: 1px solid var(--neon-red); width: 300px; text-align: center; }
 
         /* DASHBOARD */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
-        input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
-        .save-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-weight: bold; }
         
-        .admin-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #222; font-size: 11px; }
-        .item-data b { color: var(--neon-blue); font-size: 13px; display: block; }
+        .save-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; margin-bottom: 10px; }
+        .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #222; font-size: 11px; }
 
         /* PUBLIC UI */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
@@ -47,16 +46,16 @@
 <body id="app">
 
     <nav class="top-nav">
-        <a onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager Dashboard</a>
+        <a onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">ENTER MANAGER</a>
     </nav>
 
     <div id="login-overlay">
         <div class="login-card">
-            <h3 style="color:#fff; margin-top:0;">STAFF LOGIN</h3>
-            <input type="text" id="u-in" placeholder="Username">
-            <input type="password" id="p-in" placeholder="Password">
-            <button class="save-btn" onclick="doAuth()">ENTER</button>
-            <p onclick="document.getElementById('login-overlay').style.display='none'" style="cursor:pointer; font-size:10px; color:#444; margin-top:15px;">CANCEL</p>
+            <h3 style="color:#fff; margin-bottom:20px;">STAFF LOGIN</h3>
+            <input type="text" id="user-field" placeholder="Username (admin)">
+            <input type="password" id="pass-field" placeholder="Password (1234)">
+            <button class="save-btn" onclick="validateLogin()">LOGIN NOW</button>
+            <p onclick="document.getElementById('login-overlay').style.display='none'" style="cursor:pointer; font-size:11px; color:#555; margin-top:20px;">BACK TO SITE</p>
         </div>
     </div>
 
@@ -66,46 +65,46 @@
 
     <div id="dashboard">
         <div class="dash-container">
-            <button onclick="toggleDash()" style="float:right; background:#333; color:#fff; border:none; padding:10px; cursor:pointer; border-radius:5px;">SAVE & EXIT</button>
-            <h2 style="color:var(--neon-red)">STATION MANAGER</h2>
+            <button onclick="location.reload()" style="float:right; background:#333; color:#fff; border:none; padding:10px; cursor:pointer; border-radius:5px; font-weight:bold;">SAVE & CLOSE X</button>
+            <h2 style="color:var(--neon-red)">STATION DASHBOARD</h2>
 
             <div class="dash-section">
-                <h3>1. DJs DATABASE</h3>
-                <input type="text" id="dj-n" placeholder="Name"><input type="text" id="dj-s" placeholder="Style"><input type="text" id="dj-i" placeholder="Photo URL">
-                <button id="btn-dj-add" class="save-btn" onclick="saveData('djs')">Add DJ</button>
-                <button id="btn-dj-up" class="save-btn" style="display:none; background:#fff; color:#000;" onclick="pushUpdate('djs')">Update DJ</button>
-                <div id="adm-djs" style="margin-top:15px;"></div>
+                <h3>1. MANAGE DJs</h3>
+                <input type="text" id="dj-n" placeholder="DJ Name"><input type="text" id="dj-s" placeholder="Style"><input type="text" id="dj-i" placeholder="Photo URL">
+                <button id="add-dj-btn" class="save-btn" onclick="sendToDB('djs')">ADD TO LIST</button>
+                <button id="up-dj-btn" class="save-btn" style="display:none; background:#fff; color:#000" onclick="updateItem('djs')">SAVE CHANGES</button>
+                <div id="adm-list-djs" style="margin-top:20px;"></div>
             </div>
 
             <div class="dash-section">
-                <h3>2. SCHEDULE / AGENDA</h3>
+                <h3>2. MANAGE SCHEDULE</h3>
                 <select id="sch-d"><option>TODOS OS DIAS</option><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select>
-                <select id="sch-t"></select>
-                <select id="sch-j"></select>
-                <button id="btn-sch-add" class="save-btn" onclick="saveData('schedule')">Add Schedule</button>
-                <button id="btn-sch-up" class="save-btn" style="display:none; background:#fff; color:#000;" onclick="pushUpdate('schedule')">Update Schedule</button>
-                <div id="adm-sch" style="margin-top:15px;"></div>
+                <select id="sch-t-drop"></select>
+                <select id="sch-j-drop"></select>
+                <button id="add-sch-btn" class="save-btn" onclick="sendToDB('schedule')">ADD TO SCHEDULE</button>
+                <button id="up-sch-btn" class="save-btn" style="display:none; background:#fff; color:#000" onclick="updateItem('schedule')">SAVE CHANGES</button>
+                <div id="adm-list-sch" style="margin-top:20px;"></div>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <div id="uk-clock" style="text-align:right; font-size:11px; color:#555; margin-bottom:10px;">UK SYNC: --:--</div>
+        <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
         <div class="row-title">Weekly Schedule</div>
-        <div id="pub-sch" class="sch-box"></div>
+        <div id="pub-sch-list" class="sch-box"></div>
         <div class="row-title">Resident DJs</div>
-        <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px;"></div>
+        <div id="pub-dj-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px;"></div>
     </div>
 
     <script>
-        const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-        let editingId = null;
-        let djsCached = {};
+        const FIREBASE = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
+        let activeId = null;
+        let djsStore = {};
 
-        function getUKTime() {
-            const str = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
-            document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + str;
-            return str;
+        function getUK() {
+            const time = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
+            document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + time;
+            return time;
         }
 
         function fillHours() {
@@ -114,49 +113,45 @@
                 let hh = i < 10 ? '0'+i : i;
                 h += `<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`;
             }
-            document.getElementById('sch-t').innerHTML = h;
+            document.getElementById('sch-t-drop').innerHTML = h;
         }
 
-        function doAuth() {
-            const u = document.getElementById('u-in').value.trim().toLowerCase();
-            const p = document.getElementById('p-in').value.trim();
-            if(u === "admin" && p === "1234") { 
-                document.getElementById('login-overlay').style.display='none';
-                document.getElementById('dashboard').style.display='block';
+        function validateLogin() {
+            const u = document.getElementById('user-field').value.trim().toLowerCase();
+            const p = document.getElementById('pass-field').value.trim();
+            if(u === "admin" && p === "1234") {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
             } else { alert("Login Error!"); }
         }
 
         async function load() {
-            const r = await fetch(DB + ".json?t=" + Date.now());
+            const r = await fetch(FIREBASE + ".json?t=" + Date.now());
             const data = await r.json() || {};
-            djsCached = data.djs || {};
-            const nowTime = getUKTime();
-            const nowMins = parseInt(nowTime.split(':')[0]) * 60 + parseInt(nowTime.split(':')[1]);
+            djsStore = data.djs || {};
+            const ukTime = getUK();
+            const ukMins = parseInt(ukTime.split(':')[0]) * 60 + parseInt(ukTime.split(':')[1]);
 
             if(data.is_live) document.body.classList.add('is-live'); else document.body.classList.remove('is-live');
 
-            const djEntries = Object.entries(djsCached);
-            document.getElementById('sch-j').innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
+            const djEntries = Object.entries(djsStore);
+            document.getElementById('sch-j-drop').innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             
-            document.getElementById('pub-djs').innerHTML = djEntries.map(([id, d]) => `
+            document.getElementById('pub-dj-list').innerHTML = djEntries.map(([id, d]) => `
                 <div style="background:#080808; border-radius:25px; padding:25px; text-align:center; border:1px solid #1a1a1a;">
                     <div style="width:90px; height:90px; border-radius:50%; margin:0 auto 15px; background-size:cover; border:3px solid #333; background-image:url('${d.img}')"></div>
                     <div>${d.name}</div><div style="color:red; font-size:10px; margin-top:5px;">${d.style}</div>
                 </div>`).join('');
 
             const sch = data.schedule ? Object.entries(data.schedule).sort((a,b) => a[1].time.localeCompare(b[1].time)) : [];
-            
-            document.getElementById('pub-sch').innerHTML = sch.map(([id, s], i) => {
-                const dj = Object.values(djsCached).find(d => d.name === s.info);
+            document.getElementById('pub-sch-list').innerHTML = sch.map(([id, s], i) => {
+                const dj = Object.values(djsStore).find(d => d.name === s.info);
                 const sMins = parseInt(s.time.split(':')[0]) * 60 + parseInt(s.time.split(':')[1]);
-                let tag = "";
+                const nextMins = (i < sch.length - 1) ? (parseInt(sch[i+1][1].time.split(':')[0]) * 60 + parseInt(sch[i+1][1].time.split(':')[1])) : 9999;
                 
-                // Lógica de Live Now Simplificada para UK Time
-                if (nowMins >= sMins && (i === sch.length - 1 || nowMins < (parseInt(sch[i+1][1].time.split(':')[0])*60 + parseInt(sch[i+1][1].time.split(':')[1])))) {
-                    tag = '<div class="tag tag-live">LIVE NOW</div>';
-                } else if (nowMins < sMins && (i === 0 || nowMins >= (parseInt(sch[i-1][1].time.split(':')[0])*60 + parseInt(sch[i-1][1].time.split(':')[1])))) {
-                    tag = '<div class="tag tag-next">NEXT</div>';
-                }
+                let tag = "";
+                if(ukMins >= sMins && ukMins < nextMins) tag = '<div class="tag tag-live">LIVE NOW</div>';
+                else if(ukMins < sMins && (i === 0 || ukMins >= (parseInt(sch[i-1][1].time.split(':')[0])*60))) tag = '<div class="tag tag-next">NEXT</div>';
 
                 return `<div class="sch-row">
                     <div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div>
@@ -166,8 +161,35 @@
                 </div>`;
             }).join('');
 
-            renderAdmin(data);
+            document.getElementById('adm-list-djs').innerHTML = djEntries.map(([id, d]) => `<div class="edit-item"><b>${d.name}</b><div><button onclick="editMode('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button><button onclick="delItem('djs','${id}')">DEL</button></div></div>`).join('');
+            document.getElementById('adm-list-sch').innerHTML = sch.map(([id, s]) => `<div class="edit-item"><b>${s.time} - ${s.info}</b><div><button onclick="editMode('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button><button onclick="delItem('schedule','${id}')">DEL</button></div></div>`).join('');
         }
 
-        function renderAdmin(data) {
-            document.getElementById('adm-djs').innerHTML = Object.entries(data.djs || {}).map(([id, d]) => `
+        async function sendToDB(p) {
+            const item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: document.getElementById('sch-d').value, time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value };
+            await fetch(`${FIREBASE}${p}.json`, { method: "POST", body: JSON.stringify(item) }); load();
+        }
+
+        function editMode(p, id, d) {
+            activeId = id;
+            if(p === 'djs') {
+                document.getElementById('dj-n').value = d.name; document.getElementById('dj-s').value = d.style; document.getElementById('dj-i').value = d.img;
+                document.getElementById('add-dj-btn').style.display='none'; document.getElementById('up-dj-btn').style.display='block';
+            } else {
+                document.getElementById('sch-d').value = d.day; document.getElementById('sch-t-drop').value = d.time; document.getElementById('sch-j-drop').value = d.info;
+                document.getElementById('add-sch-btn').style.display='none'; document.getElementById('up-sch-btn').style.display='block';
+            }
+        }
+
+        async function updateItem(p) {
+            const item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: document.getElementById('sch-d').value, time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value };
+            await fetch(`${FIREBASE}${p}/${activeId}.json`, { method: "PATCH", body: JSON.stringify(item) });
+            alert("Updated!"); location.reload();
+        }
+
+        async function delItem(p, id) { if(confirm("Del?")) { await fetch(`${FIREBASE}${p}/${id}.json`, { method: "DELETE" }); load(); } }
+        
+        fillHours(); load(); setInterval(getUK, 1000); setInterval(load, 20000);
+    </script>
+</body>
+</html>
