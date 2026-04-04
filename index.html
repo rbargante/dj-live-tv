@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | STATION MANAGER V33</title>
+    <title>FLASHMIX.TV | STATION MANAGER V34</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -86,10 +86,11 @@
                 </select>
                 
                 <label style="font-size: 10px; color: #888;">SELECT DJ FROM LIST:</label>
-                <select id="sch-dj-select">
-                    </select>
+                <select id="sch-dj-select"></select>
+
+                <label style="font-size: 10px; color: #888;">SELECT TIME:</label>
+                <select id="sch-time-drop"></select>
                 
-                <input type="text" id="sch-time" placeholder="Time (ex: 22:00)">
                 <div class="action-btns">
                     <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add Schedule</button>
                     <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Save Changes</button>
@@ -112,21 +113,30 @@
         let editingId = null;
         let djsCached = {};
 
+        // GERAR HORAS NO DROP-DOWN
+        function fillHours() {
+            const select = document.getElementById('sch-time-drop');
+            let html = "";
+            for(let i=0; i<24; i++) {
+                let h = i < 10 ? '0'+i : i;
+                html += `<option value="${h}:00">${h}:00</option>`;
+                html += `<option value="${h}:30">${h}:30</option>`;
+            }
+            select.innerHTML = html;
+        }
+
         async function load() {
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
             djsCached = data.djs || {};
             
-            // Live Status
             if(data.is_live) document.body.classList.add('is-live');
             else document.body.classList.remove('is-live');
 
-            // 1. Atualizar Dropdown de DJs no Manager
             const djEntries = Object.entries(djsCached);
             const selectDj = document.getElementById('sch-dj-select');
             selectDj.innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
 
-            // 2. Render Public DJs
             document.getElementById('pub-djs').innerHTML = djEntries.map(([id, d]) => `
                 <div class="dj-card">
                     <div class="dj-img-main" style="background-image:url('${d.img || ''}')"></div>
@@ -134,16 +144,13 @@
                     <div style="color:var(--neon-red); font-size:10px; margin-top:5px;">${d.style}</div>
                 </div>`).join('');
 
-            // 3. Render Public Schedule
             const schEntries = data.schedule ? Object.entries(data.schedule) : [];
             document.getElementById('pub-schedule').innerHTML = schEntries.map(([id, s], index) => {
                 const djData = Object.values(djsCached).find(d => d.name === s.info);
-                const photo = djData ? djData.img : '';
                 const tag = index === 0 ? '<div class="tag tag-live">LIVE NOW</div>' : (index === 1 ? '<div class="tag tag-next">NEXT</div>' : '');
-
                 return `
                     <div class="sch-row">
-                        <div class="sch-photo" style="background-image:url('${photo}')"></div>
+                        <div class="sch-photo" style="background-image:url('${djData ? djData.img : ''}')"></div>
                         <div style="color:var(--neon-red); font-weight:bold;">${s.day}</div>
                         <div style="font-size:14px;">${s.info}</div>
                         <div>${s.time}</div>
@@ -151,7 +158,6 @@
                     </div>`;
             }).join('');
 
-            // 4. Admin Lists
             renderAdmin(data);
         }
 
@@ -173,7 +179,7 @@
             const pass = prompt("Admin Password:"); if(pass !== "1234") return;
             const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
-                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time').value, info: document.getElementById('sch-dj-select').value };
+                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-select').value };
             await fetch(`${DB}${path}.json`, { method: "POST", body: JSON.stringify(item) });
             load();
         }
@@ -188,7 +194,7 @@
                 document.getElementById('dj-update-btn').style.display = 'block';
             } else {
                 document.getElementById('sch-day').value = data.day;
-                document.getElementById('sch-time').value = data.time;
+                document.getElementById('sch-time-drop').value = data.time;
                 document.getElementById('sch-dj-select').value = data.info;
                 document.getElementById('sch-add-btn').style.display = 'none';
                 document.getElementById('sch-update-btn').style.display = 'block';
@@ -199,7 +205,7 @@
             const pass = prompt("Confirm Password:"); if(pass !== "1234") return;
             const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
-                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time').value, info: document.getElementById('sch-dj-select').value };
+                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-select').value };
             await fetch(`${DB}${path}/${editingId}.json`, { method: "PATCH", body: JSON.stringify(item) });
             location.reload();
         }
@@ -216,6 +222,7 @@
             d.style.display = d.style.display === 'block' ? 'none' : 'block';
         }
 
+        fillHours();
         load();
         setInterval(load, 10000);
     </script>
