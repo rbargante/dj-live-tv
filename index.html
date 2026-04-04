@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V64</title>
+    <title>FLASHMIX.TV | PRO STATION V65</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; --live-green: #28a745; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -31,11 +31,17 @@
         #breaking-live { display: none; background: var(--neon-red); color: #fff; padding: 15px; text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; border-radius: 10px; margin-bottom: 20px; animation: blinker 1s linear infinite; }
         body.is-live #breaking-live { display: block; }
 
-        /* --- SEE MORE BUTTONS --- */
-        .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; transition: 0.3s; }
-        .see-more-btn:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
+        /* --- VISIBILITY SECTIONS --- */
+        .site-section { display: block; }
+        .site-section.hidden { display: none !important; }
 
-        /* --- SCHEDULE --- */
+        /* --- BUTTONS --- */
+        .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
+        .vis-btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 9px; font-weight: bold; text-transform: uppercase; flex: 1; }
+        .vis-on { background: var(--live-green); color: #fff; }
+        .vis-off { background: #333; color: #777; }
+
+        /* --- SCHEDULE & GRID --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid #333; }
@@ -51,11 +57,8 @@
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; }
-        .update-mode { background: var(--neon-blue) !important; color: #000 !important; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; }
-        .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; }
 
-        /* --- GRID AREAS --- */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
@@ -96,33 +99,49 @@
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
         
-        <div id="schedule" class="row-title">Weekly Schedule</div>
-        <div id="breaking-live">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
-        <div id="pub-sch" class="sch-box"></div>
-        <button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button>
+        <div id="sec-sch" class="site-section">
+            <div id="schedule" class="row-title">Weekly Schedule</div>
+            <div id="breaking-live">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
+            <div id="pub-sch" class="sch-box"></div>
+            <button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button>
+        </div>
         
-        <div id="residents" class="row-title">Flashmix Residents</div>
-        <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
-        <button id="more-djs" class="see-more-btn" onclick="toggleView('djs')">See More</button>
+        <div id="sec-djs" class="site-section">
+            <div id="residents" class="row-title">Flashmix Residents</div>
+            <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
+            <button id="more-djs" class="see-more-btn" onclick="toggleView('djs')">See More</button>
+        </div>
         
-        <div id="archive" class="row-title">Video Archive</div>
-        <div id="pub-archive" class="video-grid"></div>
-        <button id="more-vid" class="see-more-btn" onclick="toggleView('vid')">See More</button>
+        <div id="sec-vid" class="site-section">
+            <div id="archive" class="row-title">Video Archive</div>
+            <div id="pub-archive" class="video-grid"></div>
+            <button id="more-vid" class="see-more-btn" onclick="toggleView('vid')">See More</button>
+        </div>
     </div>
 
     <div id="dashboard">
         <div class="dash-container">
-            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px; border-bottom:1px solid #222; padding-bottom:15px;">
+            <div class="dash-nav" style="margin-bottom:20px; border-bottom:1px solid #222; padding-bottom:15px;">
                 <div id="status-notif" style="text-align:center; font-size:10px; color:var(--neon-blue); height:15px;"></div>
-                <div style="display:flex; gap:10px;">
-                    <button id="btn-on" onclick="setLive(true)" style="flex:1; background:var(--live-green); padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; border-radius:5px;">LIVE ON</button>
-                    <button id="btn-off" onclick="setLive(false)" style="flex:1; background:var(--neon-red); padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; border-radius:5px;">LIVE OFF</button>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <button onclick="setLive(true)" style="flex:1; background:var(--live-green); padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; border-radius:5px;">LIVE ON</button>
+                    <button onclick="setLive(false)" style="flex:1; background:var(--neon-red); padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; border-radius:5px;">LIVE OFF</button>
                 </div>
+                
+                <div style="background:#111; padding:15px; border-radius:10px; margin-bottom:15px;">
+                    <h4 style="margin:0 0 10px; font-size:10px; text-transform:uppercase; color:#555;">Section Visibility</h4>
+                    <div style="display:flex; gap:5px;">
+                        <button id="v-sch" onclick="setVis('sch')" class="vis-btn">Schedule</button>
+                        <button id="v-djs" onclick="setVis('djs')" class="vis-btn">Residents</button>
+                        <button id="v-vid" onclick="setVis('vid')" class="vis-btn">Archive</button>
+                    </div>
+                </div>
+
                 <div style="display:flex; gap:10px;">
-                    <button onclick="load()" style="flex:1; background:var(--neon-blue); padding:10px; border:none; font-weight:bold; cursor:pointer; border-radius:5px; font-size:10px;">REFRESH DATA</button>
-                    <button onclick="document.getElementById('dashboard').style.display='none'" style="flex:1; background:#333; padding:10px; border:none; color:#fff; font-weight:bold; cursor:pointer; border-radius:5px; font-size:10px;">EXIT</button>
+                    <button onclick="location.reload()" style="flex:1; background:var(--neon-blue); padding:10px; border:none; font-weight:bold; cursor:pointer; border-radius:5px; font-size:10px;">REFRESH & EXIT</button>
                 </div>
             </div>
+            
             <div class="dash-section">
                 <h3>1. DJs DATABASE</h3>
                 <input type="text" id="dj-n" placeholder="DJ Name">
@@ -131,6 +150,7 @@
                 <button id="btn-dj-action" class="action-btn" onclick="addToDB('djs')">ADD TO DATABASE</button>
                 <div id="adm-list-djs" style="margin-top:15px;"></div>
             </div>
+
             <div class="dash-section">
                 <h3>2. SCHEDULE</h3>
                 <select id="sch-t-drop"></select>
@@ -149,11 +169,16 @@
         let stationIsLive = false;
         let showAll = { sch: false, djs: false, vid: false };
         let fullData = { sch: [], djs: [], vid: [] };
+        let visSettings = { sch: true, djs: true, vid: true };
 
         async function setLive(status) {
             await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) });
-            document.getElementById('status-notif').innerText = "STATION UPDATED!";
-            setTimeout(() => document.getElementById('status-notif').innerText = "", 3000);
+            load();
+        }
+
+        async function setVis(type) {
+            visSettings[type] = !visSettings[type];
+            await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) });
             load();
         }
 
@@ -164,9 +189,22 @@
             } else { alert("Login Error"); }
         }
 
-        function updateUI(isLive) {
+        async function load() {
+            const r = await fetch(DB + ".json?t=" + Date.now());
+            const data = await r.json() || {};
+            stationIsLive = data.is_live;
+            visSettings = data.visibility || { sch: true, djs: true, vid: true };
+
+            // Update Visibility UI
+            Object.keys(visSettings).forEach(k => {
+                const sec = document.getElementById('sec-' + k);
+                const btn = document.getElementById('v-' + k);
+                if(visSettings[k]) { sec.classList.remove('hidden'); btn.className = 'vis-btn vis-on'; }
+                else { sec.classList.add('hidden'); btn.className = 'vis-btn vis-off'; }
+            });
+
             const badge = document.getElementById('live-badge'), iframe = document.getElementById('live-iframe');
-            if(isLive) {
+            if(stationIsLive) {
                 document.body.classList.add('is-live');
                 badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on";
                 iframe.src = KICK_STREAM; iframe.style.display = "block";
@@ -175,22 +213,18 @@
                 badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off";
                 iframe.src = ""; iframe.style.display = "none";
             }
-        }
-
-        async function load() {
-            const r = await fetch(DB + ".json?t=" + Date.now());
-            const data = await r.json() || {};
-            stationIsLive = data.is_live;
-            updateUI(stationIsLive);
 
             const djsStore = data.djs || {};
             fullData.djs = Object.entries(djsStore);
             document.getElementById('sch-j-drop').innerHTML = fullData.djs.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             
-            // Render Residents
-            renderResidents();
+            // Residents
+            const djsList = showAll.djs ? fullData.djs : fullData.djs.slice(0, 5);
+            document.getElementById('pub-djs').innerHTML = djsList.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
+            document.getElementById('more-djs').style.display = fullData.djs.length > 5 ? 'block' : 'none';
+            document.getElementById('more-djs').innerText = showAll.djs ? "See Less" : "See More";
 
-            // Render Schedule
+            // Schedule
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
             const timeNow = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
@@ -199,71 +233,57 @@
             let liveIdx = schArr.findLastIndex(s => minsNow >= s.mins);
             if (liveIdx === -1 && schArr.length > 0) liveIdx = 0;
             fullData.sch = schArr.length > 0 ? [...schArr.slice(liveIdx), ...schArr.slice(0, liveIdx)] : [];
-            renderSchedule(djsStore);
-
-            // Admin Lists
-            document.getElementById('adm-list-djs').innerHTML = fullData.djs.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("djs","${id}",${JSON.stringify(d).replace(/"/g, '&quot;')})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
-            document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("schedule","${s.id}",${JSON.stringify(s).replace(/"/g, '&quot;')})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("schedule","${s.id}")'>DEL</button></div></div>`).join('');
             
-            getArchive();
-        }
-
-        function renderResidents() {
-            const list = showAll.djs ? fullData.djs : fullData.djs.slice(0, 5);
-            document.getElementById('pub-djs').innerHTML = list.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
-            document.getElementById('more-djs').style.display = fullData.djs.length > 5 ? 'block' : 'none';
-            document.getElementById('more-djs').innerText = showAll.djs ? "See Less" : "See More";
-        }
-
-        function renderSchedule(djsStore) {
-            const list = showAll.sch ? fullData.sch : fullData.sch.slice(0, 5);
-            document.getElementById('pub-sch').innerHTML = list.map((s, i) => {
+            const schList = showAll.sch ? fullData.sch : fullData.sch.slice(0, 5);
+            document.getElementById('pub-sch').innerHTML = schList.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
                 let tag = (i === 0) ? (stationIsLive ? '<div class="tag-paused">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div class="dj-line-info">${s.info} ${s.style ? `<span class="dj-separator">|</span><span class="dj-line-style">${s.style}</span>` : ""}</div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
             document.getElementById('more-sch').style.display = fullData.sch.length > 5 ? 'block' : 'none';
             document.getElementById('more-sch').innerText = showAll.sch ? "See Less" : "See More";
+
+            // Admin Lists
+            document.getElementById('adm-list-djs').innerHTML = fullData.djs.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("djs","${id}",${JSON.stringify(d).replace(/"/g, '&quot;')})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
+            document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("schedule","${s.id}",${JSON.stringify(s).replace(/"/g, '&quot;')})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("schedule","${s.id}")'>DEL</button></div></div>`).join('');
+            getArchive();
         }
 
         async function getArchive() {
             const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
             const data = await res.json();
             fullData.vid = data.response.docs;
-            renderArchive();
-        }
-
-        function renderArchive() {
             const list = showAll.vid ? fullData.vid : fullData.vid.slice(0, 5);
             document.getElementById('pub-archive').innerHTML = list.map(i => `<div class="video-card"><div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`).join('');
             document.getElementById('more-vid').style.display = fullData.vid.length > 5 ? 'block' : 'none';
             document.getElementById('more-vid').innerText = showAll.vid ? "See Less" : "See More";
         }
 
-        function toggleView(type) {
-            showAll[type] = !showAll[type];
-            load();
-        }
+        function toggleView(type) { showAll[type] = !showAll[type]; load(); }
 
         function startEdit(type, id, data) {
             editId = id;
             if(type === 'djs') {
                 document.getElementById('dj-n').value = data.name; document.getElementById('dj-s').value = data.style; document.getElementById('dj-i').value = data.img;
-                let btn = document.getElementById('btn-dj-action'); btn.innerText = "UPDATE DJ"; btn.classList.add('update-mode'); btn.onclick = () => pushUpdate('djs');
+                let btn = document.getElementById('btn-dj-action'); btn.innerText = "UPDATE DJ"; btn.onclick = () => pushUpdate('djs');
             } else {
                 document.getElementById('sch-t-drop').value = data.time; document.getElementById('sch-j-drop').value = data.info; document.getElementById('sch-style').value = data.style || '';
-                let btn = document.getElementById('btn-sch-action'); btn.innerText = "UPDATE SCHEDULE"; btn.classList.add('update-mode'); btn.onclick = () => pushUpdate('schedule');
+                let btn = document.getElementById('btn-sch-action'); btn.innerText = "UPDATE SCHEDULE"; btn.onclick = () => pushUpdate('schedule');
             }
         }
 
         async function pushUpdate(p) {
-            let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
+            let item = p === 'djs' ? 
+                { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : 
+                { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
             await fetch(`${DB}${p}/${editId}.json`, { method: "PATCH", body: JSON.stringify(item) });
             location.reload();
         }
 
         async function addToDB(p) {
-            let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
+            let item = p === 'djs' ? 
+                { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : 
+                { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
             await fetch(`${DB}${p}.json`, { method: "POST", body: JSON.stringify(item) });
             load();
         }
