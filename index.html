@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V74</title>
+    <title>FLASHMIX.TV | PRO STATION V75</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -54,7 +54,6 @@
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
         .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
 
-        /* --- OTHERS --- */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
@@ -188,12 +187,13 @@
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
             
-            // FIX PLAYER FREEZE: Se o status mudou de OFF para ON agora, recarrega a fonte do iframe
             const iframe = document.getElementById('kick-iframe');
+            
+            // CONEXÃO ROBUSTA: Força refresh do Iframe ignorando cache quando o sinal é ativado
             if(data.is_live && !stationIsLive) {
-                iframe.src = KICK_STREAM; 
-            } else if (!data.is_live) {
-                iframe.src = "";
+                iframe.src = KICK_STREAM + "&nocache=" + Date.now(); 
+            } else if (!data.is_live && stationIsLive) {
+                iframe.src = "about:blank"; // Mata a conexão imediatamente
             }
 
             stationIsLive = data.is_live;
@@ -271,7 +271,7 @@
         document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
 
-        load(); setInterval(load, 20000);
+        load(); setInterval(load, 15000); // Verificação mais rápida (15s)
     </script>
 </body>
 </html>
