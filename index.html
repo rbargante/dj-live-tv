@@ -7,14 +7,14 @@
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; --live-green: #28a745; --off-gray: #333; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 120px; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; }
 
         /* --- NAVIGATION --- */
-        .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 10px 0; }
-        .nav-content { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; }
-        .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
-        .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 10px; }
+        .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
+        .nav-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 25px; padding: 0 15px; }
+        .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; align-items: center; }
+        .main-menu a { color: #fff; text-decoration: none; cursor: pointer; transition: 0.3s; }
+        .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; text-transform: uppercase; }
 
         /* --- STATUS BADGE --- */
         .status-badge { width: fit-content; margin: 0 auto 15px; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
@@ -23,19 +23,22 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
         /* --- PLAYER STAGE --- */
-        .player-stage { width: 98%; max-width: 1250px; aspect-ratio: 16/9; background: #050505; border-radius: 30px; border: 4px solid var(--neon-red); margin: 0 auto 30px; overflow: hidden; position: relative; transition: 0.5s; }
+        .player-stage { 
+            width: 98%; max-width: 1250px; aspect-ratio: 16/9; background: #050505; border-radius: 30px; 
+            border: 4px solid var(--neon-red); margin: 0 auto 30px; overflow: hidden; position: relative; transition: 0.5s; 
+        }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 10px var(--live-green); } 100% { box-shadow: 0 0 30px var(--live-green); } }
         
-        iframe { width: 100%; height: 100%; border: 0; position: relative; z-index: 5; }
-        #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #eee; font-size: clamp(20px, 8vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; text-align: center; }
+        iframe { width: 100%; height: 100%; border: 0; position: relative; z-index: 5; display: none; }
+        #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: clamp(24px, 8vw, 45px); font-weight: 900; letter-spacing: 12px; text-transform: uppercase; z-index: 1; text-align: center; }
 
         /* --- PLAYER CONTROLS --- */
-        .player-controls { position: absolute; bottom: 20px; right: 20px; z-index: 100; display: flex; gap: 10px; }
-        .p-btn { background: rgba(0,0,0,0.8); color: #fff; border: 1px solid #444; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; backdrop-filter: blur(5px); }
+        .player-controls { position: absolute; bottom: 15px; right: 15px; z-index: 100; display: flex; gap: 10px; }
+        .p-btn { background: rgba(0,0,0,0.8); color: #fff; border: 1px solid #444; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; }
         #back-live-btn { background: var(--live-green); border-color: var(--live-green); display: none; }
 
-        /* --- DASHBOARD & LOGIN --- */
+        /* --- DASHBOARD --- */
         #login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 35px; border-radius: 20px; border: 1px solid var(--neon-red); width: 320px; text-align: center; }
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
@@ -43,15 +46,15 @@
         .dash-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
         .dash-nav button { flex: 1; min-width: 90px; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 10px; color: #fff; text-transform: uppercase; }
 
-        /* PUBLIC UI */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 60px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
         .sch-box { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 48px; height: 48px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid #333; }
+        .tag-live { background: var(--neon-red); color: #fff; padding: 4px 8px; font-size: 9px; border-radius: 4px; text-align: center; font-weight: bold; }
+        
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .video-card { background: #080808; border-radius: 15px; border: 1px solid #1a1a1a; overflow: hidden; cursor: pointer; transition: 0.3s; }
-        .video-card:hover { border-color: var(--neon-blue); }
+        .video-card { background: #080808; border-radius: 15px; border: 1px solid #1a1a1a; overflow: hidden; cursor: pointer; }
         .video-thumb { width: 100%; aspect-ratio: 16/9; background-size: cover; background-position: center; }
         
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
@@ -67,14 +70,14 @@
                 <a href="#schedule">Schedule</a>
                 <a href="#residents">Residents</a>
                 <a href="#archive">Archive</a>
-                <a onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager</a>
+                <span onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager</span>
             </div>
         </div>
     </nav>
 
     <div id="login-overlay">
         <div class="login-card">
-            <h3 style="margin-bottom:20px;">STAFF LOGIN</h3>
+            <h3>STAFF LOGIN</h3>
             <input type="text" id="user-f" placeholder="Username">
             <input type="password" id="pass-f" placeholder="Password">
             <button class="action-btn" onclick="checkLogin()">LOGIN</button>
@@ -89,15 +92,15 @@
         <iframe id="main-iframe" src="" allowfullscreen></iframe>
         <div class="player-controls">
             <button id="back-live-btn" class="p-btn" onclick="goLive()">Back to Live</button>
-            <button id="mute-btn" class="p-btn" onclick="toggleMute()">Mute/Unmute</button>
+            <button id="mute-btn" class="p-btn" onclick="toggleMute()">Sound ON/OFF</button>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="dash-container">
             <div class="dash-nav">
-                <button id="btn-on" onclick="setLive(true)" style="background:#333;">LIVE ON</button>
-                <button id="btn-off" onclick="setLive(false)" style="background:#333;">LIVE OFF</button>
+                <button id="btn-on" onclick="setLive(true)">LIVE ON</button>
+                <button id="btn-off" onclick="setLive(false)">LIVE OFF</button>
                 <button onclick="load()" style="background:var(--neon-blue); color:#000;">SAVE</button>
                 <button onclick="location.reload()" style="background:#1a1a1a;">EXIT</button>
             </div>
@@ -112,11 +115,7 @@
 
             <div class="dash-section" style="background:#111; padding:20px; border-radius:15px;">
                 <h3>SCHEDULE</h3>
-                <select id="sch-d">
-                    <option value="EVERY DAY">EVERY DAY</option>
-                    <option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option>
-                    <option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option>
-                </select>
+                <select id="sch-d"><option value="EVERY DAY">EVERY DAY</option><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select>
                 <select id="sch-t-drop"></select>
                 <select id="sch-j-drop"></select>
                 <button class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
@@ -132,7 +131,7 @@
         <div id="residents" class="row-title">Residents</div>
         <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:20px;"></div>
         <div id="archive" class="row-title">Archive</div>
-        <div id="pub-archive" class="video-grid">A carregar...</div>
+        <div id="pub-archive" class="video-grid">Loading...</div>
     </div>
 
     <script>
@@ -154,7 +153,8 @@
         }
 
         function playArchive(id) {
-            document.getElementById('main-iframe').src = `https://archive.org/embed/${id}?autoplay=1`;
+            // Embed otimizado para carregar mais rápido
+            document.getElementById('main-iframe').src = `https://archive.org/embed/${id}?autoplay=1&playlist=1`;
             document.getElementById('main-iframe').style.display = "block";
             if(stationIsLive) document.getElementById('back-live-btn').style.display = "block";
             window.scrollTo(0,0);
@@ -162,7 +162,7 @@
 
         function goLive() {
             document.getElementById('back-live-btn').style.display = "none";
-            load();
+            load(); 
         }
 
         function toggleMute() {
@@ -173,6 +173,7 @@
 
         async function setLive(status) {
             await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) });
+            stationIsLive = status; // Update local state immediately
             load();
         }
 
@@ -180,9 +181,14 @@
             stationIsLive = isLive;
             const badge = document.getElementById('live-badge');
             const iframe = document.getElementById('main-iframe');
+            const btnOn = document.getElementById('btn-on');
+            const btnOff = document.getElementById('btn-off');
+
             if(isLive) {
                 document.body.classList.add('is-live');
                 badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on";
+                btnOn.style.background = "#28a745"; btnOn.innerText = "ACTIVE";
+                btnOff.style.background = "#333"; btnOff.innerText = "LIVE OFF";
                 if(!iframe.src.includes("archive.org")) {
                     iframe.src = KICK_URL + isMuted;
                     iframe.style.display = "block";
@@ -190,6 +196,8 @@
             } else {
                 document.body.classList.remove('is-live');
                 badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off";
+                btnOn.style.background = "#333"; btnOn.innerText = "LIVE ON";
+                btnOff.style.background = "#f52a1f"; btnOff.innerText = "DEACTIVATED";
                 if(!iframe.src.includes("archive.org")) {
                     iframe.src = ""; iframe.style.display = "none";
                 }
@@ -219,21 +227,16 @@
             let rotated = sch.length > 0 ? [...sch.slice(liveIdx), ...sch.slice(0, liveIdx)] : [];
             document.getElementById('pub-sch').innerHTML = rotated.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
-                let tag = (i === 0) ? '<div class="tag-live" style="background:var(--neon-red); padding:4px 8px; font-size:9px; border-radius:4px;">LIVE NOW</div>' : '';
+                let tag = (i === 0) ? '<div class="tag-live">LIVE NOW</div>' : '';
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">${s.day}</div><div style="font-size:14px;">${s.info}</div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
             fetchArchive();
         }
 
-        // FUNÇÃO DE LOGIN REPARADA
         function checkLogin() {
-            const u = document.getElementById('user-f').value;
-            const p = document.getElementById('pass-f').value;
-            if(u === "admin" && p === "1234") { 
+            if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { 
                 document.getElementById('login-overlay').style.display = 'none'; 
                 document.getElementById('dashboard').style.display = 'block'; 
-            } else {
-                alert("Login incorreto!");
             }
         }
 
