@@ -30,12 +30,12 @@
         iframe { width: 100%; height: 100%; border: 0; position: relative; z-index: 5; }
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #eee; font-size: clamp(20px, 8vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; text-align: center; }
 
-        /* --- CONTROLO FLUTUANTE (BACK TO LIVE & AUDIO) --- */
+        /* --- PLAYER CONTROLS --- */
         .player-controls { position: absolute; bottom: 20px; right: 20px; z-index: 100; display: flex; gap: 10px; }
         .p-btn { background: rgba(0,0,0,0.8); color: #fff; border: 1px solid #444; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; backdrop-filter: blur(5px); }
         #back-live-btn { background: var(--live-green); border-color: var(--live-green); display: none; }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD & LOGIN --- */
         #login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 35px; border-radius: 20px; border: 1px solid var(--neon-red); width: 320px; text-align: center; }
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
@@ -87,7 +87,6 @@
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
         <iframe id="main-iframe" src="" allowfullscreen></iframe>
-        
         <div class="player-controls">
             <button id="back-live-btn" class="p-btn" onclick="goLive()">Back to Live</button>
             <button id="mute-btn" class="p-btn" onclick="toggleMute()">Mute/Unmute</button>
@@ -163,14 +162,13 @@
 
         function goLive() {
             document.getElementById('back-live-btn').style.display = "none";
-            load(); // Força recarregamento do player oficial
+            load();
         }
 
         function toggleMute() {
             isMuted = !isMuted;
-            if(document.getElementById('main-iframe').src.includes("kick.com")) {
-                document.getElementById('main-iframe').src = KICK_URL + isMuted;
-            }
+            const iframe = document.getElementById('main-iframe');
+            if(iframe.src.includes("kick.com")) iframe.src = KICK_URL + isMuted;
         }
 
         async function setLive(status) {
@@ -182,7 +180,6 @@
             stationIsLive = isLive;
             const badge = document.getElementById('live-badge');
             const iframe = document.getElementById('main-iframe');
-            
             if(isLive) {
                 document.body.classList.add('is-live');
                 badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on";
@@ -194,8 +191,7 @@
                 document.body.classList.remove('is-live');
                 badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off";
                 if(!iframe.src.includes("archive.org")) {
-                    iframe.src = "";
-                    iframe.style.display = "none";
+                    iframe.src = ""; iframe.style.display = "none";
                 }
             }
         }
@@ -205,7 +201,8 @@
             const data = await r.json() || {};
             updateUI(data.is_live);
             
-            const djsList = Object.entries(data.djs || {});
+            const djsStore = data.djs || {};
+            const djsList = Object.entries(djsStore);
             document.getElementById('sch-j-drop').innerHTML = djsList.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             document.getElementById('pub-djs').innerHTML = djsList.map(([id, d]) => `<div style="text-align:center; background:#080808; padding:20px; border-radius:20px;"><div style="width:80px; height:80px; border-radius:50%; background-image:url('${d.img}'); background-size:cover; margin:0 auto 10px; border:2px solid #333;"></div><div>${d.name}</div></div>`).join('');
             document.getElementById('adm-list-djs').innerHTML = djsList.map(([id, d]) => `<div class="edit-item">${d.name} <button onclick="delItem('djs','${id}')">DEL</button></div>`).join('');
@@ -213,12 +210,30 @@
             let sch = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
             document.getElementById('adm-list-sch').innerHTML = sch.map(s => `<div class="edit-item">${s.time} - ${s.info} <button onclick="delItem('schedule','${s.id}')">DEL</button></div>`).join('');
             
+            const time = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
+            const minsNow = parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1]);
+            sch.forEach(s => { s.mins = parseInt(s.time.split(':')[0]) * 60 + parseInt(s.time.split(':')[1]); });
+            sch.sort((a,b) => a.mins - b.mins);
+            let liveIdx = sch.findLastIndex(s => minsNow >= s.mins);
+            if (liveIdx === -1 && sch.length > 0) liveIdx = 0;
+            let rotated = sch.length > 0 ? [...sch.slice(liveIdx), ...sch.slice(0, liveIdx)] : [];
+            document.getElementById('pub-sch').innerHTML = rotated.map((s, i) => {
+                const dj = Object.values(djsStore).find(d => d.name === s.info);
+                let tag = (i === 0) ? '<div class="tag-live" style="background:var(--neon-red); padding:4px 8px; font-size:9px; border-radius:4px;">LIVE NOW</div>' : '';
+                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">${s.day}</div><div style="font-size:14px;">${s.info}</div><div>${s.time}</div><div>${tag}</div></div>`;
+            }).join('');
             fetchArchive();
         }
 
-        function checkLogin() { 
-            if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { 
-                document.getElementById('dashboard').style.display='block'; 
+        // FUNÇÃO DE LOGIN REPARADA
+        function checkLogin() {
+            const u = document.getElementById('user-f').value;
+            const p = document.getElementById('pass-f').value;
+            if(u === "admin" && p === "1234") { 
+                document.getElementById('login-overlay').style.display = 'none'; 
+                document.getElementById('dashboard').style.display = 'block'; 
+            } else {
+                alert("Login incorreto!");
             }
         }
 
