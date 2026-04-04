@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V57</title>
+    <title>FLASHMIX.TV | PRO STATION V58</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; --live-green: #28a745; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -37,31 +37,8 @@
         /* --- VIDEO ARCHIVE --- */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 50px; }
         .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-        .video-thumb { 
-            width: 100%; 
-            aspect-ratio: 16/9; 
-            background-size: cover; 
-            background-position: center; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            position: relative;
-            background-color: #000;
-        }
-        .play-btn-overlay { 
-            background: rgba(245, 42, 31, 0.9); 
-            width: 50px; 
-            height: 50px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 20px;
-            color: #fff;
-            transition: 0.3s;
-        }
-        .video-card:hover .play-btn-overlay { transform: scale(1.1); background: var(--neon-red); }
+        .video-thumb { width: 100%; aspect-ratio: 16/9; background-size: cover; background-position: center; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; background-color: #000; }
+        .play-btn-overlay { background: rgba(245, 42, 31, 0.9); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; }
         .video-title { padding: 15px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #eee; font-weight: bold; background: #0c0c0c; }
 
         /* --- DASHBOARD --- */
@@ -87,6 +64,9 @@
         .sch-photo { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid #333; }
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
         .tag-paused { background: #444; color: #888; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
+        
+        /* DJ CARDS */
+        #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
     </style>
 </head>
 <body id="app">
@@ -125,9 +105,7 @@
         <div id="breaking-live">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
         <div id="pub-sch" class="sch-box"></div>
         <div id="residents" class="row-title">Flashmix Residents</div>
-        
         <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px; margin-bottom:40px;"></div>
-        
         <div id="archive" class="row-title">Video Archive</div>
         <div id="pub-archive" class="video-grid"></div>
     </div>
@@ -159,6 +137,7 @@
                 <h3>2. SCHEDULE</h3>
                 <select id="sch-t-drop"></select>
                 <select id="sch-j-drop"></select>
+                <input type="text" id="sch-style" placeholder="Style / Program Name (ex: Funky House)">
                 <button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
                 <div id="adm-list-sch" style="margin-top:15px;"></div>
             </div>
@@ -215,12 +194,11 @@
             const djsList = Object.entries(djsStore);
             document.getElementById('sch-j-drop').innerHTML = djsList.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             
-            // RENDERING DJs PÚBLICO - FOTOS RETANGULARES AJUSTADAS
             document.getElementById('pub-djs').innerHTML = djsList.map(([id, d]) => `
-                <div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center; display:flex; flex-direction:column; overflow:hidden;">
-                    <img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-bottom:12px; border:2px solid #333;">
+                <div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center; display:flex; flex-direction:column;">
+                    <img src="${d.img}">
                     <div style="font-size:13px; font-weight:bold; color:#fff;">${d.name}</div>
-                    <div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase; letter-spacing:1px;">${d.style || ''}</div>
+                    <div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div>
                 </div>`).join('');
             
             document.getElementById('adm-list-djs').innerHTML = djsList.map(([id, d]) => `
@@ -241,11 +219,16 @@
             document.getElementById('pub-sch').innerHTML = rotated.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
                 let tag = (i === 0) ? (stationIsLive ? '<div class="tag-paused">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
-                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div style="font-size:14px;">${s.info}</div><div>${s.time}</div><div>${tag}</div></div>`;
+                return `<div class="sch-row">
+                    <div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div>
+                    <div style="color:var(--neon-red); font-weight:bold;">${s.day || 'EVERY DAY'}</div>
+                    <div style="font-size:14px;">${s.info}<br><small style="color:#888; font-size:10px;">${s.style || ''}</small></div>
+                    <div>${s.time}</div><div>${tag}</div>
+                </div>`;
             }).join('');
 
             document.getElementById('adm-list-sch').innerHTML = sch.map(s => `
-                <div class="edit-item"><span>${s.time} - ${s.info}</span><div>
+                <div class="edit-item"><span>${s.time} - ${s.info} (${s.style || 'No Style'})</span><div>
                     <button style="background:blue; color:#fff;" onclick='startEdit("schedule","${s.id}",${JSON.stringify(s).replace(/"/g, '&quot;')})'>EDIT</button>
                     <button style="background:red; color:#fff;" onclick='delItem("schedule","${s.id}")'>DEL</button>
                 </div></div>`).join('');
@@ -255,23 +238,34 @@
         function startEdit(type, id, data) {
             editId = id;
             if(type === 'djs') {
-                document.getElementById('dj-n').value = data.name; document.getElementById('dj-s').value = data.style; document.getElementById('dj-i').value = data.img;
-                document.getElementById('btn-dj-action').innerText = "UPDATE DJ"; document.getElementById('btn-dj-action').setAttribute('onclick', `pushUpdate('djs')`);
+                document.getElementById('dj-n').value = data.name;
+                document.getElementById('dj-s').value = data.style;
+                document.getElementById('dj-i').value = data.img;
+                document.getElementById('btn-dj-action').innerText = "UPDATE DJ";
+                document.getElementById('btn-dj-action').setAttribute('onclick', `pushUpdate('djs')`);
             } else {
-                document.getElementById('sch-t-drop').value = data.time; document.getElementById('sch-j-drop').value = data.info;
-                document.getElementById('btn-sch-action').innerText = "UPDATE SCHEDULE"; document.getElementById('btn-sch-action').setAttribute('onclick', `pushUpdate('schedule')`);
+                document.getElementById('sch-t-drop').value = data.time;
+                document.getElementById('sch-j-drop').value = data.info;
+                document.getElementById('sch-style').value = data.style || '';
+                document.getElementById('btn-sch-action').innerText = "UPDATE SCHEDULE";
+                document.getElementById('btn-sch-action').setAttribute('onclick', `pushUpdate('schedule')`);
             }
         }
 
         async function pushUpdate(p) {
-            let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value };
+            let item = p === 'djs' ? 
+                { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : 
+                { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
             await fetch(`${DB}${p}/${editId}.json`, { method: "PATCH", body: JSON.stringify(item) });
             location.reload();
         }
 
         async function addToDB(p) {
-            let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value };
-            await fetch(`${DB}${p}.json`, { method: "POST", body: JSON.stringify(item) }); load();
+            let item = p === 'djs' ? 
+                { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : 
+                { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
+            await fetch(`${DB}${p}.json`, { method: "POST", body: JSON.stringify(item) }); 
+            load();
         }
 
         async function delItem(p, id) { if(confirm("Delete?")) { await fetch(`${DB}${p}/${id}.json`, { method: "DELETE" }); load(); } }
@@ -280,14 +274,7 @@
             try {
                 const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
                 const data = await res.json();
-                document.getElementById('pub-archive').innerHTML = data.response.docs.map(i => `
-                    <div class="video-card">
-                        <div class="video-thumb" style="background-image:url('https://archive.org/services/img/${i.identifier}')" 
-                             onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'">
-                            <div class="play-btn-overlay">▶</div>
-                        </div>
-                        <div class="video-title">${i.title}</div>
-                    </div>`).join('');
+                document.getElementById('pub-archive').innerHTML = data.response.docs.map(i => `<div class="video-card"><div class="video-thumb" style="background-image:url('https://archive.org/services/img/${i.identifier}')" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div class="play-btn-overlay">▶</div></div><div class="video-title">${i.title}</div></div>`).join('');
             } catch(e) {}
         }
 
