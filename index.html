@@ -3,73 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V72</title>
+    <title>FLASHMIX.TV | PRO STATION V73</title>
     <style>
-        :root { --neon-red: #f52a1f; --neon-blue: #00ecff; --live-green: #28a745; }
+        :root { 
+            --neon-red: #f52a1f; 
+            --neon-blue: #00ecff; 
+            --live-green: #28a745; 
+            --bg-color: #000;
+            --accent-color: var(--neon-red);
+        }
+        
+        /* MODO DIA AUTOMÁTICO (CSS VARIÁVEIS) */
+        body.day-mode { 
+            --bg-color: #0a0a0a; 
+            --accent-color: var(--neon-blue); 
+        }
+
         * { box-sizing: border-box; scroll-behavior: smooth; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; }
+        body { 
+            margin: 0; 
+            background: var(--bg-color); 
+            color: #fff; 
+            font-family: 'Arial Black', sans-serif; 
+            padding-top: 140px; 
+            transition: background 1s ease;
+        }
 
         /* --- NAVIGATION --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
         .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
-        .logo-circle { background: var(--neon-red); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
+        .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; transition: 0.5s; }
         .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; align-items: center; }
         .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
-        .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; transition: 0.5s; }
 
         /* --- PLAYER STAGE --- */
-        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--neon-red); margin: 0 auto 15px; overflow: hidden; position: relative; }
+        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 15px; overflow: hidden; position: relative; transition: border-color 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
-        /* --- PROFESSIONAL TEXT BOX (STATION NEWS) --- */
-        .station-ticker { 
-            width: 95%; 
-            max-width: 1200px; 
-            margin: 0 auto 40px; 
-            background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
-            border: 1px solid #1a1a1a;
-            border-top: 2px solid var(--neon-blue);
-            padding: 25px;
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-        #station-news-display { 
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 15px;
-            line-height: 1.6;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px rgba(0,236,255,0.3);
-        }
+        /* --- STATION TICKER --- */
+        .station-ticker { width: 95%; max-width: 1200px; margin: 0 auto 40px; background: rgba(0,0,0,0.3); border-top: 2px solid var(--accent-color); padding: 25px; text-align: center; }
+        #station-news-display { font-family: 'Courier New', Courier, monospace; font-size: 15px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- UI COMPONENTS --- */
-        .status-badge { width: fit-content; margin: 0 auto 15px; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
-        .badge-off { background: #333; color: #888; }
-        .badge-on { background: var(--live-green); color: #fff; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-        #breaking-live { display:none; background: var(--neon-red); color: #fff; padding: 15px; text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; border-radius: 10px; margin-bottom: 20px; }
-        body.is-live #breaking-live { display: block; }
-
-        /* --- SCHEDULE & LISTS --- */
-        .container { width: 95%; max-width: 1100px; margin: 0 auto; }
-        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
+        /* --- SCHEDULE (CONSISTÊNCIA VISUAL) --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px !important; background-size: cover; background-position: center; border: 2px solid #333; }
         .dj-line-info { font-size: 14px; font-weight: bold; color: #fff; display: flex; align-items: center; }
-        .dj-separator { margin: 0 12px; color: #fff; }
+        .dj-separator { margin: 0 12px; color: #fff; font-weight: normal; }
         .dj-line-style { font-size: 13px; font-weight: normal; color: #fff; text-transform: uppercase; }
-        .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
-        .tag-paused { background: #444; color: #888; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
 
-        /* --- DASHBOARD (ORIGINAL STYLE) --- */
+        /* --- DASHBOARD (SEM ALTERAÇÕES) --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
@@ -77,11 +66,18 @@
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
         .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
-        .site-section.hidden { display: none !important; }
-        .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
+
+        /* --- OTHERS --- */
+        .container { width: 95%; max-width: 1100px; margin: 0 auto; }
+        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
+        .site-section.hidden { display: none !important; }
+        .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
+        .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
+        .badge-off { background: #333; color: #888; }
+        .badge-on { background: var(--live-green); color: #fff; animation: pulse 1.5s infinite; }
     </style>
 </head>
 <body id="app">
@@ -112,7 +108,7 @@
         </div>
     </div>
 
-    <div id="live-badge" class="status-badge badge-off">STATION OFFLINE</div>
+    <div id="live-badge" class="status-badge badge-off" style="margin: 0 auto 15px;">STATION OFFLINE</div>
 
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
@@ -125,17 +121,20 @@
 
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
+        
         <div id="sec-sch" class="site-section">
             <div id="schedule" class="row-title">Weekly Schedule</div>
-            <div id="breaking-live">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
+            <div id="breaking-live" style="display:none; background: var(--neon-red); color: #fff; padding: 15px; text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; border-radius: 10px; margin-bottom: 20px;">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
             <div id="pub-sch" class="sch-box"></div>
             <button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button>
         </div>
+        
         <div id="sec-djs" class="site-section">
             <div id="residents" class="row-title">Flashmix Residents</div>
             <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
             <button id="more-djs" class="see-more-btn" onclick="toggleView('djs')">See More</button>
         </div>
+        
         <div id="sec-vid" class="site-section">
             <div id="archive" class="row-title">Video Archive</div>
             <div id="pub-archive" class="video-grid"></div>
@@ -188,12 +187,20 @@
         let editId = null, stationIsLive = false;
         let showAll = { sch: false, djs: false, vid: false }, fullData = { sch: [], djs: [], vid: [] }, visSettings = { sch: true, djs: true, vid: true };
 
+        // LÓGICA MODO DIA/NOITE AUTOMÁTICO
+        function updateEnvironment() {
+            const hour = new Date().getHours();
+            if (hour >= 8 && hour < 20) { document.body.classList.add('day-mode'); } 
+            else { document.body.classList.remove('day-mode'); }
+        }
+
         async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
         async function setVis(type) { visSettings[type] = !visSettings[type]; await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) }); load(); }
         async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; } }
 
         async function load() {
+            updateEnvironment(); // Atualiza cores
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
             stationIsLive = data.is_live;
@@ -233,7 +240,7 @@
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
                 let tag = (i === 0) ? (stationIsLive ? '<div class="tag-paused">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
                 let stylePart = s.style ? `<span class="dj-separator">|</span><span class="dj-line-style">${s.style}</span>` : "";
-                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div class="dj-line-info">${s.info} ${stylePart}</div><div>${s.time}</div><div>${tag}</div></div>`;
+                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold; transition:0.5s;">EVERY DAY</div><div class="dj-line-info">${s.info} ${stylePart}</div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
             document.getElementById('more-sch').style.display = fullData.sch.length > 5 ? 'block' : 'none';
 
