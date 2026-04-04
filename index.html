@@ -32,12 +32,15 @@
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #222; font-size: clamp(14px, 5vw, 24px); letter-spacing: 8px; z-index: 1; text-align: center; padding: 20px; }
         body.is-live #offline-msg { display: none; }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD (MOBILE OPTIMIZED) --- */
         #login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 35px; border-radius: 20px; border: 1px solid var(--neon-red); width: 300px; text-align: center; }
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
-        .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
-        .dash-nav { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; align-items: center; }
+        .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 20px; border-radius: 20px; }
+        
+        .dash-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .dash-nav button { flex: 1; min-width: 80px; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 10px; text-transform: uppercase; }
+
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
@@ -81,14 +84,12 @@
     <div id="dashboard">
         <div class="dash-container">
             <div class="dash-nav">
-                <div style="margin-right: auto; display: flex; gap: 8px;">
-                    <button onclick="setLive(true)" style="background:var(--neon-red); color:#fff; border:none; padding:8px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:10px;">MOBILE ON</button>
-                    <button onclick="setLive(false)" style="background:#333; color:#fff; border:none; padding:8px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:10px;">MOBILE OFF</button>
-                </div>
-                <button style="background:var(--neon-blue); color:#000; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;" onclick="load()">SAVE CHANGES</button>
-                <button style="background:#333; color:#fff; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;" onclick="location.reload()">EXIT</button>
+                <button onclick="setLive(true)" style="background:var(--neon-red); color:#fff;">LIVE ON</button>
+                <button onclick="setLive(false)" style="background:#333; color:#fff;">LIVE OFF</button>
+                <button onclick="load()" style="background:var(--neon-blue); color:#000;">SAVE</button>
+                <button onclick="location.reload()" style="background:#1a1a1a; color:#fff; border:1px solid #333;">EXIT</button>
             </div>
-            <h2 style="color:var(--neon-red); margin-bottom:30px;">STATION DASHBOARD</h2>
+            <h2 style="color:var(--neon-red); margin-bottom:30px; text-align:center; font-size:18px;">STATION DASHBOARD</h2>
 
             <div class="dash-section">
                 <h3>1. DJs DATABASE</h3>
@@ -132,8 +133,14 @@
         }
 
         async function setLive(status) {
-            await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) });
-            load();
+            try {
+                await fetch(DB + ".json", { 
+                    method: "PATCH", 
+                    body: JSON.stringify({ is_live: status }) 
+                });
+                load();
+                alert("SISTEMA: " + (status ? "LIGADO" : "DESLIGADO"));
+            } catch (e) { alert("Erro na Database!"); }
         }
 
         function checkLogin() {
