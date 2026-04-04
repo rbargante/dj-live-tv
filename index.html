@@ -39,7 +39,7 @@
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 20px; border-radius: 20px; }
         
         .dash-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
-        .dash-nav button { flex: 1; min-width: 80px; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 10px; text-transform: uppercase; }
+        .dash-nav button { flex: 1; min-width: 80px; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 10px; text-transform: uppercase; transition: 0.3s; }
 
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
@@ -84,8 +84,8 @@
     <div id="dashboard">
         <div class="dash-container">
             <div class="dash-nav">
-                <button onclick="setLive(true)" style="background:var(--neon-red); color:#fff;">LIVE ON</button>
-                <button onclick="setLive(false)" style="background:#333; color:#fff;">LIVE OFF</button>
+                <button id="btn-live-on" onclick="setLive(true)" style="background:var(--neon-red); color:#fff;">LIVE ON</button>
+                <button id="btn-live-off" onclick="setLive(false)" style="background:#333; color:#fff;">LIVE OFF</button>
                 <button onclick="load()" style="background:var(--neon-blue); color:#000;">SAVE</button>
                 <button onclick="location.reload()" style="background:#1a1a1a; color:#fff; border:1px solid #333;">EXIT</button>
             </div>
@@ -123,8 +123,8 @@
 
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-        let activeId = null;
         let djsStore = {};
+        let activeId = null;
 
         function getUK() {
             const time = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
@@ -133,20 +133,33 @@
         }
 
         async function setLive(status) {
+            const btn = status ? document.getElementById('btn-live-on') : document.getElementById('btn-live-off');
+            const oldTxt = btn.innerText;
+            btn.innerText = "...";
+
             try {
                 await fetch(DB + ".json", { 
                     method: "PATCH", 
                     body: JSON.stringify({ is_live: status }) 
                 });
-                load();
-                alert("SISTEMA: " + (status ? "LIGADO" : "DESLIGADO"));
-            } catch (e) { alert("Erro na Database!"); }
+                btn.innerText = status ? "ACTIVATED" : "DEACTIVATED";
+                btn.style.background = status ? "#28a745" : "#555";
+                
+                setTimeout(() => {
+                    btn.innerText = oldTxt;
+                    btn.style.background = status ? "var(--neon-red)" : "#333";
+                    load();
+                }, 2000);
+            } catch (e) { alert("Error!"); btn.innerText = oldTxt; }
         }
 
         function checkLogin() {
             const u = document.getElementById('user-f').value.trim().toLowerCase();
             const p = document.getElementById('pass-f').value.trim();
-            if(u === "admin" && p === "1234") { document.getElementById('login-overlay').style.display='none'; document.getElementById('dashboard').style.display='block'; } else { alert("Login Error!"); }
+            if(u === "admin" && p === "1234") { 
+                document.getElementById('login-overlay').style.display='none'; 
+                document.getElementById('dashboard').style.display='block'; 
+            } else { alert("Login Error!"); }
         }
 
         async function load() {
