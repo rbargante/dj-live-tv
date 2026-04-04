@@ -3,67 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | OFFICIAL STATION V70</title>
+    <title>FLASHMIX.TV | PRO STATION V71</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; --live-green: #28a745; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 100px; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; }
 
         /* --- NAVIGATION --- */
-        .top-nav { position: fixed; top: 0; width: 100%; height: 75px; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 1000; border-bottom: 1px solid #1a1a1a; }
-        .nav-content { max-width: 1200px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
+        .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
         
-        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
-        .logo-circle { width: 40px; height: 40px; background: var(--neon-red); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; box-shadow: 0 0 15px var(--neon-red); }
-        .station-title { font-size: 18px; letter-spacing: 2px; text-transform: uppercase; }
-
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
+        .logo-circle { background: var(--neon-red); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
+        
         .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; align-items: center; }
-        .main-menu a { color: #fff; text-decoration: none; cursor: pointer; transition: 0.3s; }
-        .main-menu a:hover { color: var(--neon-red); }
+        .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
         .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
 
         /* --- PLAYER STAGE --- */
-        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--neon-red); margin: 0 auto 15px; overflow: hidden; position: relative; }
+        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--neon-red); margin: 0 auto 30px; overflow: hidden; position: relative; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
-        /* --- EDITABLE ANNOUNCEMENT --- */
-        .station-news { width: 95%; max-width: 1200px; margin: 0 auto 30px; text-align: center; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 15px; border-left: 4px solid var(--neon-blue); }
-        #news-text { font-size: 14px; font-weight: normal; color: #ccc; line-height: 1.6; font-family: sans-serif; }
+        /* --- STATION NEWS --- */
+        .station-news { width: 95%; max-width: 1200px; margin: -20px auto 30px; text-align: center; color: #888; font-size: 13px; font-family: sans-serif; }
 
-        /* --- UI COMPONENTS --- */
-        .status-badge { width: fit-content; margin: 0 auto 15px; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
-        .badge-off { background: #333; color: #888; }
-        .badge-on { background: var(--live-green); color: #fff; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-        #breaking-live { display: none; background: var(--neon-red); color: #fff; padding: 15px; text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; border-radius: 10px; margin-bottom: 20px; animation: blinker 1s linear infinite; }
-        body.is-live #breaking-live { display: block; }
+        /* --- DASHBOARD (REPOSTO IGUAL AOS TEUS PRINTS) --- */
+        #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
+        .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
+        .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
+        
+        .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
+        .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
+        .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
 
-        /* --- SCHEDULE & GRID --- */
+        /* --- PUBLIC UI --- */
+        .container { width: 95%; max-width: 1100px; margin: 0 auto; }
+        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px !important; background-size: cover; background-position: center; border: 2px solid #333; }
         .dj-line-info { font-size: 14px; font-weight: bold; color: #fff; display: flex; align-items: center; }
-        .dj-separator { margin: 0 12px; color: #fff; font-weight: normal; }
-        .dj-line-style { font-size: 13px; font-weight: normal; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
-        .tag-paused { background: #444; color: #888; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
-
-        /* --- DASHBOARD --- */
-        #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
-        .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
-        .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
-        .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; }
-
-        .container { width: 95%; max-width: 1100px; margin: 0 auto; }
-        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
+        .dj-separator { margin: 0 12px; color: #fff; }
+        .dj-line-style { font-size: 13px; font-weight: normal; color: #fff; text-transform: uppercase; }
+        
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
         .site-section.hidden { display: none !important; }
+        .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
     </style>
 </head>
 <body id="app">
@@ -72,14 +64,14 @@
         <div class="nav-content">
             <a href="#" class="brand">
                 <div class="logo-circle">F</div>
-                <div class="station-title">FLASHMIX.TV</div>
+                <div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div>
             </a>
             <div class="main-menu">
                 <a href="#">Home</a>
                 <a href="#schedule">Schedule</a>
                 <a href="#residents">Residents</a>
                 <a href="#archive">Archive</a>
-                <span onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager</span>
+                <span onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager Access</span>
             </div>
         </div>
     </nav>
@@ -94,23 +86,21 @@
         </div>
     </div>
 
-    <div id="live-badge" class="status-badge badge-off">STATION OFFLINE</div>
+    <div id="live-badge" class="status-badge badge-off" style="margin: 0 auto 15px;">STATION OFFLINE</div>
 
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
         <iframe id="kick-iframe" src="https://player.kick.com/djlivetv?muted=false" allowfullscreen></iframe>
     </div>
 
-    <div class="station-news">
-        <div id="news-text">Welcome to Flashmix.TV - The Heart of Electronic Music. Stay tuned for our daily live streams!</div>
-    </div>
+    <div id="station-news-display" class="station-news"></div>
 
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
         
         <div id="sec-sch" class="site-section">
             <div id="schedule" class="row-title">Weekly Schedule</div>
-            <div id="breaking-live">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
+            <div id="breaking-live" style="display:none; background: var(--neon-red); color: #fff; padding: 15px; text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; border-radius: 10px; margin-bottom: 20px;">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
             <div id="pub-sch" class="sch-box"></div>
             <button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button>
         </div>
@@ -130,47 +120,51 @@
 
     <div id="dashboard">
         <div class="dash-container">
-            <div class="dash-nav" style="margin-bottom:20px; border-bottom:1px solid #222; padding-bottom:15px;">
-                <button onclick="location.reload()" style="width:100%; background:var(--neon-blue); color:#000; padding:15px; border:none; font-weight:bold; cursor:pointer; border-radius:5px; text-transform:uppercase; margin-bottom:10px;">SAVE & EXIT MANAGER</button>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <button onclick="setLive(true)" style="flex:1; background:var(--live-green); padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer;">LIVE ON</button>
-                    <button onclick="setLive(false)" style="flex:1; background:var(--neon-red); padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer;">LIVE OFF</button>
-                </div>
-                <div style="display:flex; gap:5px; background:#111; padding:10px; border-radius:8px;">
-                    <button id="v-sch" onclick="setVis('sch')" style="flex:1; font-size:10px; padding:8px;">Schedule</button>
-                    <button id="v-djs" onclick="setVis('djs')" style="flex:1; font-size:10px; padding:8px;">Residents</button>
-                    <button id="v-vid" onclick="setVis('vid')" style="flex:1; font-size:10px; padding:8px;">Archive</button>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <button onclick="setLive(true)" style="flex:1; background:#5cb85c; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE ON</button>
+                <button onclick="setLive(false)" style="flex:1; background:#d9534f; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE OFF</button>
+                <button onclick="load()" style="flex:1; background:#5bc0de; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">REFRESH DATA</button>
+                <button onclick="location.reload()" style="flex:1; background:#333; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">EXIT MANAGER</button>
+            </div>
+
+            <div class="dash-section" style="border:none; background:#111; padding:10px;">
+                <h4 style="margin:0 0 10px; font-size:10px; color:#555;">SECTION VISIBILITY</h4>
+                <div style="display:flex; gap:5px;">
+                    <button id="v-sch" onclick="setVis('sch')" style="flex:1; padding:8px; font-size:10px;">SCHEDULE</button>
+                    <button id="v-djs" onclick="setVis('djs')" style="flex:1; padding:8px; font-size:10px;">RESIDENTS</button>
+                    <button id="v-vid" onclick="setVis('vid')" style="flex:1; padding:8px; font-size:10px;">ARCHIVE</button>
                 </div>
             </div>
 
             <div class="dash-section">
-                <h3>STATION ANNOUNCEMENT</h3>
-                <textarea id="adm-news" rows="3" placeholder="Write something to show under the player..."></textarea>
-                <button class="action-btn" style="background:var(--neon-blue); color:#000;" onclick="saveNews()">UPDATE NEWS</button>
+                <h3>STATION NEWS / ABOUT</h3>
+                <textarea id="adm-news" rows="2" placeholder="Text under player..."></textarea>
+                <button class="action-btn" style="background:var(--neon-blue); color:#000;" onclick="saveNews()">SAVE NEWS</button>
             </div>
             
             <div class="dash-section">
-                <h3>DJs DATABASE</h3>
+                <h3>1. DJs DATABASE</h3>
                 <input type="text" id="dj-n" placeholder="DJ Name">
                 <input type="text" id="dj-s" placeholder="Main Style">
                 <input type="text" id="dj-i" placeholder="Photo URL">
                 <button id="btn-dj-action" class="action-btn" onclick="addToDB('djs')">ADD TO DATABASE</button>
-                <div id="adm-list-djs" style="margin-top:15px;"></div>
+                <div id="adm-list-djs"></div>
             </div>
 
             <div class="dash-section">
-                <h3>SCHEDULE MANAGER</h3>
+                <h3>2. SCHEDULE</h3>
                 <select id="sch-t-drop"></select>
                 <select id="sch-j-drop"></select>
                 <input type="text" id="sch-style" placeholder="Program / Style Name">
                 <button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
-                <div id="adm-list-sch" style="margin-top:15px;"></div>
+                <div id="adm-list-sch"></div>
             </div>
         </div>
     </div>
 
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
+        const KICK_STREAM = "https://player.kick.com/djlivetv?muted=false";
         let editId = null, stationIsLive = false;
         let showAll = { sch: false, djs: false, vid: false }, fullData = { sch: [], djs: [], vid: [] }, visSettings = { sch: true, djs: true, vid: true };
 
@@ -184,20 +178,19 @@
             const data = await r.json() || {};
             stationIsLive = data.is_live;
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
-            
-            // News Sync
-            document.getElementById('news-text').innerText = data.news || "Welcome to Flashmix.TV";
+            document.getElementById('station-news-display').innerText = data.news || "";
             document.getElementById('adm-news').value = data.news || "";
 
-            // Visibility UI
             Object.keys(visSettings).forEach(k => {
                 const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
                 if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) btn.style.background = '#28a745'; }
                 else { if(sec) sec.classList.add('hidden'); if(btn) btn.style.background = '#333'; }
             });
 
-            if(stationIsLive) document.body.classList.add('is-live'); else document.body.classList.remove('is-live');
-            
+            const badge = document.getElementById('live-badge'), iframe = document.getElementById('kick-iframe');
+            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; iframe.style.display = "block"; document.getElementById('breaking-live').style.display = 'block'; }
+            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; iframe.style.display = "none"; document.getElementById('breaking-live').style.display = 'none'; }
+
             const djsStore = data.djs || {};
             fullData.djs = Object.entries(djsStore);
             document.getElementById('sch-j-drop').innerHTML = fullData.djs.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
@@ -219,12 +212,13 @@
             document.getElementById('pub-sch').innerHTML = schSlice.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
                 let tag = (i === 0) ? (stationIsLive ? '<div class="tag-paused">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
-                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div class="dj-line-info">${s.info} ${s.style ? `<span class="dj-separator">|</span><span class="dj-line-style">${s.style}</span>` : ""}</div><div>${s.time}</div><div>${tag}</div></div>`;
+                let stylePart = s.style ? `<span class="dj-separator">|</span><span class="dj-line-style">${s.style}</span>` : "";
+                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div class="dj-line-info">${s.info} ${stylePart}</div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
             document.getElementById('more-sch').style.display = fullData.sch.length > 5 ? 'block' : 'none';
 
-            document.getElementById('adm-list-djs').innerHTML = fullData.djs.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button onclick='startEdit("djs","${id}",${JSON.stringify(d).replace(/"/g, '&quot;')})'>EDIT</button><button onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
-            document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button onclick='startEdit("schedule","${s.id}",${JSON.stringify(s).replace(/"/g, '&quot;')})'>EDIT</button><button onclick='delItem("schedule","${s.id}")'>DEL</button></div></div>`).join('');
+            document.getElementById('adm-list-djs').innerHTML = fullData.djs.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("djs","${id}",${JSON.stringify(d).replace(/"/g, '&quot;')})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
+            document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("schedule","${s.id}",${JSON.stringify(s).replace(/"/g, '&quot;')})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("schedule","${s.id}")'>DEL</button></div></div>`).join('');
             getArchive();
         }
 
@@ -248,7 +242,8 @@
         document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
 
-        load(); setInterval(load, 30000);
+        load();
+        setInterval(load, 30000);
     </script>
 </body>
 </html>
