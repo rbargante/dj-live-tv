@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V59</title>
+    <title>FLASHMIX.TV | PRO STATION V60</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; --live-green: #28a745; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -39,7 +39,7 @@
         .login-card { background: #111; padding: 35px; border: 1px solid var(--neon-red); width: 320px; text-align: center; }
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
-        .dash-nav { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .dash-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
         .live-toggle-group { display: flex; gap: 10px; }
         .live-toggle-group button { flex: 1; padding: 15px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 10px; border-radius: 5px; transition: 0.3s; opacity: 0.3; }
         .live-toggle-group button.active { opacity: 1; box-shadow: 0 0 15px currentColor; }
@@ -117,7 +117,7 @@
                     <button id="btn-off" onclick="setLive(false)" style="background:var(--neon-red); color:#fff;">LIVE OFF</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button onclick="location.reload()" style="flex:1; background:var(--neon-blue); color:#000; padding:12px; border:none; font-weight:bold; cursor:pointer; border-radius:5px; font-size:10px; text-transform:uppercase;">SAVE & REFRESH</button>
+                    <button onclick="load()" style="flex:1; background:var(--neon-blue); color:#000; padding:12px; border:none; font-weight:bold; cursor:pointer; border-radius:5px; font-size:10px; text-transform:uppercase;">REFRESH/SAVE</button>
                     <button onclick="document.getElementById('dashboard').style.display='none'" style="flex:1; background:#333; color:#fff; padding:12px; border:none; font-weight:bold; cursor:pointer; border-radius:5px; font-size:10px; text-transform:uppercase;">EXIT</button>
                 </div>
             </div>
@@ -220,13 +220,13 @@
                 return `<div class="sch-row">
                     <div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div>
                     <div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div>
-                    <div style="font-size:14px;">${s.info}<br><small style="color:#888; font-size:10px;">${s.style || ''}</small></div>
+                    <div style="font-size:14px; line-height:1.2;">${s.info}<br><span style="color:#888; font-size:10px; font-family:sans-serif;">${s.style || ''}</span></div>
                     <div>${s.time}</div><div>${tag}</div>
                 </div>`;
             }).join('');
 
             document.getElementById('adm-list-sch').innerHTML = sch.map(s => `
-                <div class="edit-item"><span>${s.time} - ${s.info} (${s.style || 'No Style'})</span><div>
+                <div class="edit-item"><span>${s.time} - ${s.info}</span><div>
                     <button style="background:blue; color:#fff;" onclick='startEdit("schedule","${s.id}",${JSON.stringify(s).replace(/"/g, '&quot;')})'>EDIT</button>
                     <button style="background:red; color:#fff;" onclick='delItem("schedule","${s.id}")'>DEL</button>
                 </div></div>`).join('');
@@ -252,15 +252,32 @@
                 btn.classList.add('update-mode');
                 btn.onclick = () => pushUpdate('schedule');
             }
+            document.getElementById('dashboard').scrollTop = 0;
         }
 
         async function pushUpdate(p) {
             let item = p === 'djs' ? 
                 { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : 
                 { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
+            
             await fetch(`${DB}${p}/${editId}.json`, { method: "PATCH", body: JSON.stringify(item) });
-            alert("Updated!");
-            location.reload();
+            
+            // RESET BUTTONS
+            if(p === 'djs') {
+                let btn = document.getElementById('btn-dj-action');
+                btn.innerText = "ADD TO DATABASE";
+                btn.classList.remove('update-mode');
+                btn.onclick = () => addToDB('djs');
+                document.getElementById('dj-n').value = ""; document.getElementById('dj-s').value = ""; document.getElementById('dj-i').value = "";
+            } else {
+                let btn = document.getElementById('btn-sch-action');
+                btn.innerText = "ADD TO SCHEDULE";
+                btn.classList.remove('update-mode');
+                btn.onclick = () => addToDB('schedule');
+                document.getElementById('sch-style').value = "";
+            }
+            editId = null;
+            load();
         }
 
         async function addToDB(p) {
@@ -277,7 +294,7 @@
             try {
                 const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
                 const data = await res.json();
-                document.getElementById('pub-archive').innerHTML = data.response.docs.map(i => `<div class="video-card"><div class="video-thumb" style="background-image:url('https://archive.org/services/img/${i.identifier}')" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div class="video-title">${i.title}</div></div>`).join('');
+                document.getElementById('pub-archive').innerHTML = data.response.docs.map(i => `<div class="video-card"><div class="video-thumb" style="background-image:url('https://archive.org/services/img/${i.identifier}')" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div class="play-btn-overlay">▶</div></div><div class="video-title">${i.title}</div></div>`).join('');
             } catch(e) {}
         }
 
