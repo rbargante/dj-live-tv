@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | STATION MANAGER V38</title>
+    <title>FLASHMIX.TV | UK SYNC PRO V39</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -18,11 +18,11 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; }
         body.is-live iframe { display: block; }
 
-        /* LOGIN OVERLAY */
-        #login-screen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; align-items: center; justify-content: center; }
-        .login-box { background: #111; padding: 30px; border-radius: 20px; border: 1px solid var(--neon-red); width: 300px; text-align: center; }
+        /* LOGIN SCREEN */
+        #login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center; }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 1px solid var(--neon-red); width: 90%; max-width: 320px; text-align: center; }
 
-        /* DASHBOARD MANAGER */
+        /* DASHBOARD */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
@@ -31,14 +31,10 @@
         label { display: block; font-size: 10px; color: #888; margin: 10px 0 5px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
         
-        .add-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
-        .update-btn { width: 100%; padding: 15px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; display: none; text-transform: uppercase; }
+        .save-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
+        .edit-mode-btn { background: #fff !important; color: #000 !important; display: none; }
         
-        .admin-list-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border-radius: 8px; font-size: 11px; border: 1px solid #222; }
-        .item-data b { color: var(--neon-blue); font-size: 12px; display: block; }
-
-        .ctrl-btns { display: flex; gap: 5px; }
-        .ctrl-btns button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .admin-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #222; font-size: 11px; }
 
         /* PUBLIC UI */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
@@ -59,16 +55,16 @@
 <body id="app">
 
     <nav class="top-nav">
-        <a onclick="showLogin()" class="admin-btn">Manager Dashboard</a>
+        <a onclick="openLogin()" class="admin-btn">Manager Dashboard</a>
     </nav>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h3 style="color:#fff">STAFF LOGIN</h3>
-            <input type="text" id="user-field" placeholder="Username">
-            <input type="password" id="pass-field" placeholder="Password">
-            <button class="add-btn" onclick="doLogin()">ENTER</button>
-            <p onclick="document.getElementById('login-screen').style.display='none'" style="font-size:10px; color:#555; cursor:pointer; margin-top:15px;">CANCEL</p>
+    <div id="login-overlay">
+        <div class="login-card">
+            <h2 style="color:var(--neon-red); font-size:18px;">STAFF ACCESS</h2>
+            <input type="text" id="user-in" placeholder="Username">
+            <input type="password" id="pass-in" placeholder="Password">
+            <button class="save-btn" onclick="checkAuth()">LOGIN</button>
+            <p onclick="closeLogin()" style="font-size:10px; color:#444; margin-top:20px; cursor:pointer;">EXIT</p>
         </div>
     </div>
 
@@ -78,19 +74,19 @@
 
     <div id="dashboard">
         <div class="dash-container">
-            <button onclick="toggleDash()" style="float:right; background:#333; color:#fff; border:none; padding:10px; cursor:pointer; border-radius:5px;">CLOSE X</button>
+            <button onclick="toggleDash()" style="float:right; background:#222; color:#fff; border:none; padding:8px; cursor:pointer;">CLOSE X</button>
             <h2 style="color:var(--neon-red)">STATION MANAGER</h2>
 
             <div class="dash-section">
                 <h3>1. DJs DATABASE</h3>
-                <label>DJ Name</label><input type="text" id="dj-name">
-                <label>Music Style</label><input type="text" id="dj-style">
+                <label>Name</label><input type="text" id="dj-name">
+                <label>Style</label><input type="text" id="dj-style">
                 <label>Photo URL</label><input type="text" id="dj-img">
-                <div class="action-btns">
-                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ</button>
-                    <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Update Artist</button>
+                <div style="display:flex; gap:10px;">
+                    <button id="dj-add-btn" class="save-btn" onclick="saveItem('djs')">Add DJ</button>
+                    <button id="dj-up-btn" class="save-btn edit-mode-btn" onclick="pushUpdate('djs')">Update DJ</button>
                 </div>
-                <div id="admin-djs-list"></div>
+                <div id="adm-djs" style="margin-top:20px;"></div>
             </div>
 
             <div class="dash-section">
@@ -98,24 +94,24 @@
                 <label>Select Day:</label>
                 <select id="sch-day">
                     <option value="TODOS OS DIAS">TODOS OS DIAS</option>
-                    <option value="MONDAY">MONDAY</option><option value="TUESDAY">TUESDAY</option><option value="WEDNESDAY">WEDNESDAY</option>
-                    <option value="THURSDAY">THURSDAY</option><option value="FRIDAY">FRIDAY</option><option value="SATURDAY">SATURDAY</option><option value="SUNDAY">SUNDAY</option>
+                    <option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option>
+                    <option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option>
                 </select>
-                <label>Select Hour (UK):</label><select id="sch-time-drop"></select>
-                <label>Select DJ Artist:</label><select id="sch-dj-select"></select>
-                <div class="action-btns">
-                    <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add Schedule</button>
-                    <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Update Schedule</button>
+                <label>UK Hour:</label><select id="sch-time-drop"></select>
+                <label>Select DJ Artist:</label><select id="sch-dj-sel"></select>
+                <div style="display:flex; gap:10px;">
+                    <button id="sch-add-btn" class="save-btn" onclick="saveItem('schedule')">Add Schedule</button>
+                    <button id="sch-up-btn" class="save-btn edit-mode-btn" onclick="pushUpdate('schedule')">Update Schedule</button>
                 </div>
-                <div id="admin-sch-list"></div>
+                <div id="adm-sch" style="margin-top:20px;"></div>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <div id="uk-time-display" style="text-align:right; font-size:10px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
+        <div id="uk-clock" style="text-align:right; font-size:11px; color:#555; margin-bottom:10px;">UK SYNC: --:--</div>
         <div class="row-title">Weekly Schedule</div>
-        <div id="pub-schedule" class="sch-box"></div>
+        <div id="pub-sch" class="sch-box"></div>
         <div class="row-title">Resident DJs</div>
         <div id="pub-djs" class="dj-grid"></div>
     </div>
@@ -125,21 +121,19 @@
         let editingId = null;
         let djsCached = {};
 
-        function fillHours() {
-            const select = document.getElementById('sch-time-drop');
-            let html = "";
-            for(let i=0; i<24; i++) {
-                let h = i < 10 ? '0'+i : i;
-                html += `<option value="${h}:00">${h}:00</option><option value="${h}:30">${h}:30</option>`;
-            }
-            select.innerHTML = html;
+        function getUKTime() {
+            const time = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
+            document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + time;
+            return time;
         }
 
-        function getUKTime() {
-            const now = new Date();
-            const ukTimeStr = now.toLocaleString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
-            document.getElementById('uk-time-display').innerText = "UK TIME SYNC: " + ukTimeStr;
-            return ukTimeStr;
+        function fillHours() {
+            let h = "";
+            for(let i=0; i<24; i++) {
+                let hh = i < 10 ? '0'+i : i;
+                h += `<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`;
+            }
+            document.getElementById('sch-time-drop').innerHTML = h;
         }
 
         async function load() {
@@ -151,48 +145,53 @@
             else document.body.classList.remove('is-live');
 
             const djEntries = Object.entries(djsCached);
-            document.getElementById('sch-dj-select').innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
+            document.getElementById('sch-dj-sel').innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
 
             document.getElementById('pub-djs').innerHTML = djEntries.map(([id, d]) => `
                 <div class="dj-card">
                     <div class="dj-img-main" style="background-image:url('${d.img || ''}')"></div>
-                    <div>${d.name}</div>
+                    <div style="font-size:14px;">${d.name}</div>
                     <div style="color:var(--neon-red); font-size:10px; margin-top:5px;">${d.style}</div>
                 </div>`).join('');
 
             const schEntries = data.schedule ? Object.entries(data.schedule) : [];
-            schEntries.sort((a, b) => a[1].time.localeCompare(b[1].time));
+            schEntries.sort((a,b) => a[1].time.localeCompare(b[1].time));
 
-            document.getElementById('pub-schedule').innerHTML = schEntries.map(([id, s], index) => {
-                const djData = Object.values(djsCached).find(d => d.name === s.info);
-                const tag = index === 0 ? '<div class="tag tag-live">LIVE NOW</div>' : (index === 1 ? '<div class="tag tag-next">NEXT</div>' : '');
-                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${djData ? djData.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">${s.day}</div><div style="font-size:14px;">${s.info}</div><div style="letter-spacing:2px;">${s.time}</div><div>${tag}</div></div>`;
+            document.getElementById('pub-sch').innerHTML = schEntries.map(([id, s], idx) => {
+                const dj = Object.values(djsCached).find(d => d.name === s.info);
+                const tag = idx === 0 ? '<div class="tag tag-live">LIVE NOW</div>' : (idx === 1 ? '<div class="tag tag-next">NEXT</div>' : '');
+                return `<div class="sch-row">
+                    <div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div>
+                    <div style="color:var(--neon-red); font-weight:bold;">${s.day}</div>
+                    <div style="font-size:14px;">${s.info}</div>
+                    <div style="letter-spacing:1px;">${s.time}</div>
+                    <div>${tag}</div>
+                </div>`;
             }).join('');
 
             renderAdmin(data);
         }
 
         function renderAdmin(data) {
-            document.getElementById('admin-djs-list').innerHTML = Object.entries(data.djs || {}).map(([id, d]) => `
-                <div class="admin-list-item"><div class="item-data"><b>${d.name}</b><span>${d.style}</span></div><div class="ctrl-btns"><button style="background:var(--neon-blue); color:#000" onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button><button style="background:#333; color:#fff" onclick="deleteItem('djs','${id}')">DEL</button></div></div>`).join('');
-            document.getElementById('admin-sch-list').innerHTML = Object.entries(data.schedule || {}).map(([id, s]) => `
-                <div class="admin-list-item"><div class="item-data"><b>${s.time} - ${s.info}</b><i>${s.day}</i></div><div class="ctrl-btns"><button style="background:var(--neon-blue); color:#000" onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button><button style="background:#333; color:#fff" onclick="deleteItem('schedule','${id}')">DEL</button></div></div>`).join('');
+            document.getElementById('adm-djs').innerHTML = Object.entries(data.djs || {}).map(([id, d]) => `
+                <div class="admin-item"><div><b>${d.name}</b></div><div><button onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button><button onclick="deleteItem('djs','${id}')">DEL</button></div></div>`).join('');
+            document.getElementById('adm-sch').innerHTML = Object.entries(data.schedule || {}).map(([id, s]) => `
+                <div class="admin-item"><div><b>${s.time} - ${s.info}</b></div><div><button onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button><button onclick="deleteItem('schedule','${id}')">DEL</button></div></div>`).join('');
         }
 
-        function showLogin() { document.getElementById('login-screen').style.display = 'flex'; }
-        function doLogin() {
-            const u = document.getElementById('user-field').value;
-            const p = document.getElementById('pass-field').value;
-            if(u === "admin" && p === "1234") { 
-                document.getElementById('login-screen').style.display = 'none';
-                toggleDash();
-            } else { alert("Error!"); }
+        function openLogin() { document.getElementById('login-overlay').style.display = 'flex'; }
+        function closeLogin() { document.getElementById('login-overlay').style.display = 'none'; }
+        
+        function checkAuth() {
+            const u = document.getElementById('user-in').value.trim();
+            const p = document.getElementById('pass-in').value.trim();
+            if(u === "admin" && p === "1234") { closeLogin(); toggleDash(); } else { alert("Error!"); }
         }
 
         async function saveItem(path) {
             const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
-                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-select').value };
+                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-sel').value };
             await fetch(`${DB}${path}.json`, { method: "POST", body: JSON.stringify(item) });
             load();
         }
@@ -200,36 +199,29 @@
         function startEdit(path, id, data) {
             editingId = id;
             if(path === 'djs') {
-                document.getElementById('dj-name').value = data.name;
-                document.getElementById('dj-style').value = data.style;
-                document.getElementById('dj-img').value = data.img;
-                document.getElementById('dj-add-btn').style.display = 'none';
-                document.getElementById('dj-update-btn').style.display = 'block';
+                document.getElementById('dj-name').value = data.name; document.getElementById('dj-style').value = data.style; document.getElementById('dj-img').value = data.img;
+                document.getElementById('dj-add-btn').style.display = 'none'; document.getElementById('dj-up-btn').style.display = 'block';
             } else {
-                document.getElementById('sch-day').value = data.day;
-                document.getElementById('sch-time-drop').value = data.time;
-                document.getElementById('sch-dj-select').value = data.info;
-                document.getElementById('sch-add-btn').style.display = 'none';
-                document.getElementById('sch-update-btn').style.display = 'block';
+                document.getElementById('sch-day').value = data.day; document.getElementById('sch-time-drop').value = data.time; document.getElementById('sch-dj-sel').value = data.info;
+                document.getElementById('sch-add-btn').style.display = 'none'; document.getElementById('sch-up-btn').style.display = 'block';
             }
         }
 
         async function pushUpdate(path) {
             const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
-                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-select').value };
+                { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-sel').value };
             await fetch(`${DB}${path}/${editingId}.json`, { method: "PATCH", body: JSON.stringify(item) });
             location.reload();
         }
 
         async function deleteItem(path, id) {
-            if(confirm("Del?")) { await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" }); load(); }
+            if(confirm("Delete?")) { await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" }); load(); }
         }
 
         function toggleDash() {
             const d = document.getElementById('dashboard');
-            if (d.style.display === 'block') { d.style.display = 'none'; location.reload(); } 
-            else { d.style.display = 'block'; }
+            if (d.style.display === 'block') { d.style.display = 'none'; location.reload(); } else { d.style.display = 'block'; }
         }
 
         fillHours();
