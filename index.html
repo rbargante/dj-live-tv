@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | UK SYNC MANAGER</title>
+    <title>FLASHMIX.TV | MANAGER V36</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -31,9 +31,15 @@
         .add-btn { flex: 2; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
         .update-btn { flex: 1; padding: 15px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; display: none; text-transform: uppercase; }
         
-        .admin-list-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 8px; border-radius: 8px; font-size: 11px; border: 1px solid #222; }
+        /* ADMIN LIST ITEMS - MELHORADOS */
+        .admin-list-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border-radius: 8px; font-size: 11px; border: 1px solid #222; }
+        .item-data { display: flex; flex-direction: column; gap: 2px; }
+        .item-data b { color: var(--neon-blue); font-size: 12px; }
+        .item-data span { color: #fff; }
+        .item-data i { color: #666; font-style: normal; font-size: 9px; }
+
         .ctrl-btns { display: flex; gap: 5px; }
-        .ctrl-btns button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; font-weight: bold; }
+        .ctrl-btns button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
         /* PUBLIC UI */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
@@ -54,7 +60,7 @@
 <body id="app">
 
     <nav class="top-nav">
-        <a onclick="toggleDash()" class="admin-btn">Manager & Sync Control</a>
+        <a onclick="toggleDash()" class="admin-btn">Manager Dashboard</a>
     </nav>
 
     <div class="player-stage">
@@ -63,17 +69,17 @@
 
     <div id="dashboard">
         <div class="dash-container">
-            <button onclick="toggleDash()" style="float:right; background:#333; color:#fff; border:none; padding:10px; cursor:pointer; border-radius:5px;">CLOSE & SAVE ALL</button>
-            <h2 style="color:var(--neon-red)">STATION MANAGER (UK TIME SYNC)</h2>
+            <button onclick="toggleDash()" style="float:right; background:#333; color:#fff; border:none; padding:10px; cursor:pointer; border-radius:5px;">CLOSE X</button>
+            <h2 style="color:var(--neon-red)">STATION MANAGER</h2>
 
             <div class="dash-section">
                 <h3>1. DJs DATABASE</h3>
-                <label>Name</label><input type="text" id="dj-name">
-                <label>Style</label><input type="text" id="dj-style">
+                <label>DJ Name</label><input type="text" id="dj-name">
+                <label>Music Style</label><input type="text" id="dj-style">
                 <label>Photo URL</label><input type="text" id="dj-img">
                 <div class="action-btns">
-                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ to Database</button>
-                    <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Save DJ Changes</button>
+                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ Artist</button>
+                    <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Update Artist</button>
                 </div>
                 <div id="admin-djs-list"></div>
             </div>
@@ -83,13 +89,8 @@
                 <label>Select Day:</label>
                 <select id="sch-day">
                     <option value="TODOS OS DIAS">TODOS OS DIAS</option>
-                    <option value="MONDAY">MONDAY</option>
-                    <option value="TUESDAY">TUESDAY</option>
-                    <option value="WEDNESDAY">WEDNESDAY</option>
-                    <option value="THURSDAY">THURSDAY</option>
-                    <option value="FRIDAY">FRIDAY</option>
-                    <option value="SATURDAY">SATURDAY</option>
-                    <option value="SUNDAY">SUNDAY</option>
+                    <option value="MONDAY">MONDAY</option><option value="TUESDAY">TUESDAY</option><option value="WEDNESDAY">WEDNESDAY</option>
+                    <option value="THURSDAY">THURSDAY</option><option value="FRIDAY">FRIDAY</option><option value="SATURDAY">SATURDAY</option><option value="SUNDAY">SUNDAY</option>
                 </select>
                 
                 <label>Select UK Hour:</label>
@@ -100,7 +101,7 @@
                 
                 <div class="action-btns">
                     <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add to Schedule</button>
-                    <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Save Schedule Changes</button>
+                    <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Update Schedule</button>
                 </div>
                 <div id="admin-sch-list"></div>
             </div>
@@ -108,11 +109,11 @@
     </div>
 
     <div class="container">
-        <div id="uk-time-display" style="text-align:right; font-size:10px; color:#444; margin-bottom:10px;">UK TIME: --:--</div>
+        <div id="uk-time-display" style="text-align:right; font-size:10px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
         <div class="row-title">Weekly Schedule</div>
         <div id="pub-schedule" class="sch-box"></div>
 
-        <div class="row-title">Flashmix Residents</div>
+        <div class="row-title">Resident DJs</div>
         <div id="pub-djs" class="dj-grid"></div>
     </div>
 
@@ -131,7 +132,6 @@
             select.innerHTML = html;
         }
 
-        // FUNÇÃO PARA OBTER HORA DO REINO UNIDO (UK TIME)
         function getUKTime() {
             const now = new Date();
             const ukTimeStr = now.toLocaleString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
@@ -158,8 +158,6 @@
                 </div>`).join('');
 
             const schEntries = data.schedule ? Object.entries(data.schedule) : [];
-            
-            // Ordenar por hora para o Live Now funcionar bem
             schEntries.sort((a, b) => a[1].time.localeCompare(b[1].time));
 
             document.getElementById('pub-schedule').innerHTML = schEntries.map(([id, s], index) => {
@@ -179,21 +177,29 @@
         }
 
         function renderAdmin(data) {
+            // ADMIN LIST DJs
             document.getElementById('admin-djs-list').innerHTML = Object.entries(data.djs || {}).map(([id, d]) => `
-                <div class="admin-list-item">${d.name} <div class="ctrl-btns">
-                    <button style="background:var(--neon-blue); color:#000" onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button>
-                    <button style="background:#333; color:#fff" onclick="deleteItem('djs','${id}')">DEL</button>
-                </div></div>`).join('');
+                <div class="admin-list-item">
+                    <div class="item-data"><b>${d.name}</b><span>${d.style}</span></div>
+                    <div class="ctrl-btns">
+                        <button style="background:var(--neon-blue); color:#000" onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button>
+                        <button style="background:#333; color:#fff" onclick="deleteItem('djs','${id}')">DEL</button>
+                    </div>
+                </div>`).join('');
 
+            // ADMIN LIST SCHEDULE - AGORA MOSTRA HORA E DJ
             document.getElementById('admin-sch-list').innerHTML = Object.entries(data.schedule || {}).map(([id, s]) => `
-                <div class="admin-list-item">${s.day} - ${s.time} - ${s.info} <div class="ctrl-btns">
-                    <button style="background:var(--neon-blue); color:#000" onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button>
-                    <button style="background:#333; color:#fff" onclick="deleteItem('schedule','${id}')">DEL</button>
-                </div></div>`).join('');
+                <div class="admin-list-item">
+                    <div class="item-data"><b>${s.time} - ${s.info}</b><i>${s.day}</i></div>
+                    <div class="ctrl-btns">
+                        <button style="background:var(--neon-blue); color:#000" onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button>
+                        <button style="background:#333; color:#fff" onclick="deleteItem('schedule','${id}')">DEL</button>
+                    </div>
+                </div>`).join('');
         }
 
         async function saveItem(path) {
-            const pass = prompt("Admin Password:"); if(pass !== "1234") return;
+            const pass = prompt("Password:"); if(pass !== "1234") return;
             const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
                 { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-select').value };
@@ -219,7 +225,7 @@
         }
 
         async function pushUpdate(path) {
-            const pass = prompt("Confirm Admin Password:"); if(pass !== "1234") return;
+            const pass = prompt("Password:"); if(pass !== "1234") return;
             const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
                 { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-select').value };
@@ -228,7 +234,7 @@
         }
 
         async function deleteItem(path, id) {
-            if(!confirm("Delete permanently?")) return;
+            if(!confirm("Delete?")) return;
             const pass = prompt("Password:"); if(pass !== "1234") return;
             await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" });
             load();
@@ -236,12 +242,8 @@
 
         function toggleDash() {
             const d = document.getElementById('dashboard');
-            if (d.style.display === 'block') {
-                d.style.display = 'none';
-                location.reload(); // Save & Refresh total
-            } else {
-                d.style.display = 'block';
-            }
+            if (d.style.display === 'block') { d.style.display = 'none'; location.reload(); } 
+            else { d.style.display = 'block'; }
         }
 
         fillHours();
