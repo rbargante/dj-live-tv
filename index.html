@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | SECURE MANAGER V37</title>
+    <title>FLASHMIX.TV | STATION MANAGER V38</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -18,6 +18,10 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; }
         body.is-live iframe { display: block; }
 
+        /* LOGIN OVERLAY */
+        #login-screen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; align-items: center; justify-content: center; }
+        .login-box { background: #111; padding: 30px; border-radius: 20px; border: 1px solid var(--neon-red); width: 300px; text-align: center; }
+
         /* DASHBOARD MANAGER */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
@@ -27,13 +31,11 @@
         label { display: block; font-size: 10px; color: #888; margin: 10px 0 5px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
         
-        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
-        .add-btn { flex: 2; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
-        .update-btn { flex: 1; padding: 15px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; display: none; text-transform: uppercase; }
+        .add-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
+        .update-btn { width: 100%; padding: 15px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; display: none; text-transform: uppercase; }
         
         .admin-list-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border-radius: 8px; font-size: 11px; border: 1px solid #222; }
-        .item-data { display: flex; flex-direction: column; gap: 2px; }
-        .item-data b { color: var(--neon-blue); font-size: 12px; }
+        .item-data b { color: var(--neon-blue); font-size: 12px; display: block; }
 
         .ctrl-btns { display: flex; gap: 5px; }
         .ctrl-btns button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; }
@@ -42,7 +44,7 @@
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; color: #fff; }
         .sch-box { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; overflow: hidden; }
-        .sch-row { display: grid; grid-template-columns: 70px 120px 1fr 1fr 100px; padding: 15px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
+        .sch-row { display: grid; grid-template-columns: 70px 100px 1fr 1fr 100px; padding: 15px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 45px; height: 45px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid #333; }
         .tag { font-size: 9px; padding: 4px 8px; border-radius: 4px; text-align: center; font-weight: bold; }
         .tag-live { background: var(--neon-red); animation: blink 1s infinite; }
@@ -57,8 +59,18 @@
 <body id="app">
 
     <nav class="top-nav">
-        <a onclick="authDash()" class="admin-btn">Manager Dashboard</a>
+        <a onclick="showLogin()" class="admin-btn">Manager Dashboard</a>
     </nav>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h3 style="color:#fff">STAFF LOGIN</h3>
+            <input type="text" id="user-field" placeholder="Username">
+            <input type="password" id="pass-field" placeholder="Password">
+            <button class="add-btn" onclick="doLogin()">ENTER</button>
+            <p onclick="document.getElementById('login-screen').style.display='none'" style="font-size:10px; color:#555; cursor:pointer; margin-top:15px;">CANCEL</p>
+        </div>
+    </div>
 
     <div class="player-stage">
         <iframe id="kick-player" src="https://player.kick.com/djlivetv?muted=false" allowfullscreen></iframe>
@@ -75,7 +87,7 @@
                 <label>Music Style</label><input type="text" id="dj-style">
                 <label>Photo URL</label><input type="text" id="dj-img">
                 <div class="action-btns">
-                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ Artist</button>
+                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ</button>
                     <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Update Artist</button>
                 </div>
                 <div id="admin-djs-list"></div>
@@ -89,15 +101,10 @@
                     <option value="MONDAY">MONDAY</option><option value="TUESDAY">TUESDAY</option><option value="WEDNESDAY">WEDNESDAY</option>
                     <option value="THURSDAY">THURSDAY</option><option value="FRIDAY">FRIDAY</option><option value="SATURDAY">SATURDAY</option><option value="SUNDAY">SUNDAY</option>
                 </select>
-                
-                <label>Select UK Hour:</label>
-                <select id="sch-time-drop"></select>
-
-                <label>Select DJ Artist:</label>
-                <select id="sch-dj-select"></select>
-                
+                <label>Select Hour (UK):</label><select id="sch-time-drop"></select>
+                <label>Select DJ Artist:</label><select id="sch-dj-select"></select>
                 <div class="action-btns">
-                    <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add to Schedule</button>
+                    <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add Schedule</button>
                     <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Update Schedule</button>
                 </div>
                 <div id="admin-sch-list"></div>
@@ -109,7 +116,6 @@
         <div id="uk-time-display" style="text-align:right; font-size:10px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
         <div class="row-title">Weekly Schedule</div>
         <div id="pub-schedule" class="sch-box"></div>
-
         <div class="row-title">Resident DJs</div>
         <div id="pub-djs" class="dj-grid"></div>
     </div>
@@ -145,9 +151,7 @@
             else document.body.classList.remove('is-live');
 
             const djEntries = Object.entries(djsCached);
-            // Atualiza Dropdowns
-            const djSelectHtml = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
-            document.getElementById('sch-dj-select').innerHTML = djSelectHtml;
+            document.getElementById('sch-dj-select').innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
 
             document.getElementById('pub-djs').innerHTML = djEntries.map(([id, d]) => `
                 <div class="dj-card">
@@ -171,16 +175,18 @@
         function renderAdmin(data) {
             document.getElementById('admin-djs-list').innerHTML = Object.entries(data.djs || {}).map(([id, d]) => `
                 <div class="admin-list-item"><div class="item-data"><b>${d.name}</b><span>${d.style}</span></div><div class="ctrl-btns"><button style="background:var(--neon-blue); color:#000" onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button><button style="background:#333; color:#fff" onclick="deleteItem('djs','${id}')">DEL</button></div></div>`).join('');
-
             document.getElementById('admin-sch-list').innerHTML = Object.entries(data.schedule || {}).map(([id, s]) => `
                 <div class="admin-list-item"><div class="item-data"><b>${s.time} - ${s.info}</b><i>${s.day}</i></div><div class="ctrl-btns"><button style="background:var(--neon-blue); color:#000" onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button><button style="background:#333; color:#fff" onclick="deleteItem('schedule','${id}')">DEL</button></div></div>`).join('');
         }
 
-        function authDash() {
-            const user = prompt("Username:");
-            const pass = prompt("Password:");
-            if(user === "admin" && pass === "1234") { toggleDash(); } 
-            else { alert("Wrong Credentials!"); }
+        function showLogin() { document.getElementById('login-screen').style.display = 'flex'; }
+        function doLogin() {
+            const u = document.getElementById('user-field').value;
+            const p = document.getElementById('pass-field').value;
+            if(u === "admin" && p === "1234") { 
+                document.getElementById('login-screen').style.display = 'none';
+                toggleDash();
+            } else { alert("Error!"); }
         }
 
         async function saveItem(path) {
@@ -217,9 +223,7 @@
         }
 
         async function deleteItem(path, id) {
-            if(!confirm("Delete?")) return;
-            await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" });
-            load();
+            if(confirm("Del?")) { await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" }); load(); }
         }
 
         function toggleDash() {
