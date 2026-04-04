@@ -22,40 +22,45 @@
         .badge-on { background: var(--live-green); color: #fff; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* --- MAIN LIVE PLAYER --- */
-        .player-stage { width: 100%; max-width: 1400px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--neon-red); margin: 0 auto 30px; overflow: hidden; position: relative; }
+        /* --- PLAYER STAGE --- */
+        .player-stage { width: 100%; max-width: 1400px; aspect-ratio: 16/9; background: #050505; border-radius: 0px; border: 5px solid var(--neon-red); margin: 0 auto 30px; overflow: hidden; position: relative; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         #live-iframe { width: 100%; height: 100%; border: 0; display: none; }
-        #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: clamp(24px, 10vw, 60px); font-weight: 900; letter-spacing: 15px; text-transform: uppercase; z-index: 1; }
+        #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: clamp(24px, 10vw, 60px); font-weight: 900; letter-spacing: 15px; text-transform: uppercase; z-index: 1; text-align: center; }
 
-        /* --- ARCHIVE: NEW INDIVIDUAL PLAYERS --- */
+        /* --- ARCHIVE GRID --- */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
         .video-card { background: #080808; border: 2px solid #333; overflow: hidden; transition: 0.3s; position: relative; }
-        .video-card:hover { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 236, 255, 0.3); }
+        .video-card:hover { border-color: var(--neon-blue); }
         .video-thumb-container { width: 100%; aspect-ratio: 16/9; cursor: pointer; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; }
-        .play-icon { font-size: 40px; color: #fff; opacity: 0.8; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 50%; }
+        .play-icon { font-size: 30px; color: #fff; background: rgba(245, 42, 31, 0.8); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .archive-iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: none; }
-        .video-info { padding: 15px; font-size: 12px; border-top: 1px solid #1a1a1a; background: #000; }
+        .video-info { padding: 15px; font-size: 12px; background: #000; border-top: 1px solid #1a1a1a; }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD (RESTORED) --- */
         #login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 35px; border: 1px solid var(--neon-red); width: 320px; text-align: center; }
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 20px; }
+        
+        .dash-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .dash-nav button { flex: 1; padding: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 10px; color: #fff; text-transform: uppercase; }
+
         .dash-section { background: #111; padding: 20px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        
+        .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border: 1px solid #222; font-size: 11px; }
 
-        /* SCHEDULE & RESIDENTS */
+        /* --- SCHEDULE & RESIDENTS --- */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 60px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
-        .sch-box { background: #080808; border: 1px solid #1a1a1a; overflow: hidden; }
+        .sch-box { background: #080808; border: 1px solid #1a1a1a; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 55px; height: 55px; background-size: cover; background-position: center; border: 2px solid #222; }
         .photo-live { border: 3px solid var(--neon-red) !important; box-shadow: 0 0 10px var(--neon-red); }
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; animation: blinker 1s linear infinite; }
-        .tag-next { background: #444; color: #aaa; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; }
         @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
@@ -91,25 +96,32 @@
 
     <div id="dashboard">
         <div class="dash-container">
-            <div class="dash-nav" style="display:flex; gap:8px; margin-bottom:20px; border-bottom:1px solid #222; padding-bottom:15px;">
-                <button id="btn-on" onclick="setLive(true)" style="flex:1; padding:15px; border:none; background:#333; color:#fff; font-weight:bold;">LIVE ON</button>
-                <button id="btn-off" onclick="setLive(false)" style="flex:1; padding:15px; border:none; background:#333; color:#fff; font-weight:bold;">LIVE OFF</button>
-                <button onclick="load()" style="flex:1; padding:15px; border:none; background:var(--neon-blue); color:#000; font-weight:bold;">SAVE</button>
-                <button onclick="location.reload()" style="flex:1; padding:15px; border:none; background:#1a1a1a; color:#fff; font-weight:bold;">EXIT</button>
+            <div class="dash-nav">
+                <button id="btn-on" onclick="setLive(true)" style="background:#333;">LIVE ON</button>
+                <button id="btn-off" onclick="setLive(false)" style="background:#333;">LIVE OFF</button>
+                <button onclick="load()" style="background:var(--neon-blue); color:#000;">SAVE</button>
+                <button onclick="location.reload()" style="background:#1a1a1a;">EXIT</button>
             </div>
+
             <div class="dash-section">
                 <h3>DJs DATABASE</h3>
                 <input type="text" id="dj-n" placeholder="DJ Name">
                 <input type="text" id="dj-s" placeholder="Style">
                 <input type="text" id="dj-i" placeholder="Photo URL">
-                <button id="add-dj-btn" class="action-btn" onclick="addToDB('djs')">ADD DJ</button>
+                <button class="action-btn" onclick="addToDB('djs')">ADD DJ</button>
                 <div id="adm-list-djs" style="margin-top:15px;"></div>
             </div>
+
             <div class="dash-section">
                 <h3>SCHEDULE</h3>
-                <select id="sch-d"><option value="EVERY DAY">EVERY DAY</option><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select>
-                <select id="sch-t-drop"></select><select id="sch-j-drop"></select>
-                <button id="add-sch-btn" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
+                <select id="sch-d">
+                    <option value="EVERY DAY">EVERY DAY</option>
+                    <option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option>
+                    <option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option>
+                </select>
+                <select id="sch-t-drop"></select>
+                <select id="sch-j-drop"></select>
+                <button class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
                 <div id="adm-list-sch" style="margin-top:15px;"></div>
             </div>
         </div>
@@ -134,7 +146,7 @@
                 const response = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
                 const data = await response.json();
                 document.getElementById('pub-archive').innerHTML = data.response.docs.map(item => `
-                    <div class="video-card" id="card-${item.identifier}">
+                    <div class="video-card">
                         <div class="video-thumb-container" id="thumb-${item.identifier}" 
                              style="background-image:url('https://archive.org/services/img/${item.identifier}')" 
                              onclick="loadVideo('${item.identifier}')">
@@ -149,8 +161,8 @@
         function loadVideo(id) {
             const thumb = document.getElementById(`thumb-${id}`);
             const iframe = document.getElementById(`video-${id}`);
+            iframe.src = `https://archive.org/embed/${id}?autoplay=1&ui=mini`;
             thumb.style.display = 'none';
-            iframe.src = `https://archive.org/embed/${id}?autoplay=1`;
             iframe.style.display = 'block';
         }
 
@@ -165,12 +177,14 @@
                 document.body.classList.add('is-live');
                 badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on";
                 iframe.src = KICK_URL; iframe.style.display = "block";
-                btnOn.style.background = "#28a745"; btnOff.style.background = "#333";
+                btnOn.style.background = "#28a745"; btnOn.innerText = "ACTIVE";
+                btnOff.style.background = "#333"; btnOff.innerText = "LIVE OFF";
             } else {
                 document.body.classList.remove('is-live');
                 badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off";
                 iframe.src = ""; iframe.style.display = "none";
-                btnOn.style.background = "#333"; btnOff.style.background = "#f52a1f";
+                btnOn.style.background = "#333"; btnOn.innerText = "LIVE ON";
+                btnOff.style.background = "#f52a1f"; btnOff.innerText = "DEACTIVATED";
             }
         }
 
@@ -183,25 +197,23 @@
             const djsList = Object.entries(djsStore);
             document.getElementById('sch-j-drop').innerHTML = djsList.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             document.getElementById('pub-djs').innerHTML = djsList.map(([id, d]) => `<div style="text-align:center; background:#080808; padding:20px;"><div style="width:100px; height:100px; background-image:url('${d.img}'); background-size:cover; margin:0 auto 10px; border:2px solid #333;"></div><div>${d.name}</div><div style="color:var(--neon-red); font-size:10px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
-            document.getElementById('adm-list-djs').innerHTML = djsList.map(([id, d]) => `<div class="edit-item">${d.name} <button onclick='delItem("djs","${id}")' style="background:#fff; padding:5px;">DEL</button></div>`).join('');
+            document.getElementById('adm-list-djs').innerHTML = djsList.map(([id, d]) => `<div class="edit-item">${d.name} <button onclick='delItem("djs","${id}")' style="background:#fff; padding:5px; cursor:pointer;">DEL</button></div>`).join('');
 
             let sch = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
-            document.getElementById('adm-list-sch').innerHTML = sch.map(s => `<div class="edit-item">${s.time} - ${s.info} <button onclick='delItem("schedule","${s.id}")' style="background:#fff; padding:5px;">DEL</button></div>`).join('');
+            document.getElementById('adm-list-sch').innerHTML = sch.map(s => `<div class="edit-item">${s.time} - ${s.info} <button onclick='delItem("schedule","${s.id}")' style="background:#fff; padding:5px; cursor:pointer;">DEL</button></div>`).join('');
             
             const timeNow = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
             sch.forEach(s => { s.mins = parseInt(s.time.split(':')[0]) * 60 + parseInt(s.time.split(':')[1]); });
             sch.sort((a,b) => a.mins - b.mins);
-            
             let liveIdx = sch.findLastIndex(s => minsNow >= s.mins);
             if (liveIdx === -1 && sch.length > 0) liveIdx = 0;
             let rotated = sch.length > 0 ? [...sch.slice(liveIdx), ...sch.slice(0, liveIdx)] : [];
             
             document.getElementById('pub-sch').innerHTML = rotated.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
-                let isCurrent = (i === 0), isNext = (i === 1);
-                let badge = isCurrent ? '<div class="tag-live-now">LIVE NOW</div>' : (isNext ? '<div class="tag-next">NEXT</div>' : '');
-                return `<div class="sch-row"><div class="sch-photo ${isCurrent?'photo-live':''}" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div style="font-size:14px;">${s.info}</div><div>${s.time}</div><div>${badge}</div></div>`;
+                let badge = (i === 0) ? '<div class="tag-live-now">LIVE NOW</div>' : (i === 1 ? '<div style="background:#444; color:#aaa; padding:5px 8px; font-size:9px; text-align:center;">NEXT</div>' : '');
+                return `<div class="sch-row"><div class="sch-photo ${i===0?'photo-live':''}" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--neon-red); font-weight:bold;">EVERY DAY</div><div style="font-size:14px;">${s.info}</div><div>${s.time}</div><div>${badge}</div></div>`;
             }).join('');
             fetchArchive();
         }
@@ -213,9 +225,15 @@
 
         async function delItem(p, id) { if(confirm("Delete?")) { await fetch(`${DB}${p}/${id}.json`, { method: "DELETE" }); load(); } }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; } }
+        
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
-        load(); setInterval(() => { const time = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + time; }, 1000);
+        
+        load();
+        setInterval(() => {
+            const time = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
+            document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + time;
+        }, 1000);
     </script>
 </body>
 </html>
