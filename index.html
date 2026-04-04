@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | STATION MANAGER PRO</title>
+    <title>FLASHMIX.TV | INTELLIGENT STATION</title>
     <style>
-        :root { --neon-red: #f52a1f; }
+        :root { --neon-red: #f52a1f; --neon-blue: #00ecff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 80px; }
 
         .top-nav { position: fixed; top: 0; width: 100%; height: 65px; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000; border-bottom: 1px solid #1a1a1a; }
-        .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 5px 15px; border-radius: 5px; text-decoration: none; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        .admin-btn { color: var(--neon-red); border: 1px solid var(--neon-red); padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; }
 
         .player-stage { width: 95%; max-width: 1100px; aspect-ratio: 16/9; background: #050505; border-radius: 30px; border: 5px solid var(--neon-red); margin: 0 auto 30px; overflow: hidden; position: relative; }
         body.is-live .player-stage { border-color: transparent; background: linear-gradient(#050505, #050505) padding-box, linear-gradient(90deg, var(--neon-red), #ff6b6b, var(--neon-red)) border-box; background-size: 200% 100%; animation: neonFlow 1.2s linear infinite; }
@@ -18,34 +18,32 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; }
         body.is-live iframe { display: block; }
 
-        /* DASHBOARD MANAGER */
+        /* DASHBOARD */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
-        h3 { color: var(--neon-red); font-size: 14px; margin-bottom: 15px; text-transform: uppercase; }
-        
-        input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btns { display: flex; gap: 10px; margin-bottom: 20px; }
-        .add-btn { flex: 2; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
-        .update-btn { flex: 1; padding: 15px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; display: none; text-transform: uppercase; }
-        
-        /* ADMIN LISTS */
-        .admin-list-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #222; }
-        .list-info { font-size: 11px; color: #bbb; }
-        .list-info b { color: #fff; font-size: 13px; display: block; margin-bottom: 3px; }
-        .controls { display: flex; gap: 8px; }
-        .ctrl-btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .edit-btn { background: #333; color: #00ecff; }
-        .del-btn { background: #333; color: #ff3b3b; }
+        .add-btn { flex: 2; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        .update-btn { flex: 1; padding: 15px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; display: none; }
+        .admin-list-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 8px; border-radius: 8px; font-size: 11px; }
 
         /* PUBLIC UI */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
+        
+        /* SCHEDULE WITH PHOTOS */
         .sch-box { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; overflow: hidden; }
-        .sch-row { display: grid; grid-template-columns: 1fr 1fr 2fr; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; }
+        .sch-row { display: grid; grid-template-columns: 80px 1fr 1fr 2fr 100px; padding: 15px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
+        .sch-photo { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid #333; }
+        .status-tag { font-size: 9px; padding: 4px 8px; border-radius: 4px; text-align: center; font-weight: bold; }
+        .tag-live { background: var(--neon-red); color: #fff; animation: blink 1s infinite; }
+        .tag-next { background: #333; color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
         .dj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
         .dj-card { background: #080808; border-radius: 25px; padding: 25px; text-align: center; border: 1px solid #1a1a1a; }
-        .dj-img { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 15px; background-size: cover; background-position: center; border: 3px solid #333; }
+        .dj-img-main { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 15px; background-size: cover; border: 3px solid #333; }
     </style>
 </head>
 <body id="app">
@@ -60,17 +58,17 @@
 
     <div id="dashboard">
         <div class="dash-container">
-            <button onclick="toggleDash()" style="float:right; background:none; color:#555; border:none; cursor:pointer; font-weight:bold;">FECHAR X</button>
-            <h2 style="color:var(--neon-red); letter-spacing:2px;">STATION MANAGER</h2>
+            <button onclick="toggleDash()" style="float:right; background:none; color:#555; border:none; cursor:pointer;">CLOSE X</button>
+            <h2 style="color:var(--neon-red)">STATION MANAGER</h2>
 
             <div class="dash-section">
-                <h3>DJ Lineup</h3>
+                <h3>DJs & Photos</h3>
                 <input type="text" id="dj-name" placeholder="DJ Name">
                 <input type="text" id="dj-style" placeholder="Style">
                 <input type="text" id="dj-img" placeholder="Photo URL">
                 <div class="action-btns">
-                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add New DJ</button>
-                    <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Save Changes</button>
+                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ</button>
+                    <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Save DJ</button>
                 </div>
                 <div id="admin-djs-list"></div>
             </div>
@@ -80,13 +78,12 @@
                 <select id="sch-day">
                     <option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option>
                     <option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option>
-                    <option>TODOS OS DIAS</option>
                 </select>
                 <input type="text" id="sch-time" placeholder="Time (ex: 22:00)">
-                <input type="text" id="sch-info" placeholder="DJ / Event Name">
+                <input type="text" id="sch-info" placeholder="DJ Name (Must match DJ list for photo)">
                 <div class="action-btns">
-                    <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add to Schedule</button>
-                    <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Save Changes</button>
+                    <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add Schedule</button>
+                    <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Save Schedule</button>
                 </div>
                 <div id="admin-sch-list"></div>
             </div>
@@ -104,67 +101,74 @@
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         let editingId = null;
+        let djsData = {};
 
         async function load() {
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
+            djsData = data.djs || {};
             
-            // Auto Live Logic
             if(data.is_live) document.body.classList.add('is-live');
             else document.body.classList.remove('is-live');
 
-            // Render Public DJs
-            const djsEntries = data.djs ? Object.entries(data.djs) : [];
-            document.getElementById('pub-djs').innerHTML = djsEntries.map(([id, d]) => `
-                <div class="dj-card">
-                    <div class="dj-img" style="background-image:url('${d.img || ''}')"></div>
-                    <div>${d.name}</div>
-                    <div style="color:var(--neon-red); font-size:10px; margin-top:5px;">${d.style}</div>
-                </div>
-            `).join('');
-
-            // Render Public Schedule
+            // Render Schedule with Logic
             const schEntries = data.schedule ? Object.entries(data.schedule) : [];
-            document.getElementById('pub-schedule').innerHTML = schEntries.map(([id, s]) => `
-                <div class="sch-row"><div style="color:var(--neon-red); font-weight:bold;">${s.day}</div><div>${s.time}</div><div>${s.info}</div></div>
-            `).join('');
+            document.getElementById('pub-schedule').innerHTML = schEntries.map(([id, s], index) => {
+                // Find DJ photo by name
+                const djEntry = Object.values(djsData).find(d => d.name.toLowerCase() === s.info.toLowerCase());
+                const photo = djEntry ? djEntry.img : 'https://via.placeholder.com/50/111/333?text=DJ';
+                
+                let statusTag = '';
+                if(index === 0) statusTag = '<div class="status-tag tag-live">LIVE NOW</div>';
+                else if(index === 1) statusTag = '<div class="status-tag tag-next">NEXT</div>';
 
-            // Render Admin List - DJs
-            document.getElementById('admin-djs-list').innerHTML = djsEntries.map(([id, d]) => `
-                <div class="admin-list-item">
-                    <div class="list-info"><b>${d.name}</b>${d.style}</div>
-                    <div class="controls">
-                        <button class="ctrl-btn edit-btn" onclick="startEdit('djs', '${id}', ${JSON.stringify(d).replace(/"/g, '&quot;')})">Edit</button>
-                        <button class="ctrl-btn del-btn" onclick="deleteItem('djs','${id}')">Del</button>
-                    </div>
-                </div>
-            `).join('');
-            
-            // Render Admin List - Schedule
-            document.getElementById('admin-sch-list').innerHTML = schEntries.map(([id, s]) => `
-                <div class="admin-list-item">
-                    <div class="list-info"><b>${s.day}</b>${s.time} - ${s.info}</div>
-                    <div class="controls">
-                        <button class="ctrl-btn edit-btn" onclick="startEdit('schedule', '${id}', ${JSON.stringify(s).replace(/"/g, '&quot;')})">Edit</button>
-                        <button class="ctrl-btn del-btn" onclick="deleteItem('schedule','${id}')">Del</button>
-                    </div>
-                </div>
-            `).join('');
+                return `
+                    <div class="sch-row">
+                        <div class="sch-photo" style="background-image:url('${photo}')"></div>
+                        <div style="color:var(--neon-red); font-weight:bold;">${s.day}</div>
+                        <div style="font-size:14px;">${s.info}</div>
+                        <div>${s.time}</div>
+                        <div>${statusTag}</div>
+                    </div>`;
+            }).join('');
+
+            // Render Public DJs
+            document.getElementById('pub-djs').innerHTML = Object.entries(djsData).map(([id, d]) => `
+                <div class="dj-card">
+                    <div class="dj-img-main" style="background-image:url('${d.img}')"></div>
+                    <div>${d.name}</div>
+                    <div style="color:var(--neon-red); font-size:10px;">${d.style}</div>
+                </div>`).join('');
+
+            // Admin Lists
+            renderAdminLists(data);
         }
 
-        // ADD NEW ITEM
+        function renderAdminLists(data) {
+            const djList = Object.entries(data.djs || {}).map(([id, d]) => `
+                <div class="admin-list-item">${d.name} <div>
+                    <button onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button>
+                    <button onclick="deleteItem('djs','${id}')">DEL</button>
+                </div></div>`).join('');
+            document.getElementById('admin-djs-list').innerHTML = djList;
+
+            const schList = Object.entries(data.schedule || {}).map(([id, s]) => `
+                <div class="admin-list-item">${s.day} - ${s.info} <div>
+                    <button onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button>
+                    <button onclick="deleteItem('schedule','${id}')">DEL</button>
+                </div></div>`).join('');
+            document.getElementById('admin-sch-list').innerHTML = schList;
+        }
+
         async function saveItem(path) {
             const pass = prompt("Password:"); if(pass !== "1234") return;
-            let item = path === 'djs' ? 
+            const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
                 { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time').value, info: document.getElementById('sch-info').value };
-
             await fetch(`${DB}${path}.json`, { method: "POST", body: JSON.stringify(item) });
-            clearInputs(path);
             load();
         }
 
-        // START EDIT MODE
         function startEdit(path, id, data) {
             editingId = id;
             if(path === 'djs') {
@@ -182,38 +186,19 @@
             }
         }
 
-        // PUSH UPDATE TO EXISTING ITEM
         async function pushUpdate(path) {
-            const pass = prompt("Confirm Password to Save Changes:"); if(pass !== "1234") return;
-            let item = path === 'djs' ? 
+            const pass = prompt("Password:"); if(pass !== "1234") return;
+            const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
                 { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time').value, info: document.getElementById('sch-info').value };
-
             await fetch(`${DB}${path}/${editingId}.json`, { method: "PATCH", body: JSON.stringify(item) });
-            resetButtons(path);
-            clearInputs(path);
-            editingId = null;
-            load();
+            location.reload();
         }
 
         async function deleteItem(path, id) {
-            if(!confirm("Apagar este item permanentemente?")) return;
             const pass = prompt("Password:"); if(pass !== "1234") return;
             await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" });
             load();
-        }
-
-        function clearInputs(path) {
-            if(path === 'djs') {
-                document.getElementById('dj-name').value = ''; document.getElementById('dj-style').value = ''; document.getElementById('dj-img').value = '';
-            } else {
-                document.getElementById('sch-time').value = ''; document.getElementById('sch-info').value = '';
-            }
-        }
-
-        function resetButtons(path) {
-            document.getElementById(path === 'djs' ? 'dj-add-btn' : 'sch-add-btn').style.display = 'block';
-            document.getElementById(path === 'djs' ? 'dj-update-btn' : 'sch-update-btn').style.display = 'none';
         }
 
         function toggleDash() {
@@ -222,7 +207,7 @@
         }
 
         load();
-        setInterval(load, 8000);
+        setInterval(load, 10000);
     </script>
 </body>
 </html>
