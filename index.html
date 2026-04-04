@@ -30,7 +30,7 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 5; }
         body.is-live iframe { display: block; }
 
-        /* Offline Message for Mobile/Desktop */
+        /* Offline Message */
         #offline-msg { 
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
             color: #222; font-size: clamp(14px, 5vw, 24px); letter-spacing: 8px; z-index: 1; text-align: center; padding: 20px;
@@ -91,7 +91,6 @@
                 <button style="background:#333; color:#fff; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;" onclick="location.reload()">EXIT</button>
             </div>
             <h2 style="color:var(--neon-red); margin-bottom:30px;">STATION DASHBOARD</h2>
-
             <div class="dash-section">
                 <h3>1. DJs DATABASE</h3>
                 <input type="text" id="dj-n" placeholder="DJ Name">
@@ -126,11 +125,24 @@
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         let activeId = null;
         let djsStore = {};
+        let isKickLive = false; // Nova variável para o Mobile
 
         function getUK() {
             const time = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + time;
             return time;
+        }
+
+        // --- NOVA FUNÇÃO PARA DETETAR MOBILE STREAM NO KICK ---
+        async function checkKickMobile() {
+            try {
+                // Usamos um serviço de proxy ou a API direta se permitida
+                const r = await fetch('https://kick.com/api/v1/channels/djlivetv');
+                const data = await r.json();
+                isKickLive = data.livestream ? true : false;
+            } catch (e) {
+                // Se der erro de CORS no browser, o status mantém-se pelo Firebase do iMac
+            }
         }
 
         function checkLogin() {
@@ -146,7 +158,12 @@
             const timeNow = getUK();
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
 
-            if(data.is_live) document.body.classList.add('is-live'); else document.body.classList.remove('is-live');
+            // REGRA ATUALIZADA: Fica live se (Firebase diz Live) OU (Kick API diz Live)
+            if(data.is_live || isKickLive) {
+                document.body.classList.add('is-live');
+            } else {
+                document.body.classList.remove('is-live');
+            }
 
             const djsList = Object.entries(djsStore);
             document.getElementById('sch-j-drop').innerHTML = djsList.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
@@ -198,7 +215,10 @@
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
 
-        load(); setInterval(getUK, 1000); setInterval(load, 30000);
+        load(); 
+        setInterval(getUK, 1000); 
+        setInterval(load, 30000);
+        setInterval(checkKickMobile, 60000); // Verifica o mobile/kick de minuto a minuto
     </script>
 </body>
 </html>
