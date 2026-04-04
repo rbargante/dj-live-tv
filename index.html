@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | STATION MANAGER V34</title>
+    <title>FLASHMIX.TV | UK SYNC MANAGER</title>
     <style>
         :root { --neon-red: #f52a1f; --neon-blue: #00ecff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -18,14 +18,16 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; }
         body.is-live iframe { display: block; }
 
-        /* DASHBOARD */
+        /* DASHBOARD MANAGER */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid var(--neon-red); }
-        h3 { color: var(--neon-red); margin-top: 0; font-size: 14px; }
+        h3 { color: var(--neon-red); margin-top: 0; font-size: 14px; text-transform: uppercase; }
         
+        label { display: block; font-size: 10px; color: #888; margin: 10px 0 5px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
-        .action-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
         .add-btn { flex: 2; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
         .update-btn { flex: 1; padding: 15px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; display: none; text-transform: uppercase; }
         
@@ -35,9 +37,9 @@
 
         /* PUBLIC UI */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
-        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; }
+        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--neon-red); padding-left: 15px; text-transform: uppercase; color: #fff; }
         .sch-box { background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; overflow: hidden; }
-        .sch-row { display: grid; grid-template-columns: 70px 1fr 1fr 1fr 100px; padding: 15px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
+        .sch-row { display: grid; grid-template-columns: 70px 120px 1fr 1fr 100px; padding: 15px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 45px; height: 45px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid #333; }
         .tag { font-size: 9px; padding: 4px 8px; border-radius: 4px; text-align: center; font-weight: bold; }
         .tag-live { background: var(--neon-red); animation: blink 1s infinite; }
@@ -52,7 +54,7 @@
 <body id="app">
 
     <nav class="top-nav">
-        <a onclick="toggleDash()" class="admin-btn">Manager Dashboard</a>
+        <a onclick="toggleDash()" class="admin-btn">Manager & Sync Control</a>
     </nav>
 
     <div class="player-stage">
@@ -61,39 +63,44 @@
 
     <div id="dashboard">
         <div class="dash-container">
-            <button onclick="toggleDash()" style="float:right; background:none; color:#fff; border:none; cursor:pointer;">FECHAR X</button>
-            <h2 style="color:var(--neon-red)">STATION MANAGER</h2>
+            <button onclick="toggleDash()" style="float:right; background:#333; color:#fff; border:none; padding:10px; cursor:pointer; border-radius:5px;">CLOSE & SAVE ALL</button>
+            <h2 style="color:var(--neon-red)">STATION MANAGER (UK TIME SYNC)</h2>
 
             <div class="dash-section">
                 <h3>1. DJs DATABASE</h3>
-                <input type="text" id="dj-name" placeholder="DJ Name">
-                <input type="text" id="dj-style" placeholder="Style">
-                <input type="text" id="dj-img" placeholder="Photo URL">
+                <label>Name</label><input type="text" id="dj-name">
+                <label>Style</label><input type="text" id="dj-style">
+                <label>Photo URL</label><input type="text" id="dj-img">
                 <div class="action-btns">
-                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ</button>
-                    <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Save Changes</button>
+                    <button id="dj-add-btn" class="add-btn" onclick="saveItem('djs')">Add DJ to Database</button>
+                    <button id="dj-update-btn" class="update-btn" onclick="pushUpdate('djs')">Save DJ Changes</button>
                 </div>
                 <div id="admin-djs-list"></div>
             </div>
 
             <div class="dash-section">
                 <h3>2. SCHEDULE / AGENDA</h3>
-                <label style="font-size: 10px; color: #888;">SELECT DAY:</label>
+                <label>Select Day:</label>
                 <select id="sch-day">
                     <option value="TODOS OS DIAS">TODOS OS DIAS</option>
-                    <option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option>
-                    <option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option>
+                    <option value="MONDAY">MONDAY</option>
+                    <option value="TUESDAY">TUESDAY</option>
+                    <option value="WEDNESDAY">WEDNESDAY</option>
+                    <option value="THURSDAY">THURSDAY</option>
+                    <option value="FRIDAY">FRIDAY</option>
+                    <option value="SATURDAY">SATURDAY</option>
+                    <option value="SUNDAY">SUNDAY</option>
                 </select>
                 
-                <label style="font-size: 10px; color: #888;">SELECT DJ FROM LIST:</label>
-                <select id="sch-dj-select"></select>
-
-                <label style="font-size: 10px; color: #888;">SELECT TIME:</label>
+                <label>Select UK Hour:</label>
                 <select id="sch-time-drop"></select>
+
+                <label>Select DJ Artist:</label>
+                <select id="sch-dj-select"></select>
                 
                 <div class="action-btns">
-                    <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add Schedule</button>
-                    <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Save Changes</button>
+                    <button id="sch-add-btn" class="add-btn" onclick="saveItem('schedule')">Add to Schedule</button>
+                    <button id="sch-update-btn" class="update-btn" onclick="pushUpdate('schedule')">Save Schedule Changes</button>
                 </div>
                 <div id="admin-sch-list"></div>
             </div>
@@ -101,6 +108,7 @@
     </div>
 
     <div class="container">
+        <div id="uk-time-display" style="text-align:right; font-size:10px; color:#444; margin-bottom:10px;">UK TIME: --:--</div>
         <div class="row-title">Weekly Schedule</div>
         <div id="pub-schedule" class="sch-box"></div>
 
@@ -113,16 +121,22 @@
         let editingId = null;
         let djsCached = {};
 
-        // GERAR HORAS NO DROP-DOWN
         function fillHours() {
             const select = document.getElementById('sch-time-drop');
             let html = "";
             for(let i=0; i<24; i++) {
                 let h = i < 10 ? '0'+i : i;
-                html += `<option value="${h}:00">${h}:00</option>`;
-                html += `<option value="${h}:30">${h}:30</option>`;
+                html += `<option value="${h}:00">${h}:00</option><option value="${h}:30">${h}:30</option>`;
             }
             select.innerHTML = html;
+        }
+
+        // FUNÇÃO PARA OBTER HORA DO REINO UNIDO (UK TIME)
+        function getUKTime() {
+            const now = new Date();
+            const ukTimeStr = now.toLocaleString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
+            document.getElementById('uk-time-display').innerText = "UK TIME SYNC: " + ukTimeStr;
+            return ukTimeStr;
         }
 
         async function load() {
@@ -134,8 +148,7 @@
             else document.body.classList.remove('is-live');
 
             const djEntries = Object.entries(djsCached);
-            const selectDj = document.getElementById('sch-dj-select');
-            selectDj.innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
+            document.getElementById('sch-dj-select').innerHTML = djEntries.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
 
             document.getElementById('pub-djs').innerHTML = djEntries.map(([id, d]) => `
                 <div class="dj-card">
@@ -145,6 +158,10 @@
                 </div>`).join('');
 
             const schEntries = data.schedule ? Object.entries(data.schedule) : [];
+            
+            // Ordenar por hora para o Live Now funcionar bem
+            schEntries.sort((a, b) => a[1].time.localeCompare(b[1].time));
+
             document.getElementById('pub-schedule').innerHTML = schEntries.map(([id, s], index) => {
                 const djData = Object.values(djsCached).find(d => d.name === s.info);
                 const tag = index === 0 ? '<div class="tag tag-live">LIVE NOW</div>' : (index === 1 ? '<div class="tag tag-next">NEXT</div>' : '');
@@ -153,7 +170,7 @@
                         <div class="sch-photo" style="background-image:url('${djData ? djData.img : ''}')"></div>
                         <div style="color:var(--neon-red); font-weight:bold;">${s.day}</div>
                         <div style="font-size:14px;">${s.info}</div>
-                        <div>${s.time}</div>
+                        <div style="letter-spacing:2px;">${s.time}</div>
                         <div>${tag}</div>
                     </div>`;
             }).join('');
@@ -164,14 +181,14 @@
         function renderAdmin(data) {
             document.getElementById('admin-djs-list').innerHTML = Object.entries(data.djs || {}).map(([id, d]) => `
                 <div class="admin-list-item">${d.name} <div class="ctrl-btns">
-                    <button style="background:blue; color:#fff" onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button>
-                    <button style="background:red; color:#fff" onclick="deleteItem('djs','${id}')">DEL</button>
+                    <button style="background:var(--neon-blue); color:#000" onclick="startEdit('djs','${id}',${JSON.stringify(d).replace(/"/g, '&quot;')})">EDIT</button>
+                    <button style="background:#333; color:#fff" onclick="deleteItem('djs','${id}')">DEL</button>
                 </div></div>`).join('');
 
             document.getElementById('admin-sch-list').innerHTML = Object.entries(data.schedule || {}).map(([id, s]) => `
-                <div class="admin-list-item">${s.day} - ${s.info} <div class="ctrl-btns">
-                    <button style="background:blue; color:#fff" onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button>
-                    <button style="background:red; color:#fff" onclick="deleteItem('schedule','${id}')">DEL</button>
+                <div class="admin-list-item">${s.day} - ${s.time} - ${s.info} <div class="ctrl-btns">
+                    <button style="background:var(--neon-blue); color:#000" onclick="startEdit('schedule','${id}',${JSON.stringify(s).replace(/"/g, '&quot;')})">EDIT</button>
+                    <button style="background:#333; color:#fff" onclick="deleteItem('schedule','${id}')">DEL</button>
                 </div></div>`).join('');
         }
 
@@ -202,7 +219,7 @@
         }
 
         async function pushUpdate(path) {
-            const pass = prompt("Confirm Password:"); if(pass !== "1234") return;
+            const pass = prompt("Confirm Admin Password:"); if(pass !== "1234") return;
             const item = path === 'djs' ? 
                 { name: document.getElementById('dj-name').value, style: document.getElementById('dj-style').value, img: document.getElementById('dj-img').value } :
                 { day: document.getElementById('sch-day').value, time: document.getElementById('sch-time-drop').value, info: document.getElementById('sch-dj-select').value };
@@ -211,7 +228,7 @@
         }
 
         async function deleteItem(path, id) {
-            if(!confirm("Tem a certeza?")) return;
+            if(!confirm("Delete permanently?")) return;
             const pass = prompt("Password:"); if(pass !== "1234") return;
             await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" });
             load();
@@ -219,12 +236,18 @@
 
         function toggleDash() {
             const d = document.getElementById('dashboard');
-            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+            if (d.style.display === 'block') {
+                d.style.display = 'none';
+                location.reload(); // Save & Refresh total
+            } else {
+                d.style.display = 'block';
+            }
         }
 
         fillHours();
         load();
-        setInterval(load, 10000);
+        setInterval(getUKTime, 1000);
+        setInterval(load, 15000);
     </script>
 </body>
 </html>
