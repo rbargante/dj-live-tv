@@ -1,9 +1,9 @@
-      <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V85</title>
+    <title>FLASHMIX.TV | PRO STATION V86</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -25,7 +25,7 @@
         .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
         .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; transition: 0.5s; }
 
-        /* --- PLAYER STAGE & ANDROID FIX --- */
+        /* --- PLAYER STAGE --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: border-color 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -33,7 +33,6 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
 
-        /* GATILHO PARA ANDROID */
         #play-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); cursor: pointer; }
         body.is-live #play-trigger { display: flex; }
         .play-btn-circle { width: 80px; height: 80px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 0 20px var(--live-green); }
@@ -43,7 +42,11 @@
 
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
-        /* --- SCHEDULE --- */
+        /* --- STATION TICKER --- */
+        .station-ticker { width: 95%; max-width: 1200px; margin: 0 auto 40px; background: rgba(0,0,0,0.3); border-top: 2px solid var(--accent-color); padding: 25px; text-align: center; }
+        #station-news-display { font-family: 'Courier New', Courier, monospace; font-size: 15px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- SCHEDULE (FOTOS QUADRADAS) --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px !important; background-size: cover; background-position: center; border: 2px solid #333; }
@@ -51,6 +54,7 @@
         .dj-separator { margin: 0 12px; color: #fff; font-weight: normal; }
         .dj-line-style { font-size: 13px; font-weight: normal; color: #fff; text-transform: uppercase; }
 
+        /* TAG RED BLINKING */
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
         .tag-paused { background: #444; color: #888; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
@@ -61,11 +65,12 @@
         .footer-slogan { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
         .footer-copy { font-size: 10px; color: #333; font-family: sans-serif; letter-spacing: 1px; }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD (ORIGINAL - SEM ALTERAÇÕES) --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
+        .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
         .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; }
         .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; }
         .btn-live-off { background: #441a1a !important; color: #777 !important; opacity: 0.5; }
@@ -73,6 +78,8 @@
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
         .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
         .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
         .site-section.hidden { display: none !important; }
@@ -103,15 +110,15 @@
 
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
-        <div id="play-trigger" onclick="forceRefreshPlayer()">
+        <div id="play-trigger" onclick="forceRefreshPlayer(true)">
             <div class="play-btn-circle">▶</div>
-            <div style="position:absolute; bottom:20px; font-size:10px; letter-spacing:2px;">TAP TO WATCH LIVE</div>
+            <div style="position:absolute; bottom:20px; font-size:10px; letter-spacing:2px;">TAP TO WATCH LIVE WITH SOUND</div>
         </div>
         <iframe id="kick-iframe" allowfullscreen></iframe>
     </div>
 
     <div class="mobile-controls">
-        <button class="refresh-mini-btn" onclick="forceRefreshPlayer()">REFRESH PLAYER</button>
+        <button class="refresh-mini-btn" onclick="forceRefreshPlayer(true)">REFRESH PLAYER & SOUND</button>
     </div>
 
     <div class="station-ticker"><div id="station-news-display"></div></div>
@@ -155,16 +162,16 @@
 
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-        const KICK_STREAM = "https://player.kick.com/djlivetv?muted=false";
+        const KICK_URL = "https://player.kick.com/djlivetv";
         let editId = null, stationIsLive = false;
         let showAll = { sch: false, djs: false, vid: false }, fullData = { sch: [], djs: [], vid: [] }, visSettings = { sch: true, djs: true, vid: true };
 
-        function forceRefreshPlayer() {
+        function forceRefreshPlayer(withSound = true) {
             const iframe = document.getElementById('kick-iframe');
             const trigger = document.getElementById('play-trigger');
             if(stationIsLive) {
-                iframe.src = KICK_STREAM + "&t=" + Date.now();
-                trigger.style.display = 'none'; // Esconde o gatilho após o toque
+                iframe.src = KICK_URL + "?muted=" + (!withSound) + "&t=" + Date.now();
+                trigger.style.display = 'none';
             }
         }
 
@@ -187,8 +194,8 @@
             const trigger = document.getElementById('play-trigger');
 
             if(data.is_live && !stationIsLive) {
-                // Em mobile, não metemos o src logo para não ser bloqueado. Esperamos o toque.
                 trigger.style.display = 'flex';
+                iframe.src = "about:blank"; 
             } else if (!data.is_live) {
                 iframe.src = "about:blank";
                 trigger.style.display = 'none';
@@ -216,7 +223,6 @@
             const djsStore = data.djs || {};
             fullData.djs = Object.entries(djsStore);
             document.getElementById('sch-j-drop').innerHTML = fullData.djs.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
-            
             const djsSlice = showAll.djs ? fullData.djs : fullData.djs.slice(0, 5);
             document.getElementById('pub-djs').innerHTML = djsSlice.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
             document.getElementById('more-djs').style.display = fullData.djs.length > 5 ? 'block' : 'none';
