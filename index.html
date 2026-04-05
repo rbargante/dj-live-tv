@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V101</title>
+    <title>FLASHMIX.TV | PRO STATION V102</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -80,6 +80,7 @@
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
+        .site-section.hidden { display: none !important; }
     </style>
 </head>
 <body id="app">
@@ -142,7 +143,7 @@
 
     <footer>
         <div class="footer-logo">FLASHMIX.TV</div>
-        <div class="footer-copy">© 2026 FLASHMIX.TV | 80s 90s 00s JOURNEY</div>
+        <div class="footer-copy">© 2026 FLASHMIX.TV | ALL RIGHTS RESERVED</div>
     </footer>
 
     <div id="dashboard">
@@ -217,17 +218,16 @@
             stationIsLive = data.is_live;
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
             if(stationIsLive) { 
-                document.body.classList.add('is-live');
                 btnOn.style.background = '#5cb85c'; btnOn.style.color = '#fff'; btnOn.style.boxShadow = '0 0 20px #5cb85c';
                 btnOff.style.background = '#441a1a'; btnOff.style.color = '#777';
             } else { 
-                document.body.classList.remove('is-live');
                 btnOn.style.background = '#1a441a'; btnOn.style.color = '#777';
                 btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; btnOff.style.boxShadow = '0 0 20px #d9534f';
             }
 
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
             document.getElementById('station-news-display').innerText = data.news || "";
+            document.getElementById('adm-news').value = data.news || "";
 
             Object.keys(visSettings).forEach(k => {
                 const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
@@ -241,6 +241,7 @@
 
             const djsStore = data.djs || {};
             const djsArr = Object.entries(djsStore);
+            document.getElementById('sch-j-drop').innerHTML = djsArr.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             document.getElementById('pub-djs').innerHTML = djsArr.slice(0, 5).map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-bottom:12px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
 
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
@@ -271,7 +272,8 @@
 
         async function getArchive() {
             try {
-                const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
+                // PESQUISA ATUALIZADA PARA O NOVO CAMPO CREATOR: flashmix.tv
+                const res = await fetch(`https://archive.org/advancedsearch.php?q=creator%3A(flashmix.tv)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
                 const vData = await res.json();
                 if(vData.response && vData.response.docs) {
                     document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => {
