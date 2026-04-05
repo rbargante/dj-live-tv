@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V83</title>
+    <title>FLASHMIX.TV | PRO STATION V84</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -25,12 +25,18 @@
         .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
         .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; transition: 0.5s; }
 
-        /* --- PLAYER STAGE --- */
-        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 15px; overflow: hidden; position: relative; transition: border-color 0.5s; }
+        /* --- PLAYER STAGE & MOBILE FIXES --- */
+        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: border-color 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
+        
+        .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px; justify-content: center; }
+        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .unmute-notice { background: #ffc107; color: #000; border: none; padding: 8px 15px; border-radius: 5px; font-size: 10px; font-weight: bold; display: none; }
+        body.is-live .unmute-notice { display: block; }
+
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
         /* --- STATION TICKER --- */
@@ -45,7 +51,6 @@
         .dj-separator { margin: 0 12px; color: #fff; font-weight: normal; }
         .dj-line-style { font-size: 13px; font-weight: normal; color: #fff; text-transform: uppercase; }
 
-        /* RED BLINKING LIVE TAG */
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
         .tag-paused { background: #444; color: #888; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
@@ -62,11 +67,9 @@
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
-        .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
-        .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
-        .btn-live-off { background: #441a1a !important; color: #777 !important; opacity: 0.5; }
         .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; }
         .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; }
+        .btn-live-off { background: #441a1a !important; color: #777 !important; opacity: 0.5; }
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
@@ -106,25 +109,18 @@
         <iframe id="kick-iframe" allowfullscreen></iframe>
     </div>
 
+    <div class="mobile-controls">
+        <button class="refresh-mini-btn" onclick="forceRefreshPlayer()">REFRESH PLAYER</button>
+        <div class="unmute-notice">TAP PLAYER FOR SOUND</div>
+    </div>
+
     <div class="station-ticker"><div id="station-news-display"></div></div>
 
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
-        <div id="sec-sch" class="site-section">
-            <div id="schedule" class="row-title">Weekly Schedule</div>
-            <div id="pub-sch" class="sch-box"></div>
-            <button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button>
-        </div>
-        <div id="sec-djs" class="site-section">
-            <div id="residents" class="row-title">Flashmix Residents</div>
-            <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
-            <button id="more-djs" class="see-more-btn" onclick="toggleView('djs')">See More</button>
-        </div>
-        <div id="sec-vid" class="site-section">
-            <div id="archive" class="row-title">Video Archive</div>
-            <div id="pub-archive" class="video-grid"></div>
-            <button id="more-vid" class="see-more-btn" onclick="toggleView('vid')">See More</button>
-        </div>
+        <div id="sec-sch" class="site-section"><div id="schedule" class="row-title">Weekly Schedule</div><div id="pub-sch" class="sch-box"></div><button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button></div>
+        <div id="sec-djs" class="site-section"><div id="residents" class="row-title">Flashmix Residents</div><div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div><button id="more-djs" class="see-more-btn" onclick="toggleView('djs')">See More</button></div>
+        <div id="sec-vid" class="site-section"><div id="archive" class="row-title">Video Archive</div><div id="pub-archive" class="video-grid"></div><button id="more-vid" class="see-more-btn" onclick="toggleView('vid')">See More</button></div>
     </div>
 
     <footer>
@@ -151,7 +147,7 @@
                     <button id="v-vid" onclick="setVis('vid')" style="flex:1; padding:8px; font-size:10px; border:none; cursor:pointer;">ARCHIVE</button>
                 </div>
             </div>
-            <div class="dash-section"><h3>STATION NEWS / ABOUT</h3><textarea id="adm-news" rows="2" placeholder="Text under player..."></textarea><button class="action-btn" style="background:var(--neon-blue); color:#000;" onclick="saveNews()">SAVE NEWS</button></div>
+            <div class="dash-section"><h3>STATION NEWS / ABOUT</h3><textarea id="adm-news" rows="2"></textarea><button class="action-btn" onclick="saveNews()">SAVE NEWS</button></div>
             <div class="dash-section"><h3>1. DJs DATABASE</h3><input type="text" id="dj-n" placeholder="DJ Name"><input type="text" id="dj-s" placeholder="Main Style"><input type="text" id="dj-i" placeholder="Photo URL"><button id="btn-dj-action" class="action-btn" onclick="addToDB('djs')">ADD TO DATABASE</button><div id="adm-list-djs"></div></div>
             <div class="dash-section"><h3>2. SCHEDULE MANAGER</h3><select id="sch-t-drop"></select><select id="sch-j-drop"></select><input type="text" id="sch-style" placeholder="Program / Style Name"><button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button><div id="adm-list-sch"></div></div>
         </div>
@@ -162,6 +158,11 @@
         const KICK_STREAM = "https://player.kick.com/djlivetv?muted=false";
         let editId = null, stationIsLive = false;
         let showAll = { sch: false, djs: false, vid: false }, fullData = { sch: [], djs: [], vid: [] }, visSettings = { sch: true, djs: true, vid: true };
+
+        function forceRefreshPlayer() {
+            const iframe = document.getElementById('kick-iframe');
+            if(stationIsLive) iframe.src = KICK_STREAM + "&refresh=" + Date.now();
+        }
 
         function updateEnvironment() {
             const hour = new Date().getHours();
@@ -178,20 +179,10 @@
             updateEnvironment();
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
-            
             const iframe = document.getElementById('kick-iframe');
-            
-            // --- AUTO-RECONNECTOR LOGIC ---
-            // Se o Firebase diz que está LIVE, mas o nosso player está desligado ou vazio: Força o carregamento.
-            if(data.is_live) {
-                const currentSrc = iframe.src;
-                // Se o src estiver vazio ou se o estado mudou agora de OFF para ON
-                if(!currentSrc || currentSrc === "about:blank" || !stationIsLive) {
-                    iframe.src = KICK_STREAM + "&t=" + Date.now(); // Cache bust
-                }
-            } else {
-                iframe.src = "about:blank";
-            }
+
+            if(data.is_live && !stationIsLive) iframe.src = KICK_STREAM + "&t=" + Date.now();
+            else if (!data.is_live && stationIsLive) iframe.src = "about:blank";
 
             stationIsLive = data.is_live;
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
@@ -262,7 +253,7 @@
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
-        load(); setInterval(load, 10000); // Frequência aumentada para 10s para maior precisão
+        load(); setInterval(load, 10000);
     </script>
 </body>
 </html>
