@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V95</title>
+    <title>FLASHMIX.TV | PRO STATION V96</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -34,6 +34,8 @@
 
         /* MOBILE CONTROLS */
         .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px; justify-content: center; }
+        .sound-mini-btn { background: #ffc107; color: #000; border: none; padding: 12px 25px; border-radius: 5px; font-size: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; display: none; }
+        body.is-live .sound-mini-btn { display: inline-block; }
         .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 12px 25px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
         /* --- SCHEDULE & UI --- */
@@ -43,17 +45,15 @@
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        /* --- DASHBOARD FULL RECOVERY --- */
+        /* --- DASHBOARD RECOVERED --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; color: #fff; }
         .dash-container { max-width: 900px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
         .dash-section h3 { margin-top: 0; color: var(--accent-color); font-size: 16px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 10px; }
-        
         .btn-live-on-active { background: #5cb85c !important; box-shadow: 0 0 20px #5cb85c; }
         .btn-live-off-active { background: #d9534f !important; box-shadow: 0 0 20px #d9534f; }
-        
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin-bottom: 8px; border: 1px solid #222; font-size: 12px; border-radius: 8px; }
         .edit-item button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 5px; }
 
@@ -78,9 +78,9 @@
     <div id="login-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center;">
         <div class="login-card" style="background:#111; padding:35px; border:1px solid var(--neon-red); width:320px; text-align:center;">
             <h3>STAFF LOGIN</h3>
-            <input type="text" id="user-f" placeholder="Username">
-            <input type="password" id="pass-f" placeholder="Password">
-            <button onclick="checkLogin()" class="action-btn">LOGIN</button>
+            <input type="text" id="user-f" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px; background:#1a1a1a; border:1px solid #333; color:#fff;">
+            <input type="password" id="pass-f" placeholder="Password" style="width:100%; padding:10px; margin-bottom:10px; background:#1a1a1a; border:1px solid #333; color:#fff;">
+            <button onclick="checkLogin()" style="width:100%; padding:15px; background:var(--neon-red); border:none; color:#fff; font-weight:bold; cursor:pointer;">LOGIN</button>
             <p onclick="document.getElementById('login-overlay').style.display='none'" style="cursor:pointer; font-size:11px; color:#555; margin-top:20px;">CANCEL</p>
         </div>
     </div>
@@ -93,10 +93,11 @@
     </div>
 
     <div class="mobile-controls">
-        <button class="refresh-mini-btn" onclick="forceRefreshAudio()">🔊 ACTIVATE SOUND & REFRESH</button>
+        <button class="sound-mini-btn" onclick="activateSound()">🔊 ACTIVATE SOUND</button>
+        <button class="refresh-mini-btn" onclick="location.reload(true)">FORCE REFRESH SITE</button>
     </div>
 
-    <div class="station-ticker"><div id="station-news-display" style="text-align:center; padding:20px; font-family:'Courier New';"></div></div>
+    <div class="station-ticker"><div id="station-news-display" style="text-align:center; padding:20px; font-family:'Courier New'; color:var(--accent-color);"></div></div>
 
     <div class="container" style="width: 95%; max-width: 1100px; margin: 0 auto; flex: 1;">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
@@ -120,8 +121,8 @@
             <div class="dash-section">
                 <h3>Visibility Controls</h3>
                 <div style="display:flex; gap:10px;">
-                    <button id="v-sch" onclick="setVis('sch')" style="flex:1; padding:10px;">SCHEDULE</button>
-                    <button id="v-djs" onclick="setVis('djs')" style="flex:1; padding:10px;">RESIDENTS</button>
+                    <button id="v-sch" onclick="setVis('sch')" style="flex:1; padding:10px; border:none; cursor:pointer;">SCHEDULE</button>
+                    <button id="v-djs" onclick="setVis('djs')" style="flex:1; padding:10px; border:none; cursor:pointer;">RESIDENTS</button>
                 </div>
             </div>
 
@@ -156,10 +157,13 @@
         const KICK_URL = "https://player.kick.com/djlivetv";
         let stationIsLive = false, visSettings = { sch: true, djs: true };
 
-        function forceRefreshAudio() {
+        // SOLUÇÃO FINAL DO SOM: O clique recarrega o Iframe sem Mute
+        function activateSound() {
             const iframe = document.getElementById('kick-iframe');
             if(stationIsLive) {
                 iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
+                document.querySelector('.sound-mini-btn').style.background = "#28a745";
+                document.querySelector('.sound-mini-btn').innerText = "✅ SOUND ACTIVE";
             }
         }
 
@@ -189,9 +193,11 @@
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
             
+            const oldLive = stationIsLive;
             stationIsLive = data.is_live;
             const iframe = document.getElementById('kick-iframe');
-            if(stationIsLive && !iframe.src.includes("kick")) iframe.src = KICK_URL + "?muted=true&autoplay=true";
+            
+            if(stationIsLive && !oldLive) iframe.src = KICK_URL + "?muted=true&autoplay=true";
             else if(!stationIsLive) iframe.src = "about:blank";
 
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
@@ -205,14 +211,12 @@
             if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; }
             else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; }
 
-            // Render DJs
             const djsStore = data.djs || {};
             const djsArr = Object.entries(djsStore);
             document.getElementById('pub-djs').innerHTML = djsArr.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-bottom:12px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style}</div></div>`).join('');
             document.getElementById('adm-list-djs').innerHTML = djsArr.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><button onclick="delItem('djs','${id}')" style="background:red; color:#fff;">DEL</button></div>`).join('');
             document.getElementById('sch-j-drop').innerHTML = djsArr.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
 
-            // Render Schedule
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
             schArr.sort((a,b) => a.time.localeCompare(b.time));
             document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div class="edit-item"><span>${s.time} - ${s.info}</span><button onclick="delItem('schedule','${s.id}')" style="background:red; color:#fff;">DEL</button></div>`).join('');
@@ -224,7 +228,6 @@
             }).join('');
         }
 
-        // Time Generation for Dropdown
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
 
