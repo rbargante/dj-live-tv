@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V92</title>
+    <title>FLASHMIX.TV | PRO STATION V93</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -36,12 +36,11 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
 
-        #audio-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); cursor: pointer; flex-direction: column; gap: 15px; }
-        body.is-live #audio-trigger { display: flex; }
-        .sound-btn { background: #ffc107; color: #000; border: none; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 15px; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255,193,7,0.6); cursor: pointer; text-transform: uppercase; }
-
-        .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; justify-content: center; }
-        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 12px 25px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        /* NOVO CONTROLO DISCRETO */
+        .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .sound-mini-btn { background: #ffc107; color: #000; border: none; padding: 8px 15px; border-radius: 5px; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; display: none; }
+        body.is-live .sound-mini-btn { display: inline-block; }
+        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
@@ -64,7 +63,6 @@
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; margin: 0 auto 15px; }
-        .site-section.hidden { display: none !important; }
     </style>
 </head>
 <body id="app">
@@ -93,14 +91,11 @@
 
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
-        <div id="audio-trigger" onclick="forceRefreshPlayer()">
-            <button class="sound-btn">🔊 UNMUTE & START LIVE</button>
-            <span style="font-size:10px; letter-spacing:2px; color:#ffc107; font-weight:bold; margin-top:10px;">ANDROID/IOS ANTI-CACHE FIX</span>
-        </div>
         <iframe id="kick-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
 
     <div class="mobile-controls">
+        <button class="sound-mini-btn" onclick="activateAudio()">🔊 ACTIVATE SOUND</button>
         <button class="refresh-mini-btn" onclick="location.reload(true)">FORCE REFRESH SITE</button>
     </div>
 
@@ -136,15 +131,10 @@
         const KICK_URL = "https://player.kick.com/djlivetv";
         let editId = null, stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
 
-        function forceRefreshPlayer() {
+        function activateAudio() {
             const iframe = document.getElementById('kick-iframe');
-            const trigger = document.getElementById('audio-trigger');
             if(stationIsLive) {
-                // CACHE BUSTER: Adiciona um timestamp único para forçar o Android a ignorar a cache do vídeo
-                const freshURL = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
-                iframe.src = freshURL;
-                trigger.style.display = 'none';
-                console.log("Player refreshed with anti-cache: " + freshURL);
+                iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
             }
         }
 
@@ -155,8 +145,6 @@
         }
 
         async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
-        async function setVis(type) { visSettings[type] = !visSettings[type]; await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) }); load(); }
-        async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; } }
 
         async function load() {
@@ -164,14 +152,11 @@
             const r = await fetch(DB + ".json?nocache=" + Date.now());
             const data = await r.json() || {};
             const iframe = document.getElementById('kick-iframe');
-            const trigger = document.getElementById('audio-trigger');
 
             if(data.is_live && !stationIsLive) {
-                trigger.style.display = 'flex';
-                iframe.src = "about:blank"; 
+                iframe.src = KICK_URL + "?muted=true&autoplay=true&t=" + Date.now();
             } else if (!data.is_live) {
                 iframe.src = "about:blank";
-                trigger.style.display = 'none';
             }
 
             stationIsLive = data.is_live;
@@ -179,14 +164,7 @@
             if(stationIsLive) { btnOn.className = 'btn-live-on-active'; btnOff.className = 'btn-live-off'; }
             else { btnOn.className = 'btn-live-off'; btnOff.className = 'btn-live-off-active'; }
 
-            visSettings = data.visibility || { sch: true, djs: true, vid: true };
             document.getElementById('station-news-display').innerText = data.news || "";
-
-            Object.keys(visSettings).forEach(k => {
-                const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
-                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); }
-                else { if(sec) sec.classList.add('hidden'); }
-            });
 
             const badge = document.getElementById('live-badge');
             if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; } 
