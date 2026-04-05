@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V96</title>
+    <title>FLASHMIX.TV | PRO STATION V97</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -31,11 +31,7 @@
 
         @media (max-width: 768px) {
             .hamburger { display: flex; }
-            .main-menu { 
-                position: fixed; top: 0; right: -100%; width: 75%; height: 100vh; 
-                background: #000; flex-direction: column; justify-content: center; 
-                transition: 0.4s; border-left: 1px solid var(--accent-color); z-index: 1000;
-            }
+            .main-menu { position: fixed; top: 0; right: -100%; width: 75%; height: 100vh; background: #000; flex-direction: column; justify-content: center; transition: 0.4s; border-left: 1px solid var(--accent-color); z-index: 1000; }
             .main-menu.active { right: 0; }
             .main-menu a { font-size: 18px; margin: 15px 0; }
         }
@@ -44,7 +40,6 @@
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
-        
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
 
@@ -109,7 +104,7 @@
         </div>
     </div>
 
-    <div id="live-badge" class="status-badge badge-off" style="margin: 0 auto 15px; width:fit-content; padding:8px 20px; border-radius:20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:bold;">STATION OFFLINE</div>
+    <div id="live-badge" class="status-badge" style="margin: 0 auto 15px; width:fit-content; padding:8px 20px; border-radius:20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:bold;">STATION OFFLINE</div>
 
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
@@ -117,7 +112,7 @@
             <div class="play-btn-circle">▶</div>
             <div style="font-size:12px; letter-spacing:2px; font-weight:bold; color:#fff;">TAP TO UNMUTE & START</div>
         </div>
-        <iframe id="kick-iframe" allow="autoplay; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>
+        <iframe id="kick-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
 
     <div class="mobile-controls">
@@ -137,7 +132,7 @@
 
     <footer>
         <div class="footer-logo">FLASHMIX.TV</div>
-        <div class="footer-copy">© 2026 FLASHMIX.TV | ALL RIGHTS RESERVED</div>
+        <div class="footer-copy">© 2026 FLASHMIX.TV | 80s 90s 00s JOURNEY</div>
     </footer>
 
     <div id="dashboard">
@@ -183,7 +178,7 @@
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv";
-        let editId = null, stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
+        let stationIsLive = false, visSettings = { sch: true, djs: true, vid: true }, editId = null;
 
         function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
         function openAdmin() { toggleMenu(); document.getElementById('login-overlay').style.display='flex'; }
@@ -215,13 +210,8 @@
 
             stationIsLive = data.is_live;
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
-            if(stationIsLive) { 
-                btnOn.style.background = '#5cb85c'; btnOn.style.color = '#fff'; btnOn.style.boxShadow = '0 0 20px #5cb85c';
-                btnOff.style.background = '#441a1a'; btnOff.style.color = '#777';
-            } else { 
-                btnOn.style.background = '#1a441a'; btnOn.style.color = '#777';
-                btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; btnOff.style.boxShadow = '0 0 20px #d9534f';
-            }
+            if(stationIsLive) { btnOn.style.background = '#5cb85c'; btnOn.style.color = '#fff'; btnOff.style.background = '#441a1a'; btnOff.style.color = '#777'; } 
+            else { btnOn.style.background = '#1a441a'; btnOn.style.color = '#777'; btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; }
 
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
             document.getElementById('station-news-display').innerText = data.news || "";
@@ -234,12 +224,11 @@
             });
 
             const badge = document.getElementById('live-badge');
-            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; } 
-            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; }
+            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.style.background = '#28a745'; badge.style.color = '#fff'; } 
+            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.style.background = '#333'; badge.style.color = '#888'; }
 
             const djsStore = data.djs || {};
             const djsArr = Object.entries(djsStore);
-            document.getElementById('sch-j-drop').innerHTML = djsArr.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             document.getElementById('pub-djs').innerHTML = djsArr.slice(0, 5).map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-bottom:12px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
 
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
@@ -270,9 +259,10 @@
                 const vData = await res.json();
                 if(vData.response && vData.response.docs) {
                     document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => {
+                        const embedUrl = `https://archive.org/embed/${i.identifier}?autoplay=1`;
                         return `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;">
-                            <div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" 
-                            onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1&playlist=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen allow=\'autoplay\'></iframe>'">
+                            <div id="vid-${i.identifier}" style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" 
+                            onclick="document.getElementById('vid-${i.identifier}').innerHTML='<iframe src=\'${embedUrl}\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen allow=\'autoplay\'></iframe>'">
                             <div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div>
                             </div>
                             <div style="padding:15px; font-size:11px;">${i.title}</div>
