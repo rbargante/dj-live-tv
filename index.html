@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V95</title>
+    <title>FLASHMIX.TV | PRO STATION V96</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -26,7 +26,6 @@
         .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
         .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
 
-        /* HAMBURGER */
         .hamburger { display: none; cursor: pointer; z-index: 1001; flex-direction: column; gap: 5px; }
         .hamburger span { width: 25px; height: 3px; background: #fff; border-radius: 2px; transition: 0.3s; }
 
@@ -41,7 +40,7 @@
             .main-menu a { font-size: 18px; margin: 15px 0; }
         }
 
-        /* --- PLAYER STAGE --- */
+        /* --- PLAYER STAGE & AUDIO --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -70,7 +69,7 @@
         .footer-logo { font-size: 20px; font-weight: 900; color: var(--accent-color); margin-bottom: 10px; }
         .footer-copy { font-size: 10px; color: #333; font-family: sans-serif; letter-spacing: 1px; }
 
-        /* --- DASHBOARD COMPLETO --- */
+        /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
@@ -118,7 +117,7 @@
             <div class="play-btn-circle">▶</div>
             <div style="font-size:12px; letter-spacing:2px; font-weight:bold; color:#fff;">TAP TO UNMUTE & START</div>
         </div>
-        <iframe id="kick-iframe" allowfullscreen></iframe>
+        <iframe id="kick-iframe" allow="autoplay; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>
     </div>
 
     <div class="mobile-controls">
@@ -144,8 +143,8 @@
     <div id="dashboard">
         <div class="dash-container">
             <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button id="adm-btn-on" onclick="setLive(true)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer;">LIVE ON</button>
-                <button id="adm-btn-off" onclick="setLive(false)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer;">LIVE OFF</button>
+                <button id="adm-btn-on" onclick="setLive(true)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE ON</button>
+                <button id="adm-btn-off" onclick="setLive(false)" style="flex:1; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE OFF</button>
                 <button onclick="load()" style="flex:1; background:#5bc0de; padding:15px; border:none; color:#fff; font-weight:bold;">REFRESH</button>
                 <button onclick="location.reload()" style="flex:1; background:#333; padding:15px; border:none; color:#fff; font-weight:bold;">EXIT</button>
             </div>
@@ -184,14 +183,18 @@
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv";
-        let stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
+        let editId = null, stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
 
         function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
         function openAdmin() { toggleMenu(); document.getElementById('login-overlay').style.display='flex'; }
+        
         function forceRefreshPlayer(withSound = true) {
             const iframe = document.getElementById('kick-iframe');
             const trigger = document.getElementById('play-trigger');
-            if(stationIsLive) { iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); trigger.style.display = 'none'; }
+            if(stationIsLive) {
+                iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
+                trigger.style.display = 'none';
+            }
         }
 
         async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
@@ -212,8 +215,13 @@
 
             stationIsLive = data.is_live;
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
-            if(stationIsLive) { btnOn.style.background = '#5cb85c'; btnOn.style.color = '#fff'; btnOn.style.boxShadow = '0 0 20px #5cb85c'; btnOff.style.background = '#441a1a'; btnOff.style.color = '#777'; } 
-            else { btnOn.style.background = '#1a441a'; btnOn.style.color = '#777'; btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; btnOff.style.boxShadow = '0 0 20px #d9534f'; }
+            if(stationIsLive) { 
+                btnOn.style.background = '#5cb85c'; btnOn.style.color = '#fff'; btnOn.style.boxShadow = '0 0 20px #5cb85c';
+                btnOff.style.background = '#441a1a'; btnOff.style.color = '#777';
+            } else { 
+                btnOn.style.background = '#1a441a'; btnOn.style.color = '#777';
+                btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; btnOff.style.boxShadow = '0 0 20px #d9534f';
+            }
 
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
             document.getElementById('station-news-display').innerText = data.news || "";
@@ -261,7 +269,15 @@
                 const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
                 const vData = await res.json();
                 if(vData.response && vData.response.docs) {
-                    document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;"><div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`).join('');
+                    document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => {
+                        return `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;">
+                            <div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" 
+                            onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1&playlist=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen allow=\'autoplay\'></iframe>'">
+                            <div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div>
+                            </div>
+                            <div style="padding:15px; font-size:11px;">${i.title}</div>
+                        </div>`;
+                    }).join('');
                 }
             } catch(e) { console.log("Archive error", e); }
         }
@@ -274,9 +290,6 @@
         document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
         load(); setInterval(load, 15000);
-
-        function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
-        function openAdmin() { toggleMenu(); document.getElementById('login-overlay').style.display='flex'; }
     </script>
 </body>
 </html>
