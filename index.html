@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V79</title>
+    <title>FLASHMIX.TV | PRO STATION V80</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -64,6 +64,7 @@
         .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
         .site-section.hidden { display: none !important; }
         .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
+        .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body id="app">
@@ -187,31 +188,23 @@
             document.getElementById('pub-djs').innerHTML = djsSlice.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
             document.getElementById('more-djs').style.display = fullData.djs.length > 5 ? 'block' : 'none';
 
-            // --- NOVA LÓGICA DE AGENDA INFALÍVEL ---
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
             schArr.forEach(s => { s.mins = parseInt(s.time.split(':')[0]) * 60 + parseInt(s.time.split(':')[1]); });
             schArr.sort((a,b) => a.mins - b.mins);
-            
             const timeNow = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
             
-            // Encontrar quem está a tocar (o último cujo horário já passou)
             let liveIdx = -1;
-            for(let i = schArr.length - 1; i >= 0; i--) {
-                if (minsNow >= schArr[i].mins) {
-                    liveIdx = i;
-                    break;
-                }
-            }
-            // Se ainda não começou o primeiro do dia, o último do dia anterior é que está a tocar
+            for(let i = schArr.length - 1; i >= 0; i--) { if (minsNow >= schArr[i].mins) { liveIdx = i; break; } }
             if (liveIdx === -1 && schArr.length > 0) liveIdx = schArr.length - 1; 
             
             fullData.sch = schArr.length > 0 ? [...schArr.slice(liveIdx), ...schArr.slice(0, liveIdx)] : [];
-            
             const schSlice = showAll.sch ? fullData.sch : fullData.sch.slice(0, 5);
+            
             document.getElementById('pub-sch').innerHTML = schSlice.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
-                let tag = (i === 0) ? (stationIsLive ? '<div class="tag-live-now">LIVE NOW</div>' : '<div class="tag-paused">PAUSED</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
+                // REVERSÃO DA LÓGICA: Se rádio está LIVE ON -> Agenda mostra PAUSED. Se rádio está LIVE OFF -> Agenda mostra LIVE NOW.
+                let tag = (i === 0) ? (stationIsLive ? '<div class="tag-paused">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
                 let stylePart = s.style ? `<span class="dj-separator">|</span><span class="dj-line-style">${s.style}</span>` : "";
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold; transition:0.5s;">EVERY DAY</div><div class="dj-line-info">${s.info} ${stylePart}</div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
