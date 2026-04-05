@@ -1,9 +1,9 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V75</title>
+    <title>FLASHMIX.TV | PRO STATION V76</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -54,6 +54,7 @@
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
         .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
 
+        /* --- OTHERS --- */
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
@@ -188,13 +189,8 @@
             const data = await r.json() || {};
             
             const iframe = document.getElementById('kick-iframe');
-            
-            // CONEXÃO ROBUSTA: Força refresh do Iframe ignorando cache quando o sinal é ativado
-            if(data.is_live && !stationIsLive) {
-                iframe.src = KICK_STREAM + "&nocache=" + Date.now(); 
-            } else if (!data.is_live && stationIsLive) {
-                iframe.src = "about:blank"; // Mata a conexão imediatamente
-            }
+            if(data.is_live && !stationIsLive) { iframe.src = KICK_STREAM + "&nocache=" + Date.now(); } 
+            else if (!data.is_live && stationIsLive) { iframe.src = "about:blank"; }
 
             stationIsLive = data.is_live;
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
@@ -208,17 +204,8 @@
             });
 
             const badge = document.getElementById('live-badge');
-            if(stationIsLive) { 
-                document.body.classList.add('is-live'); 
-                badge.innerText = "LIVE NOW"; 
-                badge.className = "status-badge badge-on"; 
-                document.getElementById('breaking-live').style.display = 'block'; 
-            } else { 
-                document.body.classList.remove('is-live'); 
-                badge.innerText = "STATION OFFLINE"; 
-                badge.className = "status-badge badge-off"; 
-                document.getElementById('breaking-live').style.display = 'none'; 
-            }
+            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; document.getElementById('breaking-live').style.display = 'block'; } 
+            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; document.getElementById('breaking-live').style.display = 'none'; }
 
             const djsStore = data.djs || {};
             fullData.djs = Object.entries(djsStore);
@@ -228,19 +215,25 @@
             document.getElementById('pub-djs').innerHTML = djsSlice.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
             document.getElementById('more-djs').style.display = fullData.djs.length > 5 ? 'block' : 'none';
 
+            // --- LÓGICA DE AGENDA CONTÍNUA ---
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
             schArr.forEach(s => { s.mins = parseInt(s.time.split(':')[0]) * 60 + parseInt(s.time.split(':')[1]); });
             schArr.sort((a,b) => a.mins - b.mins);
+            
             const timeNow = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
+            
+            // Encontra o DJ que está a tocar agora (ou o último que começou)
             let liveIdx = schArr.findLastIndex(s => minsNow >= s.mins);
-            if (liveIdx === -1 && schArr.length > 0) liveIdx = 0;
+            if (liveIdx === -1 && schArr.length > 0) liveIdx = schArr.length - 1; // Se for antes do primeiro do dia, mostra o último da noite anterior
+            
             fullData.sch = schArr.length > 0 ? [...schArr.slice(liveIdx), ...schArr.slice(0, liveIdx)] : [];
             
             const schSlice = showAll.sch ? fullData.sch : fullData.sch.slice(0, 5);
             document.getElementById('pub-sch').innerHTML = schSlice.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
-                let tag = (i === 0) ? (stationIsLive ? '<div class="tag-paused">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
+                // O primeiro da lista rotativa é SEMPRE o que está a dar agora
+                let tag = (i === 0) ? (stationIsLive ? '<div class="tag-live-now">LIVE NOW</div>' : '<div class="tag-paused">PAUSED</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
                 let stylePart = s.style ? `<span class="dj-separator">|</span><span class="dj-line-style">${s.style}</span>` : "";
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold; transition:0.5s;">EVERY DAY</div><div class="dj-line-info">${s.info} ${stylePart}</div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
@@ -271,7 +264,7 @@
         document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
 
-        load(); setInterval(load, 15000); // Verificação mais rápida (15s)
+        load(); setInterval(load, 15000);
     </script>
 </body>
 </html>
