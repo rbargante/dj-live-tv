@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V78</title>
+    <title>FLASHMIX.TV | PRO STATION V79</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -50,15 +50,12 @@
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
-        
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
         .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
-
-        /* --- STATUS BUTTONS (ADMIN) --- */
         .btn-live-off { background: #441a1a !important; color: #777 !important; opacity: 0.5; }
-        .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; opacity: 1 !important; }
-        .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; opacity: 1 !important; }
+        .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; }
+        .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; }
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
@@ -67,22 +64,15 @@
         .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
         .site-section.hidden { display: none !important; }
         .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
-        .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body id="app">
 
     <nav class="top-nav">
         <div class="nav-content">
-            <a href="#" class="brand">
-                <div class="logo-circle">F</div>
-                <div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div>
-            </a>
+            <a href="#" class="brand"><div class="logo-circle">F</div><div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div></a>
             <div class="main-menu">
-                <a href="#">Home</a>
-                <a href="#schedule">Schedule</a>
-                <a href="#residents">Residents</a>
-                <a href="#archive">Archive</a>
+                <a href="#">Home</a><a href="#schedule">Schedule</a><a href="#residents">Residents</a><a href="#archive">Archive</a>
                 <span onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager Access</span>
             </div>
         </div>
@@ -91,8 +81,7 @@
     <div id="login-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center;">
         <div class="login-card" style="background:#111; padding:35px; border:1px solid var(--neon-red); width:320px; text-align:center;">
             <h3>STAFF LOGIN</h3>
-            <input type="text" id="user-f" placeholder="Username">
-            <input type="password" id="pass-f" placeholder="Password">
+            <input type="text" id="user-f" placeholder="Username"><input type="password" id="pass-f" placeholder="Password">
             <button class="action-btn" onclick="checkLogin()">LOGIN</button>
             <p onclick="document.getElementById('login-overlay').style.display='none'" style="cursor:pointer; font-size:11px; color:#555; margin-top:20px;">CANCEL</p>
         </div>
@@ -100,20 +89,14 @@
 
     <div id="live-badge" class="status-badge badge-off" style="margin: 0 auto 15px;">STATION OFFLINE</div>
 
-    <div class="player-stage">
-        <div id="offline-msg">STATION OFFLINE</div>
-        <iframe id="kick-iframe" allowfullscreen></iframe>
-    </div>
+    <div class="player-stage"><div id="offline-msg">STATION OFFLINE</div><iframe id="kick-iframe" allowfullscreen></iframe></div>
 
-    <div class="station-ticker">
-        <div id="station-news-display"></div>
-    </div>
+    <div class="station-ticker"><div id="station-news-display"></div></div>
 
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
         <div id="sec-sch" class="site-section">
             <div id="schedule" class="row-title">Weekly Schedule</div>
-            <div id="breaking-live" style="display:none; background: var(--neon-red); color: #fff; padding: 15px; text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; border-radius: 10px; margin-bottom: 20px;">🔴 LIVE NOW: BROADCASTING LIVE FROM CAMERA</div>
             <div id="pub-sch" class="sch-box"></div>
             <button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button>
         </div>
@@ -145,27 +128,9 @@
                     <button id="v-vid" onclick="setVis('vid')" style="flex:1; padding:8px; font-size:10px; border:none; cursor:pointer;">ARCHIVE</button>
                 </div>
             </div>
-            <div class="dash-section">
-                <h3>STATION NEWS / ABOUT</h3>
-                <textarea id="adm-news" rows="2" placeholder="Text under player..."></textarea>
-                <button class="action-btn" style="background:var(--neon-blue); color:#000;" onclick="saveNews()">SAVE NEWS</button>
-            </div>
-            <div class="dash-section">
-                <h3>1. DJs DATABASE</h3>
-                <input type="text" id="dj-n" placeholder="DJ Name">
-                <input type="text" id="dj-s" placeholder="Main Style">
-                <input type="text" id="dj-i" placeholder="Photo URL">
-                <button id="btn-dj-action" class="action-btn" onclick="addToDB('djs')">ADD TO DATABASE</button>
-                <div id="adm-list-djs"></div>
-            </div>
-            <div class="dash-section">
-                <h3>2. SCHEDULE MANAGER</h3>
-                <select id="sch-t-drop"></select>
-                <select id="sch-j-drop"></select>
-                <input type="text" id="sch-style" placeholder="Program / Style Name">
-                <button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
-                <div id="adm-list-sch"></div>
-            </div>
+            <div class="dash-section"><h3>STATION NEWS / ABOUT</h3><textarea id="adm-news" rows="2" placeholder="Text under player..."></textarea><button class="action-btn" style="background:var(--neon-blue); color:#000;" onclick="saveNews()">SAVE NEWS</button></div>
+            <div class="dash-section"><h3>1. DJs DATABASE</h3><input type="text" id="dj-n" placeholder="DJ Name"><input type="text" id="dj-s" placeholder="Main Style"><input type="text" id="dj-i" placeholder="Photo URL"><button id="btn-dj-action" class="action-btn" onclick="addToDB('djs')">ADD TO DATABASE</button><div id="adm-list-djs"></div></div>
+            <div class="dash-section"><h3>2. SCHEDULE MANAGER</h3><select id="sch-t-drop"></select><select id="sch-j-drop"></select><input type="text" id="sch-style" placeholder="Program / Style Name"><button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button><div id="adm-list-sch"></div></div>
         </div>
     </div>
 
@@ -177,15 +142,11 @@
 
         function updateEnvironment() {
             const hour = new Date().getHours();
-            if (hour >= 8 && hour < 20) { document.body.classList.add('day-mode'); } 
-            else { document.body.classList.remove('day-mode'); }
+            if (hour >= 8 && hour < 20) document.body.classList.add('day-mode'); 
+            else document.body.classList.remove('day-mode');
         }
 
-        async function setLive(status) { 
-            await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); 
-            load(); 
-        }
-
+        async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
         async function setVis(type) { visSettings[type] = !visSettings[type]; await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) }); load(); }
         async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; } }
@@ -196,20 +157,13 @@
             const data = await r.json() || {};
             
             const iframe = document.getElementById('kick-iframe');
-            if(data.is_live && !stationIsLive) { iframe.src = KICK_STREAM + "&nocache=" + Date.now(); } 
-            else if (!data.is_live && stationIsLive) { iframe.src = "about:blank"; }
+            if(data.is_live && !stationIsLive) iframe.src = KICK_STREAM + "&nocache=" + Date.now(); 
+            else if (!data.is_live && stationIsLive) iframe.src = "about:blank";
 
             stationIsLive = data.is_live;
-            
-            // ATUALIZA BOTÕES ADMIN
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
-            if(stationIsLive) {
-                btnOn.className = 'btn-live-on-active';
-                btnOff.className = 'btn-live-off';
-            } else {
-                btnOn.className = 'btn-live-off';
-                btnOff.className = 'btn-live-off-active';
-            }
+            if(stationIsLive) { btnOn.className = 'btn-live-on-active'; btnOff.className = 'btn-live-off'; }
+            else { btnOn.className = 'btn-live-off'; btnOff.className = 'btn-live-off-active'; }
 
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
             document.getElementById('station-news-display').innerText = data.news || "";
@@ -217,13 +171,13 @@
 
             Object.keys(visSettings).forEach(k => {
                 const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
-                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) btn.style.background = '#28a745'; if(btn) btn.style.color = '#fff'; }
-                else { if(sec) sec.classList.add('hidden'); if(btn) btn.style.background = '#333'; if(btn) btn.style.color = '#777'; }
+                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) { btn.style.background = '#28a745'; btn.style.color = '#fff'; } }
+                else { if(sec) sec.classList.add('hidden'); if(btn) { btn.style.background = '#333'; btn.style.color = '#777'; } }
             });
 
             const badge = document.getElementById('live-badge');
-            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; document.getElementById('breaking-live').style.display = 'block'; } 
-            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; document.getElementById('breaking-live').style.display = 'none'; }
+            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; } 
+            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; }
 
             const djsStore = data.djs || {};
             fullData.djs = Object.entries(djsStore);
@@ -233,13 +187,25 @@
             document.getElementById('pub-djs').innerHTML = djsSlice.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
             document.getElementById('more-djs').style.display = fullData.djs.length > 5 ? 'block' : 'none';
 
+            // --- NOVA LÓGICA DE AGENDA INFALÍVEL ---
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
             schArr.forEach(s => { s.mins = parseInt(s.time.split(':')[0]) * 60 + parseInt(s.time.split(':')[1]); });
             schArr.sort((a,b) => a.mins - b.mins);
+            
             const timeNow = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
-            let liveIdx = schArr.findLastIndex(s => minsNow >= s.mins);
+            
+            // Encontrar quem está a tocar (o último cujo horário já passou)
+            let liveIdx = -1;
+            for(let i = schArr.length - 1; i >= 0; i--) {
+                if (minsNow >= schArr[i].mins) {
+                    liveIdx = i;
+                    break;
+                }
+            }
+            // Se ainda não começou o primeiro do dia, o último do dia anterior é que está a tocar
             if (liveIdx === -1 && schArr.length > 0) liveIdx = schArr.length - 1; 
+            
             fullData.sch = schArr.length > 0 ? [...schArr.slice(liveIdx), ...schArr.slice(0, liveIdx)] : [];
             
             const schSlice = showAll.sch ? fullData.sch : fullData.sch.slice(0, 5);
