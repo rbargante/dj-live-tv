@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V88</title>
+    <title>FLASHMIX.TV | PRO STATION V89</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -16,12 +16,11 @@
         * { box-sizing: border-box; scroll-behavior: smooth; }
         body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; transition: background 1s ease; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* --- LANDSCAPE AUTO-FULLSCREEN (NO CHAT) --- */
+        /* --- LANDSCAPE MODE --- */
         @media (orientation: landscape) and (max-height: 500px) {
             body { padding-top: 0; overflow: hidden; }
             .top-nav, .station-ticker, .container, footer, .mobile-controls, #live-badge { display: none !important; }
             .player-stage { width: 100vw; height: 100vh; margin: 0; border: 0; max-width: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
-            iframe { width: 100%; height: 100%; }
         }
 
         /* --- NAVIGATION --- */
@@ -29,11 +28,11 @@
         .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
         .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
-        .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; align-items: center; }
+        .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; }
         .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
         .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
 
-        /* --- PLAYER STAGE & AUDIO --- */
+        /* --- PLAYER STAGE & AUDIO TRIGGER --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -41,16 +40,16 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
 
-        #audio-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); cursor: pointer; flex-direction: column; gap: 15px; }
+        #audio-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); cursor: pointer; flex-direction: column; gap: 15px; }
         body.is-live #audio-trigger { display: flex; }
-        .sound-btn { background: #ffc107; color: #000; border: none; padding: 18px 35px; border-radius: 50px; font-weight: 900; font-size: 14px; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255,193,7,0.6); cursor: pointer; text-transform: uppercase; }
+        .sound-btn { background: #ffc107; color: #000; border: none; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 15px; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255,193,7,0.6); cursor: pointer; text-transform: uppercase; }
 
         .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; justify-content: center; }
-        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 10px 25px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 12px 25px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
-        /* --- SCHEDULE & UI --- */
+        /* --- SCHEDULE --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px !important; background-size: cover; background-position: center; border: 2px solid #333; }
@@ -62,13 +61,13 @@
         .footer-logo { font-size: 20px; font-weight: 900; color: var(--accent-color); margin-bottom: 5px; letter-spacing: 3px; }
         .footer-copy { font-size: 9px; color: #333; text-transform: uppercase; }
 
-        /* --- DASHBOARD (INTACTO) --- */
+        /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; }
         .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; }
         .btn-live-off { background: #441a1a !important; color: #777 !important; opacity: 0.5; }
-        
+
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; margin: 0 auto 15px; }
@@ -102,14 +101,14 @@
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
         <div id="audio-trigger" onclick="forceRefreshPlayer(true)">
-            <button class="sound-btn">🔊 UNMUTE & WATCH</button>
-            <span style="font-size:10px; letter-spacing:2px; color:#ffc107;">TAP FOR LIVE SOUND</span>
+            <button class="sound-btn">🔊 UNMUTE & START LIVE</button>
+            <span style="font-size:10px; letter-spacing:2px; color:#ffc107; font-weight:bold; margin-top:10px;">ANDROID/IOS AUDIO FIX</span>
         </div>
-        <iframe id="kick-iframe" allowfullscreen></iframe>
+        <iframe id="kick-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
 
     <div class="mobile-controls">
-        <button class="refresh-mini-btn" onclick="forceRefreshPlayer(true)">REFRESH SIGNAL</button>
+        <button class="refresh-mini-btn" onclick="forceRefreshPlayer(true)">REFRESH PLAYER & SOUND</button>
     </div>
 
     <div class="station-ticker"><div id="station-news-display" style="font-family:'Courier New'; color:var(--accent-color); text-align:center;"></div></div>
@@ -161,7 +160,7 @@
             const iframe = document.getElementById('kick-iframe');
             const trigger = document.getElementById('audio-trigger');
             if(stationIsLive) {
-                iframe.src = KICK_URL + "?muted=" + (!withSound) + "&autoplay=true&t=" + Date.now();
+                iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
                 trigger.style.display = 'none';
             }
         }
@@ -186,7 +185,7 @@
 
             if(data.is_live && !stationIsLive) {
                 trigger.style.display = 'flex';
-                iframe.src = "about:blank";
+                iframe.src = "about:blank"; 
             } else if (!data.is_live) {
                 iframe.src = "about:blank";
                 trigger.style.display = 'none';
@@ -203,8 +202,8 @@
 
             Object.keys(visSettings).forEach(k => {
                 const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
-                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) { btn.style.background = '#28a745'; btn.style.color = '#fff'; } }
-                else { if(sec) sec.classList.add('hidden'); if(btn) { btn.style.background = '#333'; btn.style.color = '#777'; } }
+                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) btn.style.background = '#28a745'; }
+                else { if(sec) sec.classList.add('hidden'); if(btn) btn.style.background = '#333'; }
             });
 
             const badge = document.getElementById('live-badge');
@@ -231,9 +230,6 @@
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div style="font-size:14px; font-weight:bold;">${s.info} <span style="margin:0 10px; font-weight:normal;">|</span> <span style="font-size:12px; font-weight:normal; text-transform:uppercase;">${s.style||''}</span></div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
 
-            document.getElementById('adm-list-djs').innerHTML = djsArr.map(([id, d]) => `<div style="background:#111; padding:10px; border:1px solid #222; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; font-size:11px;"><span>${d.name}</span></div>`).join('');
-            document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div style="background:#111; padding:10px; border:1px solid #222; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; font-size:11px;"><span>${s.time} - ${s.info}</span></div>`).join('');
-            
             const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
             const vData = await res.json();
             document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;"><div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`).join('');
