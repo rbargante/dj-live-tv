@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V80</title>
+    <title>FLASHMIX.TV | PRO STATION V82</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -14,7 +14,7 @@
         }
         body.day-mode { --bg-color: #0a0a0a; --accent-color: var(--neon-blue); }
         * { box-sizing: border-box; scroll-behavior: smooth; }
-        body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; transition: background 1s ease; }
+        body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; transition: background 1s ease; min-height: 100vh; display: flex; flex-direction: column; }
 
         /* --- NAVIGATION --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
@@ -45,11 +45,23 @@
         .dj-separator { margin: 0 12px; color: #fff; font-weight: normal; }
         .dj-line-style { font-size: 13px; font-weight: normal; color: #fff; text-transform: uppercase; }
 
-        /* --- DASHBOARD --- */
+        /* RED BLINKING LIVE TAG */
+        .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+        .tag-paused { background: #444; color: #888; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
+
+        /* --- FOOTER --- */
+        footer { margin-top: auto; padding: 60px 20px; background: #050505; border-top: 1px solid #1a1a1a; text-align: center; }
+        .footer-content { max-width: 1200px; margin: 0 auto; }
+        .footer-logo { font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--accent-color); margin-bottom: 10px; }
+        .footer-slogan { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
+        .footer-copy { font-size: 10px; color: #333; font-family: sans-serif; letter-spacing: 1px; }
+
+        /* --- DASHBOARD (ORIGINAL) --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
         .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
@@ -57,7 +69,7 @@
         .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; }
         .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; }
 
-        .container { width: 95%; max-width: 1100px; margin: 0 auto; }
+        .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -113,11 +125,19 @@
         </div>
     </div>
 
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">FLASHMIX.TV</div>
+            <div class="footer-slogan">80s • 90s • 00s ELECTRONIC MUSIC JOURNEY</div>
+            <div class="footer-copy">© 2026 FLASHMIX.TV | ALL RIGHTS RESERVED</div>
+        </div>
+    </footer>
+
     <div id="dashboard">
         <div class="dash-container">
             <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <button id="adm-btn-on" onclick="setLive(true)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE ON</button>
-                <button id="adm-btn-off" onclick="setLive(false)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE OFF</button>
+                <button id="adm-btn-off" onclick="setLive(false)" style="flex:1; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE OFF</button>
                 <button onclick="load()" style="flex:1; background:#5bc0de; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">REFRESH DATA</button>
                 <button onclick="location.reload()" style="flex:1; background:#333; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">EXIT MANAGER</button>
             </div>
@@ -193,17 +213,13 @@
             schArr.sort((a,b) => a.mins - b.mins);
             const timeNow = new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'});
             const minsNow = parseInt(timeNow.split(':')[0]) * 60 + parseInt(timeNow.split(':')[1]);
-            
             let liveIdx = -1;
             for(let i = schArr.length - 1; i >= 0; i--) { if (minsNow >= schArr[i].mins) { liveIdx = i; break; } }
             if (liveIdx === -1 && schArr.length > 0) liveIdx = schArr.length - 1; 
-            
             fullData.sch = schArr.length > 0 ? [...schArr.slice(liveIdx), ...schArr.slice(0, liveIdx)] : [];
             const schSlice = showAll.sch ? fullData.sch : fullData.sch.slice(0, 5);
-            
             document.getElementById('pub-sch').innerHTML = schSlice.map((s, i) => {
                 const dj = Object.values(djsStore).find(d => d.name === s.info);
-                // REVERSÃO DA LÓGICA: Se rádio está LIVE ON -> Agenda mostra PAUSED. Se rádio está LIVE OFF -> Agenda mostra LIVE NOW.
                 let tag = (i === 0) ? (stationIsLive ? '<div class="tag-paused">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
                 let stylePart = s.style ? `<span class="dj-separator">|</span><span class="dj-line-style">${s.style}</span>` : "";
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold; transition:0.5s;">EVERY DAY</div><div class="dj-line-info">${s.info} ${stylePart}</div><div>${s.time}</div><div>${tag}</div></div>`;
@@ -234,7 +250,6 @@
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
-
         load(); setInterval(load, 15000);
     </script>
 </body>
