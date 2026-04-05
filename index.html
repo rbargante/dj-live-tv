@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V90</title>
+    <title>FLASHMIX.TV | PRO STATION V89</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -16,22 +16,11 @@
         * { box-sizing: border-box; scroll-behavior: smooth; }
         body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; transition: background 1s ease; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* --- LANDSCAPE AUTO-FULLSCREEN --- */
+        /* --- LANDSCAPE MODE --- */
         @media (orientation: landscape) and (max-height: 500px) {
-            body { padding-top: 0 !important; overflow: hidden !important; }
+            body { padding-top: 0; overflow: hidden; }
             .top-nav, .station-ticker, .container, footer, .mobile-controls, #live-badge { display: none !important; }
-            .player-stage { 
-                width: 100vw !important; 
-                height: 100vh !important; 
-                margin: 0 !important; 
-                border: 0 !important; 
-                max-width: none !important; 
-                position: fixed !important; 
-                inset: 0 !important; 
-                z-index: 9999 !important; 
-                background: #000;
-            }
-            iframe { width: 100% !important; height: 100% !important; }
+            .player-stage { width: 100vw; height: 100vh; margin: 0; border: 0; max-width: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
         }
 
         /* --- NAVIGATION --- */
@@ -40,9 +29,10 @@
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
         .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
         .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; }
+        .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
         .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
 
-        /* --- PLAYER STAGE & AUDIO --- */
+        /* --- PLAYER STAGE & AUDIO TRIGGER --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -54,17 +44,19 @@
         body.is-live #audio-trigger { display: flex; }
         .sound-btn { background: #ffc107; color: #000; border: none; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 15px; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255,193,7,0.6); cursor: pointer; text-transform: uppercase; }
 
-        .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px; justify-content: center; }
+        .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; justify-content: center; }
         .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 12px 25px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .fs-btn { background: #6c757d; color: #fff; border: none; padding: 12px 25px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
-        /* --- UI ELEMENTS --- */
+        #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
+
+        /* --- SCHEDULE --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px !important; background-size: cover; background-position: center; border: 2px solid #333; }
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
+        /* --- FOOTER --- */
         footer { margin-top: auto; padding: 40px 20px; background: #050505; border-top: 1px solid #1a1a1a; text-align: center; }
         .footer-logo { font-size: 20px; font-weight: 900; color: var(--accent-color); margin-bottom: 5px; letter-spacing: 3px; }
         .footer-copy { font-size: 9px; color: #333; text-transform: uppercase; }
@@ -106,18 +98,17 @@
 
     <div id="live-badge" class="status-badge badge-off">STATION OFFLINE</div>
 
-    <div class="player-stage" id="stage">
+    <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
         <div id="audio-trigger" onclick="forceRefreshPlayer(true)">
-            <button class="sound-btn">🔊 START LIVE WITH SOUND</button>
-            <span style="font-size:10px; letter-spacing:2px; color:#ffc107; font-weight:bold; margin-top:10px;">TAP TO EXPAND & HEAR</span>
+            <button class="sound-btn">🔊 UNMUTE & START LIVE</button>
+            <span style="font-size:10px; letter-spacing:2px; color:#ffc107; font-weight:bold; margin-top:10px;">ANDROID/IOS AUDIO FIX</span>
         </div>
         <iframe id="kick-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
 
     <div class="mobile-controls">
-        <button class="refresh-mini-btn" onclick="forceRefreshPlayer(true)">REFRESH</button>
-        <button class="fs-btn" onclick="toggleFullScreen()">FULL SCREEN</button>
+        <button class="refresh-mini-btn" onclick="forceRefreshPlayer(true)">REFRESH PLAYER & SOUND</button>
     </div>
 
     <div class="station-ticker"><div id="station-news-display" style="font-family:'Courier New'; color:var(--accent-color); text-align:center;"></div></div>
@@ -142,6 +133,19 @@
                 <button onclick="load()" style="flex:1; background:#5bc0de; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer;">REFRESH</button>
                 <button onclick="location.reload()" style="flex:1; background:#333; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer;">EXIT</button>
             </div>
+            <div class="dash-section" style="background:#000; padding:20px; border-radius:15px; border:1px solid #222; margin-bottom:20px;">
+                <h4 style="margin:0 0 10px; font-size:10px; color:#555;">VISIBILITY</h4>
+                <div style="display:flex; gap:5px;">
+                    <button id="v-sch" onclick="setVis('sch')" style="flex:1; padding:8px; font-size:10px; border:none;">SCHEDULE</button>
+                    <button id="v-djs" onclick="setVis('djs')" style="flex:1; padding:8px; font-size:10px; border:none;">RESIDENTS</button>
+                    <button id="v-vid" onclick="setVis('vid')" style="flex:1; padding:8px; font-size:10px; border:none;">ARCHIVE</button>
+                </div>
+            </div>
+            <div class="dash-section" style="background:#000; padding:20px; border-radius:15px; border:1px solid #222;">
+                <h3>STATION NEWS</h3>
+                <textarea id="adm-news" rows="2" style="width:100%; padding:12px; margin-bottom:10px; background:#1a1a1a; border:1px solid #333; color:#fff;"></textarea>
+                <button onclick="saveNews()" style="width:100%; padding:15px; background:var(--neon-blue); color:#000; border:none; font-weight:bold; cursor:pointer;">SAVE NEWS</button>
+            </div>
             <div id="adm-list-djs" style="margin-top:20px;"></div>
             <div id="adm-list-sch" style="margin-top:20px;"></div>
         </div>
@@ -151,16 +155,6 @@
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv";
         let editId = null, stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
-
-        function toggleFullScreen() {
-            const el = document.getElementById('stage');
-            if (!document.fullscreenElement) {
-                if (el.requestFullscreen) el.requestFullscreen();
-                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        }
 
         function forceRefreshPlayer(withSound = true) {
             const iframe = document.getElementById('kick-iframe');
@@ -179,6 +173,7 @@
 
         async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
         async function setVis(type) { visSettings[type] = !visSettings[type]; await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) }); load(); }
+        async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; } }
 
         async function load() {
@@ -203,6 +198,13 @@
 
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
             document.getElementById('station-news-display').innerText = data.news || "";
+            document.getElementById('adm-news').value = data.news || "";
+
+            Object.keys(visSettings).forEach(k => {
+                const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
+                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) btn.style.background = '#28a745'; }
+                else { if(sec) sec.classList.add('hidden'); if(btn) btn.style.background = '#333'; }
+            });
 
             const badge = document.getElementById('live-badge');
             if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; } 
