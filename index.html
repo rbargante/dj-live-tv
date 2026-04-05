@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V82</title>
+    <title>FLASHMIX.TV | PRO STATION V83</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -52,12 +52,11 @@
 
         /* --- FOOTER --- */
         footer { margin-top: auto; padding: 60px 20px; background: #050505; border-top: 1px solid #1a1a1a; text-align: center; }
-        .footer-content { max-width: 1200px; margin: 0 auto; }
         .footer-logo { font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--accent-color); margin-bottom: 10px; }
         .footer-slogan { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
         .footer-copy { font-size: 10px; color: #333; font-family: sans-serif; letter-spacing: 1px; }
 
-        /* --- DASHBOARD (ORIGINAL) --- */
+        /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
@@ -74,9 +73,9 @@
         #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
-        .site-section.hidden { display: none !important; }
         .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
         .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
+        .site-section.hidden { display: none !important; }
     </style>
 </head>
 <body id="app">
@@ -102,7 +101,10 @@
 
     <div id="live-badge" class="status-badge badge-off" style="margin: 0 auto 15px;">STATION OFFLINE</div>
 
-    <div class="player-stage"><div id="offline-msg">STATION OFFLINE</div><iframe id="kick-iframe" allowfullscreen></iframe></div>
+    <div class="player-stage">
+        <div id="offline-msg">STATION OFFLINE</div>
+        <iframe id="kick-iframe" allowfullscreen></iframe>
+    </div>
 
     <div class="station-ticker"><div id="station-news-display"></div></div>
 
@@ -178,8 +180,18 @@
             const data = await r.json() || {};
             
             const iframe = document.getElementById('kick-iframe');
-            if(data.is_live && !stationIsLive) iframe.src = KICK_STREAM + "&nocache=" + Date.now(); 
-            else if (!data.is_live && stationIsLive) iframe.src = "about:blank";
+            
+            // --- AUTO-RECONNECTOR LOGIC ---
+            // Se o Firebase diz que está LIVE, mas o nosso player está desligado ou vazio: Força o carregamento.
+            if(data.is_live) {
+                const currentSrc = iframe.src;
+                // Se o src estiver vazio ou se o estado mudou agora de OFF para ON
+                if(!currentSrc || currentSrc === "about:blank" || !stationIsLive) {
+                    iframe.src = KICK_STREAM + "&t=" + Date.now(); // Cache bust
+                }
+            } else {
+                iframe.src = "about:blank";
+            }
 
             stationIsLive = data.is_live;
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
@@ -250,7 +262,7 @@
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
-        load(); setInterval(load, 15000);
+        load(); setInterval(load, 10000); // Frequência aumentada para 10s para maior precisão
     </script>
 </body>
 </html>
