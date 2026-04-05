@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V93</title>
+    <title>FLASHMIX.TV | PRO STATION V94</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -16,19 +16,23 @@
         * { box-sizing: border-box; scroll-behavior: smooth; }
         body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; transition: background 1s ease; min-height: 100vh; display: flex; flex-direction: column; }
 
+        /* --- LANDSCAPE MODE --- */
         @media (orientation: landscape) and (max-height: 500px) {
             body { padding-top: 0; overflow: hidden; }
             .top-nav, .station-ticker, .container, footer, .mobile-controls, #live-badge { display: none !important; }
             .player-stage { width: 100vw; height: 100vh; margin: 0; border: 0; max-width: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
         }
 
+        /* --- NAVIGATION (RESTAURADO) --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
         .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
-        .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
-        .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; }
-        .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; transition: 0.5s; }
+        .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; align-items: center; }
+        .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
+        .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; transition: 0.5s; }
 
+        /* --- PLAYER STAGE --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -36,24 +40,27 @@
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
 
-        /* NOVO CONTROLO DISCRETO */
-        .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .sound-mini-btn { background: #ffc107; color: #000; border: none; padding: 8px 15px; border-radius: 5px; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; display: none; }
+        /* CONTROLO DE SOM MOBILE */
+        .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px; justify-content: center; }
+        .sound-mini-btn { background: #ffc107; color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-size: 11px; font-weight: 900; cursor: pointer; text-transform: uppercase; display: none; }
         body.is-live .sound-mini-btn { display: inline-block; }
-        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
+        /* --- SCHEDULE --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px !important; background-size: cover; background-position: center; border: 2px solid #333; }
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
+        /* --- FOOTER --- */
         footer { margin-top: auto; padding: 40px 20px; background: #050505; border-top: 1px solid #1a1a1a; text-align: center; }
         .footer-logo { font-size: 20px; font-weight: 900; color: var(--accent-color); margin-bottom: 5px; letter-spacing: 3px; }
         .footer-copy { font-size: 9px; color: #333; text-transform: uppercase; }
 
+        /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; }
@@ -63,15 +70,22 @@
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
         .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; margin: 0 auto 15px; }
+        .site-section.hidden { display: none !important; }
     </style>
 </head>
 <body id="app">
 
     <nav class="top-nav">
         <div class="nav-content">
-            <a href="#" class="brand"><div class="logo-circle">F</div><div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div></a>
+            <a href="#" class="brand">
+                <div class="logo-circle">F</div>
+                <div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div>
+            </a>
             <div class="main-menu">
-                <a href="#">Home</a><a href="#schedule">Schedule</a><a href="#residents">Residents</a><a href="#archive">Archive</a>
+                <a href="#">Home</a>
+                <a href="#schedule">Schedule</a>
+                <a href="#residents">Residents</a>
+                <a href="#archive">Archive</a>
                 <span onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager Access</span>
             </div>
         </div>
