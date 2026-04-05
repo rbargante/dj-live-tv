@@ -41,7 +41,7 @@
             .main-menu a { font-size: 18px; margin: 15px 0; }
         }
 
-        /* --- PLAYER STAGE & AUDIO TRIGGER --- */
+        /* --- PLAYER STAGE & AUDIO --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -51,8 +51,7 @@
 
         #play-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); cursor: pointer; flex-direction: column; }
         body.is-live #play-trigger { display: flex; }
-        .play-btn-circle { width: 85px; height: 85px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 25px var(--live-green); margin-bottom: 15px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .play-btn-circle { width: 85px; height: 85px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 25px var(--live-green); margin-bottom: 15px; }
 
         .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px; justify-content: center; }
         .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
@@ -68,11 +67,20 @@
 
         footer { margin-top: auto; padding: 40px 20px; background: #050505; border-top: 1px solid #1a1a1a; text-align: center; }
         .footer-logo { font-size: 20px; font-weight: 900; color: var(--accent-color); margin-bottom: 10px; }
-        .footer-copy { font-size: 10px; color: #333; text-transform: uppercase; }
+        .footer-copy { font-size: 10px; color: #333; font-family: sans-serif; letter-spacing: 1px; }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD COMPLETO --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
+        .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
+        .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
+        .edit-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border: 1px solid #222; font-size: 11px; border-radius: 5px; color: #fff; }
+        .edit-item button { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 9px; margin-left: 5px; text-transform: uppercase; }
+
+        .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
+        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
+        .site-section.hidden { display: none !important; }
     </style>
 </head>
 <body id="app">
@@ -80,11 +88,7 @@
     <nav class="top-nav">
         <div class="nav-content">
             <a href="#" class="brand"><div class="logo-circle">F</div><div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div></a>
-            
-            <div class="hamburger" onclick="toggleMenu()">
-                <span></span><span></span><span></span>
-            </div>
-
+            <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
             <div class="main-menu" id="menu">
                 <a href="#" onclick="toggleMenu()">Home</a>
                 <a href="#schedule" onclick="toggleMenu()">Schedule</a>
@@ -98,9 +102,9 @@
     <div id="login-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center;">
         <div class="login-card" style="background:#111; padding:35px; border:1px solid var(--neon-red); width:320px; text-align:center;">
             <h3>STAFF LOGIN</h3>
-            <input type="text" id="user-f" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#1a1a1a; border:1px solid #333; color:#fff;">
-            <input type="password" id="pass-f" placeholder="Password" style="width:100%; padding:12px; margin-bottom:10px; background:#1a1a1a; border:1px solid #333; color:#fff;">
-            <button onclick="checkLogin()" style="width:100%; padding:15px; background:var(--neon-red); border:none; color:#fff; font-weight:bold; cursor:pointer;">LOGIN</button>
+            <input type="text" id="user-f" placeholder="Username">
+            <input type="password" id="pass-f" placeholder="Password">
+            <button onclick="checkLogin()" class="action-btn">LOGIN</button>
             <p onclick="document.getElementById('login-overlay').style.display='none'" style="cursor:pointer; font-size:11px; color:#555; margin-top:20px;">CANCEL</p>
         </div>
     </div>
@@ -113,7 +117,7 @@
             <div class="play-btn-circle">▶</div>
             <div style="font-size:12px; letter-spacing:2px; font-weight:bold; color:#fff;">TAP TO UNMUTE & START</div>
         </div>
-        <iframe id="kick-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        <iframe id="kick-iframe" allowfullscreen></iframe>
     </div>
 
     <div class="mobile-controls">
@@ -144,35 +148,59 @@
                 <button onclick="load()" style="flex:1; background:#5bc0de; padding:15px; border:none; color:#fff; font-weight:bold;">REFRESH</button>
                 <button onclick="location.reload()" style="flex:1; background:#333; padding:15px; border:none; color:#fff; font-weight:bold;">EXIT</button>
             </div>
-            <div id="adm-list-djs" style="margin-top:20px;"></div>
-            <div id="adm-list-sch" style="margin-top:20px;"></div>
+            <div class="dash-section">
+                <h4 style="margin:0 0 10px; font-size:10px; color:#555;">SECTION VISIBILITY</h4>
+                <div style="display:flex; gap:5px;">
+                    <button id="v-sch" onclick="setVis('sch')" style="flex:1; padding:8px; font-size:10px; border:none;">SCHEDULE</button>
+                    <button id="v-djs" onclick="setVis('djs')" style="flex:1; padding:8px; font-size:10px; border:none;">RESIDENTS</button>
+                    <button id="v-vid" onclick="setVis('vid')" style="flex:1; padding:8px; font-size:10px; border:none;">ARCHIVE</button>
+                </div>
+            </div>
+            <div class="dash-section">
+                <h3>STATION NEWS / ABOUT</h3>
+                <textarea id="adm-news" rows="2"></textarea>
+                <button class="action-btn" onclick="saveNews()">SAVE NEWS</button>
+            </div>
+            <div class="dash-section">
+                <h3>1. DJs DATABASE</h3>
+                <input type="text" id="dj-n" placeholder="DJ Name">
+                <input type="text" id="dj-s" placeholder="Main Style">
+                <input type="text" id="dj-i" placeholder="Photo URL">
+                <button id="btn-dj-action" class="action-btn" onclick="addToDB('djs')">ADD TO DATABASE</button>
+                <div id="adm-list-djs"></div>
+            </div>
+            <div class="dash-section">
+                <h3>2. SCHEDULE MANAGER</h3>
+                <select id="sch-t-drop"></select>
+                <select id="sch-j-drop"></select>
+                <input type="text" id="sch-style" placeholder="Program / Style Name">
+                <button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
+                <div id="adm-list-sch"></div>
+            </div>
         </div>
     </div>
 
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv";
-        let stationIsLive = false;
+        let editId = null, stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
 
         function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
         function openAdmin() { toggleMenu(); document.getElementById('login-overlay').style.display='flex'; }
-
         function forceRefreshPlayer(withSound = true) {
             const iframe = document.getElementById('kick-iframe');
             const trigger = document.getElementById('play-trigger');
-            if(stationIsLive) {
-                iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
-                trigger.style.display = 'none';
-            }
+            if(stationIsLive) { iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); trigger.style.display = 'none'; }
         }
 
         async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
+        async function setVis(type) { visSettings[type] = !visSettings[type]; await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) }); load(); }
+        async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; } }
 
         async function load() {
             const hour = new Date().getHours();
             if (hour >= 8 && hour < 20) document.body.classList.add('day-mode'); else document.body.classList.remove('day-mode');
-
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
             const iframe = document.getElementById('kick-iframe');
@@ -191,14 +219,23 @@
                 btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; btnOff.style.boxShadow = '0 0 20px #d9534f';
             }
 
-            const badge = document.getElementById('live-badge');
-            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.style.background = '#28a745'; badge.style.color = '#fff'; } 
-            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.style.background = '#333'; badge.style.color = '#888'; }
-
+            visSettings = data.visibility || { sch: true, djs: true, vid: true };
             document.getElementById('station-news-display').innerText = data.news || "";
+            document.getElementById('adm-news').value = data.news || "";
+
+            Object.keys(visSettings).forEach(k => {
+                const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
+                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) btn.style.background = '#28a745'; }
+                else { if(sec) sec.classList.add('hidden'); if(btn) btn.style.background = '#333'; }
+            });
+
+            const badge = document.getElementById('live-badge');
+            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; } 
+            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; }
 
             const djsStore = data.djs || {};
             const djsArr = Object.entries(djsStore);
+            document.getElementById('sch-j-drop').innerHTML = djsArr.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             document.getElementById('pub-djs').innerHTML = djsArr.slice(0, 5).map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; border:1px solid #1a1a1a; text-align:center;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-bottom:12px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold;">${d.name}</div><div style="color:red; font-size:9px; margin-top:5px; text-transform:uppercase;">${d.style || ''}</div></div>`).join('');
 
             let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
@@ -216,12 +253,21 @@
                 let tag = (i === 0) ? (stationIsLive ? '<div style="background:#444; color:#888; padding:5px 8px; font-size:9px; font-weight:bold; border-radius:4px;">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div style="font-size:14px; font-weight:bold;">${s.info} <span style="margin:0 10px; font-weight:normal;">|</span> <span style="font-size:12px; font-weight:normal; text-transform:uppercase;">${s.style||''}</span></div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
+
+            document.getElementById('adm-list-djs').innerHTML = djsArr.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("djs","${id}",${JSON.stringify(d)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
+            document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("schedule","${s.id}",${JSON.stringify(s)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("schedule","${s.id}")'>DEL</button></div></div>`).join('');
             
             const vRes = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
             const vData = await vRes.json();
             document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;"><div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`).join('');
         }
 
+        function startEdit(type, id, data) { editId = id; if(type === 'djs') { document.getElementById('dj-n').value = data.name; document.getElementById('dj-s').value = data.style; document.getElementById('dj-i').value = data.img; document.getElementById('btn-dj-action').innerText = "UPDATE DJ"; } else { document.getElementById('sch-t-drop').value = data.time; document.getElementById('sch-j-drop').value = data.info; document.getElementById('sch-style').value = data.style || ''; document.getElementById('btn-sch-action').innerText = "UPDATE SCHEDULE"; } }
+        async function addToDB(p) { let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value }; const method = editId ? "PATCH" : "POST"; const url = editId ? `${DB}${p}/${editId}.json` : `${DB}${p}.json`; await fetch(url, { method: method, body: JSON.stringify(item) }); editId = null; load(); }
+        async function delItem(p, id) { if(confirm("Delete?")) { await fetch(`${DB}${p}/${id}.json`, { method: "DELETE" }); load(); } }
+
+        let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
+        document.getElementById('sch-t-drop').innerHTML = opt;
         setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
         load(); setInterval(load, 15000);
     </script>
