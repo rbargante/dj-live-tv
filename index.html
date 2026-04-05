@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V93</title>
+    <title>FLASHMIX.TV | PRO STATION V94</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -51,7 +51,8 @@
 
         #play-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); cursor: pointer; flex-direction: column; }
         body.is-live #play-trigger { display: flex; }
-        .play-btn-circle { width: 85px; height: 85px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 25px var(--live-green); margin-bottom: 15px; }
+        .play-btn-circle { width: 85px; height: 85px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 25px var(--live-green); margin-bottom: 15px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px; justify-content: center; }
         .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
@@ -69,7 +70,7 @@
         .footer-logo { font-size: 20px; font-weight: 900; color: var(--accent-color); margin-bottom: 10px; }
         .footer-copy { font-size: 10px; color: #333; font-family: sans-serif; letter-spacing: 1px; }
 
-        /* --- DASHBOARD COMPLETO --- */
+        /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
@@ -117,7 +118,7 @@
             <div class="play-btn-circle">▶</div>
             <div style="font-size:12px; letter-spacing:2px; font-weight:bold; color:#fff;">TAP TO UNMUTE & START</div>
         </div>
-        <iframe id="kick-iframe" allowfullscreen></iframe>
+        <iframe id="kick-iframe" allow="autoplay; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>
     </div>
 
     <div class="mobile-controls">
@@ -137,7 +138,7 @@
 
     <footer>
         <div class="footer-logo">FLASHMIX.TV</div>
-        <div class="footer-copy">© 2026 FLASHMIX.TV | 80s 90s 00s JOURNEY</div>
+        <div class="footer-copy">© 2026 FLASHMIX.TV | ALL RIGHTS RESERVED</div>
     </footer>
 
     <div id="dashboard">
@@ -183,14 +184,19 @@
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv";
-        let editId = null, stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
+        let stationIsLive = false, showAll = { sch: false, djs: false, vid: false }, visSettings = { sch: true, djs: true, vid: true };
 
         function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
         function openAdmin() { toggleMenu(); document.getElementById('login-overlay').style.display='flex'; }
+        
         function forceRefreshPlayer(withSound = true) {
             const iframe = document.getElementById('kick-iframe');
             const trigger = document.getElementById('play-trigger');
-            if(stationIsLive) { iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); trigger.style.display = 'none'; }
+            if(stationIsLive) {
+                // Forçamos o reload do iframe com o parâmetro de áudio
+                iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
+                trigger.style.display = 'none';
+            }
         }
 
         async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
@@ -213,9 +219,9 @@
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
             if(stationIsLive) { 
                 btnOn.style.background = '#5cb85c'; btnOn.style.color = '#fff'; btnOn.style.boxShadow = '0 0 20px #5cb85c';
-                btnOff.style.background = '#441a1a'; btnOff.style.color = '#777'; btnOff.style.boxShadow = 'none';
+                btnOff.style.background = '#441a1a'; btnOff.style.color = '#777';
             } else { 
-                btnOn.style.background = '#1a441a'; btnOn.style.color = '#777'; btnOn.style.boxShadow = 'none';
+                btnOn.style.background = '#1a441a'; btnOn.style.color = '#777';
                 btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; btnOff.style.boxShadow = '0 0 20px #d9534f';
             }
 
