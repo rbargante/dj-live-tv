@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V91</title>
+    <title>FLASHMIX.TV | PRO STATION V93</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -19,71 +19,60 @@
         /* --- NAVIGATION --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
         .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
-        .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; transition: 0.5s; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; z-index: 1001; }
+        .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
+        
         .main-menu { display: flex; gap: 20px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; align-items: center; }
         .main-menu a { color: #fff; text-decoration: none; cursor: pointer; }
-        .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; transition: 0.5s; }
+        .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
 
-        /* --- PLAYER STAGE --- */
-        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: border-color 0.5s; }
+        /* HAMBURGER */
+        .hamburger { display: none; cursor: pointer; z-index: 1001; flex-direction: column; gap: 5px; }
+        .hamburger span { width: 25px; height: 3px; background: #fff; border-radius: 2px; transition: 0.3s; }
+
+        @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .main-menu { 
+                position: fixed; top: 0; right: -100%; width: 75%; height: 100vh; 
+                background: #000; flex-direction: column; justify-content: center; 
+                transition: 0.4s; border-left: 1px solid var(--accent-color); z-index: 1000;
+            }
+            .main-menu.active { right: 0; }
+            .main-menu a { font-size: 18px; margin: 15px 0; }
+        }
+
+        /* --- PLAYER STAGE & AUDIO TRIGGER --- */
+        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         
         iframe { width: 100%; height: 100%; border: 0; display: none; position: relative; z-index: 10; }
         body.is-live iframe { display: block; }
 
-        /* GATILHO DE SOM PARA MOBILE */
-        #play-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); cursor: pointer; flex-direction: column; }
+        #play-trigger { position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); cursor: pointer; flex-direction: column; }
         body.is-live #play-trigger { display: flex; }
-        .play-btn-circle { width: 80px; height: 80px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 0 20px var(--live-green); margin-bottom: 15px; }
+        .play-btn-circle { width: 85px; height: 85px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 25px var(--live-green); margin-bottom: 15px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         .mobile-controls { width: 95%; max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px; justify-content: center; }
-        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .refresh-mini-btn { background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
         #offline-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #111; font-size: clamp(20px, 6vw, 40px); font-weight: 900; letter-spacing: 10px; text-transform: uppercase; z-index: 1; }
 
-        /* --- STATION TICKER --- */
-        .station-ticker { width: 95%; max-width: 1200px; margin: 0 auto 40px; background: rgba(0,0,0,0.3); border-top: 2px solid var(--accent-color); padding: 25px; text-align: center; }
-        #station-news-display { font-family: 'Courier New', Courier, monospace; font-size: 15px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* --- SCHEDULE (FOTOS QUADRADAS) --- */
+        /* --- UI ELEMENTS --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px !important; background-size: cover; background-position: center; border: 2px solid #333; }
-        .dj-line-info { font-size: 14px; font-weight: bold; color: #fff; display: flex; align-items: center; }
-        .dj-separator { margin: 0 12px; color: #fff; font-weight: normal; }
-        .dj-line-style { font-size: 13px; font-weight: normal; color: #fff; text-transform: uppercase; }
-
-        /* TAG RED BLINKING */
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
-        .tag-paused { background: #444; color: #888; padding: 5px 8px; font-size: 9px; font-weight: bold; text-align: center; border-radius: 4px; }
 
-        /* --- FOOTER --- */
-        footer { margin-top: auto; padding: 60px 20px; background: #050505; border-top: 1px solid #1a1a1a; text-align: center; }
-        .footer-logo { font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--accent-color); margin-bottom: 10px; }
-        .footer-slogan { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
-        .footer-copy { font-size: 10px; color: #333; font-family: sans-serif; letter-spacing: 1px; }
+        footer { margin-top: auto; padding: 40px 20px; background: #050505; border-top: 1px solid #1a1a1a; text-align: center; }
+        .footer-logo { font-size: 20px; font-weight: 900; color: var(--accent-color); margin-bottom: 10px; }
+        .footer-copy { font-size: 10px; color: #333; text-transform: uppercase; }
 
         /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
-        .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
-        .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-bottom: 15px; }
-        .btn-live-on-active { background: #5cb85c !important; color: #fff !important; box-shadow: 0 0 20px #5cb85c; }
-        .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; }
-        .btn-live-off { background: #441a1a !important; color: #777 !important; opacity: 0.5; }
-
-        .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
-        .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
-        #pub-djs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; margin-bottom: 12px; border: 2px solid #333; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .video-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
-        .see-more-btn { display: block; width: fit-content; margin: 20px auto; padding: 10px 25px; background: transparent; border: 1px solid #333; color: #888; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 20px; }
-        .status-badge { width: fit-content; padding: 8px 20px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
-        .site-section.hidden { display: none !important; }
     </style>
 </head>
 <body id="app">
@@ -91,9 +80,17 @@
     <nav class="top-nav">
         <div class="nav-content">
             <a href="#" class="brand"><div class="logo-circle">F</div><div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div></a>
-            <div class="main-menu">
-                <a href="#">Home</a><a href="#schedule">Schedule</a><a href="#residents">Residents</a><a href="#archive">Archive</a>
-                <span onclick="document.getElementById('login-overlay').style.display='flex'" class="admin-btn">Manager Access</span>
+            
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+
+            <div class="main-menu" id="menu">
+                <a href="#" onclick="toggleMenu()">Home</a>
+                <a href="#schedule" onclick="toggleMenu()">Schedule</a>
+                <a href="#residents" onclick="toggleMenu()">Residents</a>
+                <a href="#archive" onclick="toggleMenu()">Archive</a>
+                <span onclick="openAdmin()" class="admin-btn">Manager Access</span>
             </div>
         </div>
     </nav>
@@ -101,19 +98,20 @@
     <div id="login-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; align-items: center; justify-content: center;">
         <div class="login-card" style="background:#111; padding:35px; border:1px solid var(--neon-red); width:320px; text-align:center;">
             <h3>STAFF LOGIN</h3>
-            <input type="text" id="user-f" placeholder="Username"><input type="password" id="pass-f" placeholder="Password">
-            <button class="action-btn" onclick="checkLogin()">LOGIN</button>
+            <input type="text" id="user-f" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#1a1a1a; border:1px solid #333; color:#fff;">
+            <input type="password" id="pass-f" placeholder="Password" style="width:100%; padding:12px; margin-bottom:10px; background:#1a1a1a; border:1px solid #333; color:#fff;">
+            <button onclick="checkLogin()" style="width:100%; padding:15px; background:var(--neon-red); border:none; color:#fff; font-weight:bold; cursor:pointer;">LOGIN</button>
             <p onclick="document.getElementById('login-overlay').style.display='none'" style="cursor:pointer; font-size:11px; color:#555; margin-top:20px;">CANCEL</p>
         </div>
     </div>
 
-    <div id="live-badge" class="status-badge badge-off" style="margin: 0 auto 15px;">STATION OFFLINE</div>
+    <div id="live-badge" class="status-badge badge-off" style="margin: 0 auto 15px; width:fit-content; padding:8px 20px; border-radius:20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:bold;">STATION OFFLINE</div>
 
     <div class="player-stage">
         <div id="offline-msg">STATION OFFLINE</div>
         <div id="play-trigger" onclick="forceRefreshPlayer(true)">
             <div class="play-btn-circle">▶</div>
-            <div style="font-size:11px; letter-spacing:2px; font-weight:bold; color:#fff;">TAP TO START WITH SOUND</div>
+            <div style="font-size:12px; letter-spacing:2px; font-weight:bold; color:#fff;">TAP TO UNMUTE & START</div>
         </div>
         <iframe id="kick-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
@@ -122,40 +120,30 @@
         <button class="refresh-mini-btn" onclick="forceRefreshPlayer(true)">REFRESH PLAYER & SOUND</button>
     </div>
 
-    <div class="station-ticker"><div id="station-news-display"></div></div>
+    <div class="station-ticker" style="width:95%; max-width:1200px; margin:0 auto 40px; text-align:center; padding:20px; border-top:1px solid #222;">
+        <div id="station-news-display" style="font-family:'Courier New'; font-size:14px; color:var(--accent-color);"></div>
+    </div>
 
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
-        <div id="sec-sch" class="site-section"><div id="schedule" class="row-title">Weekly Schedule</div><div id="pub-sch" class="sch-box"></div><button id="more-sch" class="see-more-btn" onclick="toggleView('sch')">See More</button></div>
-        <div id="sec-djs" class="site-section"><div id="residents" class="row-title">Flashmix Residents</div><div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div><button id="more-djs" class="see-more-btn" onclick="toggleView('djs')">See More</button></div>
-        <div id="sec-vid" class="site-section"><div id="archive" class="row-title">Video Archive</div><div id="pub-archive" class="video-grid"></div><button id="more-vid" class="see-more-btn" onclick="toggleView('vid')">See More</button></div>
+        <div id="sec-sch" class="site-section"><div id="schedule" class="row-title">Weekly Schedule</div><div id="pub-sch" class="sch-box"></div></div>
+        <div id="sec-djs" class="site-section"><div id="residents" class="row-title">Flashmix Residents</div><div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div></div>
+        <div id="sec-vid" class="site-section"><div id="archive" class="row-title">Video Archive</div><div id="pub-archive" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;"></div></div>
     </div>
 
     <footer>
-        <div class="footer-content">
-            <div class="footer-logo">FLASHMIX.TV</div>
-            <div class="footer-slogan">80s • 90s • 00s ELECTRONIC MUSIC JOURNEY</div>
-            <div class="footer-copy">© 2026 FLASHMIX.TV | ALL RIGHTS RESERVED</div>
-        </div>
+        <div class="footer-logo">FLASHMIX.TV</div>
+        <div class="footer-copy">© 2026 FLASHMIX.TV | 80s 90s 00s JOURNEY</div>
     </footer>
 
     <div id="dashboard">
         <div class="dash-container">
             <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button id="adm-btn-on" onclick="setLive(true)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE ON</button>
-                <button id="adm-btn-off" onclick="setLive(false)" style="flex:1; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">LIVE OFF</button>
-                <button onclick="load()" style="flex:1; background:#5bc0de; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">REFRESH DATA</button>
-                <button onclick="location.reload()" style="flex:1; background:#333; padding:15px; border:none; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase;">EXIT MANAGER</button>
+                <button id="adm-btn-on" onclick="setLive(true)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer;">LIVE ON</button>
+                <button id="adm-btn-off" onclick="setLive(false)" style="flex:1; padding:15px; border:none; font-weight:bold; cursor:pointer;">LIVE OFF</button>
+                <button onclick="load()" style="flex:1; background:#5bc0de; padding:15px; border:none; color:#fff; font-weight:bold;">REFRESH</button>
+                <button onclick="location.reload()" style="flex:1; background:#333; padding:15px; border:none; color:#fff; font-weight:bold;">EXIT</button>
             </div>
-            <div class="dash-section" style="border:none; background:#111; padding:10px;">
-                <h4 style="margin:0 0 10px; font-size:10px; color:#555;">SECTION VISIBILITY</h4>
-                <div style="display:flex; gap:5px;">
-                    <button id="v-sch" onclick="setVis('sch')" style="flex:1; padding:8px; font-size:10px; border:none; cursor:pointer;">SCHEDULE</button>
-                    <button id="v-djs" onclick="setVis('djs')" style="flex:1; padding:8px; font-size:10px; border:none; cursor:pointer;">RESIDENTS</button>
-                    <button id="v-vid" onclick="setVis('vid')" style="flex:1; padding:8px; font-size:10px; border:none; cursor:pointer;">ARCHIVE</button>
-                </div>
-            </div>
-            <div class="dash-section"><h3>STATION NEWS / ABOUT</h3><textarea id="adm-news" rows="2"></textarea><button class="action-btn" onclick="saveNews()">SAVE NEWS</button></div>
             <div id="adm-list-djs" style="margin-top:20px;"></div>
             <div id="adm-list-sch" style="margin-top:20px;"></div>
         </div>
@@ -164,62 +152,50 @@
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv";
-        let editId = null, stationIsLive = false;
-        let showAll = { sch: false, djs: false, vid: false }, fullData = { sch: [], djs: [], vid: [] }, visSettings = { sch: true, djs: true, vid: true };
+        let stationIsLive = false;
+
+        function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
+        function openAdmin() { toggleMenu(); document.getElementById('login-overlay').style.display='flex'; }
 
         function forceRefreshPlayer(withSound = true) {
             const iframe = document.getElementById('kick-iframe');
             const trigger = document.getElementById('play-trigger');
             if(stationIsLive) {
-                // A instrução ?muted=false só é aceite pelo browser se vier de um toque (onclick)
                 iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now();
                 trigger.style.display = 'none';
             }
         }
 
-        function updateEnvironment() {
-            const hour = new Date().getHours();
-            if (hour >= 8 && hour < 20) document.body.classList.add('day-mode'); 
-            else document.body.classList.remove('day-mode');
-        }
-
         async function setLive(status) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: status }) }); load(); }
-        async function setVis(type) { visSettings[type] = !visSettings[type]; await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) }); load(); }
-        async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; } }
 
         async function load() {
-            updateEnvironment();
+            const hour = new Date().getHours();
+            if (hour >= 8 && hour < 20) document.body.classList.add('day-mode'); else document.body.classList.remove('day-mode');
+
             const r = await fetch(DB + ".json?t=" + Date.now());
             const data = await r.json() || {};
             const iframe = document.getElementById('kick-iframe');
             const trigger = document.getElementById('play-trigger');
 
-            if(data.is_live && !stationIsLive) {
-                trigger.style.display = 'flex';
-                iframe.src = "about:blank"; 
-            } else if (!data.is_live) {
-                iframe.src = "about:blank";
-                trigger.style.display = 'none';
-            }
+            if(data.is_live && !stationIsLive) { trigger.style.display = 'flex'; iframe.src = "about:blank"; } 
+            else if (!data.is_live) { iframe.src = "about:blank"; trigger.style.display = 'none'; }
 
             stationIsLive = data.is_live;
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
-            if(stationIsLive) { btnOn.className = 'btn-live-on-active'; btnOff.className = 'btn-live-off'; }
-            else { btnOn.className = 'btn-live-off'; btnOff.className = 'btn-live-off-active'; }
-
-            visSettings = data.visibility || { sch: true, djs: true, vid: true };
-            document.getElementById('station-news-display').innerText = data.news || "";
-
-            Object.keys(visSettings).forEach(k => {
-                const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
-                if(visSettings[k]) { if(sec) sec.classList.remove('hidden'); if(btn) btn.style.background = '#28a745'; }
-                else { if(sec) sec.classList.add('hidden'); if(btn) btn.style.background = '#333'; }
-            });
+            if(stationIsLive) { 
+                btnOn.style.background = '#5cb85c'; btnOn.style.color = '#fff'; btnOn.style.boxShadow = '0 0 20px #5cb85c';
+                btnOff.style.background = '#441a1a'; btnOff.style.color = '#777'; btnOff.style.boxShadow = 'none';
+            } else { 
+                btnOn.style.background = '#1a441a'; btnOn.style.color = '#777'; btnOn.style.boxShadow = 'none';
+                btnOff.style.background = '#d9534f'; btnOff.style.color = '#fff'; btnOff.style.boxShadow = '0 0 20px #d9534f';
+            }
 
             const badge = document.getElementById('live-badge');
-            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.className = "status-badge badge-on"; } 
-            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.className = "status-badge badge-off"; }
+            if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.style.background = '#28a745'; badge.style.color = '#fff'; } 
+            else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.style.background = '#333'; badge.style.color = '#888'; }
+
+            document.getElementById('station-news-display').innerText = data.news || "";
 
             const djsStore = data.djs || {};
             const djsArr = Object.entries(djsStore);
@@ -240,9 +216,9 @@
                 let tag = (i === 0) ? (stationIsLive ? '<div style="background:#444; color:#888; padding:5px 8px; font-size:9px; font-weight:bold; border-radius:4px;">PAUSED</div>' : '<div class="tag-live-now">LIVE NOW</div>') : (i === 1 ? '<div style="color:#555; font-size:9px;">NEXT</div>' : '');
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div style="font-size:14px; font-weight:bold;">${s.info} <span style="margin:0 10px; font-weight:normal;">|</span> <span style="font-size:12px; font-weight:normal; text-transform:uppercase;">${s.style||''}</span></div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
-
-            const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
-            const vData = await res.json();
+            
+            const vRes = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
+            const vData = await vRes.json();
             document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;"><div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`).join('');
         }
 
