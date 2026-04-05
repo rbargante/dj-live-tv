@@ -230,4 +230,13 @@
                 return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div style="font-size:14px; font-weight:bold;">${s.info} <span style="margin:0 10px; font-weight:normal;">|</span> <span style="font-size:12px; font-weight:normal; text-transform:uppercase;">${s.style||''}</span></div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
 
-            const res = await fetch(`
+            const res = await fetch(`https://archive.org/advancedsearch.php?q=uploader%3A(ricardobargante%40live.com)&fl[]=identifier,title&sort[]=addeddate+desc&output=json`);
+            const vData = await res.json();
+            document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;"><div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`).join('');
+        }
+
+        setInterval(() => { document.getElementById('uk-clock').innerText = "UK TIME SYNC: " + new Date().toLocaleTimeString("en-GB", {timeZone: "Europe/London", hour12: false, hour: '2-digit', minute: '2-digit'}); }, 1000);
+        load(); setInterval(load, 15000);
+    </script>
+</body>
+</html>
