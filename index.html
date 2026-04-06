@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V106</title>
+    <title>FLASHMIX.TV | PRO STATION V107</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -34,7 +34,7 @@
             .main-menu a { font-size: 18px; margin: 15px 0; }
         }
 
-        /* --- PLAYER & STUDIO MESSAGES --- */
+        /* --- PLAYER --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -44,9 +44,6 @@
         body.is-live #play-trigger { display: flex; }
         .play-btn-circle { width: 85px; height: 85px; background: var(--live-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 25px var(--live-green); margin-bottom: 15px; }
 
-        #studio-cam-msg { width: 100%; background: var(--neon-red); color: #fff; text-align: center; padding: 12px; font-size: 11px; font-weight: 900; letter-spacing: 2px; border-radius: 8px; margin-bottom: 15px; display: none; animation: blinker_cam 1s linear infinite; }
-        @keyframes blinker_cam { 50% { opacity: 0.3; } }
-
         /* --- UI ELEMENTS --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
@@ -55,7 +52,7 @@
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; animation: blinker_tag 1s linear infinite; }
         @keyframes blinker_tag { 50% { opacity: 0; } }
 
-        /* --- DASHBOARD STYLES (MATCHING SCREENSHOTS) --- */
+        /* --- DASHBOARD STYLES (EXACT MATCH) --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
@@ -71,10 +68,10 @@
         .vis-on { background: #fff; color: #000; }
         .vis-off { background: #333; color: #777; }
 
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; font-family: sans-serif; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px; margin-bottom: 8px; border: 1px solid #222; border-radius: 8px; font-size: 12px; }
-        .edit-item button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 10px; }
+        .edit-item button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 10px; margin-left: 5px; }
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
@@ -123,7 +120,7 @@
     <div class="container">
         <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
         <div id="sec-sch" class="site-section">
-            <div id="studio-cam-msg">🔴 LIVE STREAMING | BROADCASTING FROM THE STUDIO</div>
+            <div id="studio-cam-msg" style="width:100%; background:var(--neon-red); color:#fff; text-align:center; padding:12px; font-size:11px; font-weight:900; letter-spacing:2px; border-radius:8px; margin-bottom:15px; display:none; animation: statusBlink 1s infinite alternate;">🔴 LIVE STREAMING | BROADCASTING FROM THE STUDIO</div>
             <div id="schedule" class="row-title">Weekly Schedule</div>
             <div id="pub-sch" class="sch-box"></div>
         </div>
@@ -162,8 +159,9 @@
             </div>
             <div class="dash-section">
                 <h3>SCHEDULE MANAGER</h3>
-                <select id="sch-t-drop"></select><select id="sch-j-drop"></select>
-                <button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
+                <select id="sch-t-drop"></select>
+                <select id="sch-j-drop"></select>
+                <input type="text" id="sch-style" placeholder="Program / Style Name"> <button id="btn-sch-action" class="action-btn" onclick="addToDB('schedule')">ADD TO SCHEDULE</button>
                 <div id="adm-list-sch" style="margin-top:15px;"></div>
             </div>
         </div>
@@ -176,7 +174,6 @@
 
         function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
         function openAdmin() { toggleMenu(); document.getElementById('login-overlay').style.display='flex'; }
-        
         function forceRefreshPlayer(withSound = true) {
             const iframe = document.getElementById('kick-iframe');
             if(stationIsLive) { iframe.src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); document.getElementById('play-trigger').style.display = 'none'; }
@@ -197,13 +194,10 @@
             else if (!data.is_live) { iframe.src = "about:blank"; trigger.style.display = 'none'; }
 
             stationIsLive = data.is_live;
-            
-            // Cores dos botões admin LIVE
             const btnOn = document.getElementById('adm-btn-on'), btnOff = document.getElementById('adm-btn-off');
             if(stationIsLive) { btnOn.className = 'vis-btn btn-live-on-active'; btnOff.className = 'vis-btn btn-live-idle'; } 
             else { btnOn.className = 'vis-btn btn-live-idle'; btnOff.className = 'vis-btn btn-live-off-active'; }
 
-            // Visibilidade do Site
             const badge = document.getElementById('live-badge');
             if(stationIsLive) { document.body.classList.add('is-live'); badge.innerText = "LIVE NOW"; badge.style.background = '#28a745'; badge.style.color = '#fff'; } 
             else { document.body.classList.remove('is-live'); badge.innerText = "STATION OFFLINE"; badge.style.background = '#333'; badge.style.color = '#888'; }
@@ -211,7 +205,6 @@
             document.getElementById('studio-cam-msg').style.display = stationIsLive ? 'block' : 'none';
             document.getElementById('adm-news').value = data.news || "";
 
-            // Cores dos botões VISIBILITY
             visSettings = data.visibility || { sch: true, djs: true, vid: true };
             Object.keys(visSettings).forEach(k => {
                 const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
@@ -245,14 +238,24 @@
                 const vData = await res.json();
                 if(vData.response && vData.response.docs) {
                     document.getElementById('pub-archive').innerHTML = vData.response.docs.slice(0, 4).map(i => {
-                        return `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;"><div style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="this.innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`;
+                        return `<div style="background:#080808; border:1px solid #222; border-radius:12px; overflow:hidden;"><div id="v-${i.identifier}" style="width:100%; aspect-ratio:16/9; background-image:url('https://archive.org/services/img/${i.identifier}'); background-size:cover; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('v-${i.identifier}').innerHTML='<iframe src=\'https://archive.org/embed/${i.identifier}?autoplay=1\' width=\'100%\' height=\'100%\' frameborder=\'0\' allowfullscreen></iframe>'"><div style="background:rgba(245,42,31,0.8); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div></div><div style="padding:15px; font-size:11px;">${i.title}</div></div>`;
                     }).join('');
                 }
             } catch(e) {}
         }
 
-        function startEdit(type, id, data) { editId = id; if(type === 'djs') { document.getElementById('dj-n').value = data.name; document.getElementById('dj-s').value = data.style; document.getElementById('dj-i').value = data.img; document.getElementById('btn-dj-action').innerText = "UPDATE DJ"; } else { document.getElementById('sch-t-drop').value = data.time; document.getElementById('sch-j-drop').value = data.info; document.getElementById('btn-sch-action').innerText = "UPDATE SCHEDULE"; } }
-        async function addToDB(p) { let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value }; const method = editId ? "PATCH" : "POST"; const url = editId ? `${DB}${p}/${editId}.json` : `${DB}${p}.json`; await fetch(url, { method: method, body: JSON.stringify(item) }); editId = null; load(); }
+        function startEdit(type, id, data) { 
+            editId = id; 
+            if(type === 'djs') { 
+                document.getElementById('dj-n').value = data.name; document.getElementById('dj-s').value = data.style; document.getElementById('dj-i').value = data.img; document.getElementById('btn-dj-action').innerText = "UPDATE DJ"; 
+            } else { 
+                document.getElementById('sch-t-drop').value = data.time; document.getElementById('sch-j-drop').value = data.info; document.getElementById('sch-style').value = data.style || ''; document.getElementById('btn-sch-action').innerText = "UPDATE SCHEDULE"; 
+            } 
+        }
+        async function addToDB(p) { 
+            let item = p === 'djs' ? { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value } : { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value }; 
+            const method = editId ? "PATCH" : "POST"; const url = editId ? `${DB}${p}/${editId}.json` : `${DB}${p}.json`; await fetch(url, { method: method, body: JSON.stringify(item) }); editId = null; load(); 
+        }
         async function delItem(p, id) { if(confirm("Delete?")) { await fetch(`${DB}${p}/${id}.json`, { method: "DELETE" }); load(); } }
 
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
