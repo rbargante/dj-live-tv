@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V118</title>
+    <title>FLASHMIX.TV | PRO STATION V119</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -19,7 +19,7 @@
         /* --- NAVIGATION --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
         .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; z-index: 1001; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
         .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
         .main-menu a { color: #fff; text-decoration: none; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; margin-left: 20px; }
         .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
@@ -41,12 +41,20 @@
 
         .view-toggle-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 10px; display: block; margin: 20px auto; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* --- FOOTER (MATCHING SCREENSHOT) --- */
-        footer { margin-top: auto; padding: 40px 20px; background: #000; text-align: center; }
-        .footer-nav { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; }
-        .footer-nav a { color: #888; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .footer-btn-row { display: flex; justify-content: center; gap: 15px; }
-        .f-btn { background: #0a0a0a; padding: 15px 25px; border-radius: 8px; font-size: 11px; font-weight: 900; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; }
+        /* --- FOOTER PRO --- */
+        .main-footer { background: #000; padding: 50px 20px; border-top: 1px solid #111; margin-top: 50px; }
+        .footer-wrap { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 25px; }
+        .f-logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; }
+        .f-logo span { color: var(--accent-color); }
+        .f-nav { display: flex; gap: 25px; }
+        .f-nav a { color: #666; text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; transition: 0.3s; }
+        .f-nav a:hover { color: #fff; }
+        .f-social { display: flex; gap: 15px; }
+        .f-social-btn { padding: 12px 20px; border-radius: 5px; font-size: 10px; font-weight: 900; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-kick { background: #28a745; color: #fff; }
+        .btn-bitchute { background: var(--neon-red); color: #fff; }
+        .f-social-btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        .f-copy { font-size: 10px; color: #222; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; }
 
         /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
@@ -55,10 +63,11 @@
         .vis-btn { flex: 1; padding: 12px; border: none; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; }
         .btn-live-on-active { background: #76b86d !important; color: #fff !important; }
         .btn-live-off-active { background: #d9534f !important; color: #fff !important; }
-        
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px; margin-bottom: 8px; border: 1px solid #222; border-radius: 8px; font-size: 11px; }
+        .edit-item div { display: flex; gap: 5px; }
+        .edit-item button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 10px; }
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
@@ -118,16 +127,20 @@
         </div>
     </div>
 
-    <footer>
-        <div class="footer-nav">
-            <a href="#">Home</a>
-            <a href="#schedule">Schedule</a>
-            <a href="#residents">Residents</a>
-            <a href="#archive">Archive</a>
-        </div>
-        <div class="footer-btn-row">
-            <a href="https://kick.com/djlivetv" target="_blank" class="f-btn" style="color:#28a745;">LIVE ON KICK</a>
-            <a href="https://www.bitchute.com/channel/flashmixtv" target="_blank" class="f-btn" style="color:var(--neon-red);">BITCHUTE CHANNEL</a>
+    <footer class="main-footer">
+        <div class="footer-wrap">
+            <div class="f-logo">FLASH<span>MIX</span>.TV</div>
+            <div class="f-nav">
+                <a href="#">Home</a>
+                <a href="#schedule">Schedule</a>
+                <a href="#residents">Residents</a>
+                <a href="#archive">Archive</a>
+            </div>
+            <div class="f-social">
+                <a href="https://kick.com/djlivetv" target="_blank" class="f-social-btn btn-kick">Live on Kick</a>
+                <a href="https://www.bitchute.com/channel/flashmixtv" target="_blank" class="f-social-btn btn-bitchute">BitChute Channel</a>
+            </div>
+            <div class="f-copy">© 2026 FLASHMIX.TV | ALL RIGHTS RESERVED</div>
         </div>
     </footer>
 
