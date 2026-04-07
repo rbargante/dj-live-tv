@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V124</title>
+    <title>FLASHMIX.TV | PRO STATION V126</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -14,15 +14,26 @@
         }
         body.day-mode { --bg-color: #0a0a0a; --accent-color: var(--neon-blue); }
         * { box-sizing: border-box; scroll-behavior: smooth; }
-        body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 140px; min-height: 100vh; display: flex; flex-direction: column; }
+        body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 100px; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION HAMBURGER --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
         .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; z-index: 1001; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
         .logo-circle { background: var(--accent-color); padding: 5px 12px; border-radius: 5px; font-weight: 900; }
-        .main-menu a { color: #fff; text-decoration: none; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; margin-left: 20px; }
-        .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        
+        /* Hamburger Icon */
+        .ham-menu { cursor: pointer; display: flex; flex-direction: column; gap: 5px; z-index: 1100; padding: 10px; }
+        .ham-menu span { width: 25px; height: 3px; background: #fff; border-radius: 2px; transition: 0.3s; }
+        .ham-menu.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .ham-menu.active span:nth-child(2) { opacity: 0; }
+        .ham-menu.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* Full Overlay Menu */
+        .nav-overlay { position: fixed; top: 0; right: -100%; width: 300px; height: 100vh; background: #000; border-left: 2px solid var(--accent-color); transition: 0.4s; display: flex; flex-direction: column; justify-content: center; padding: 40px; z-index: 1050; }
+        .nav-overlay.active { right: 0; }
+        .nav-overlay a { color: #fff; text-decoration: none; font-size: 18px; text-transform: uppercase; margin: 15px 0; letter-spacing: 2px; }
+        .nav-overlay .admin-btn { color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px; border-radius: 5px; text-align: center; font-size: 12px; margin-top: 20px; }
 
         /* --- PLAYER STAGE --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; }
@@ -30,7 +41,7 @@
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         iframe { width: 100%; height: 100%; border: 0; }
 
-        /* --- UI ELEMENTS --- */
+        /* --- UI ELEMENTS (SCHEDULE & GRID) --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
@@ -41,23 +52,16 @@
 
         .view-toggle-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 10px; display: block; margin: 20px auto; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* --- FOOTER COM CONTADOR --- */
-        .pro-footer { background: #000; padding: 40px 20px; margin-top: 60px; border-top: 1px solid #111; text-align: center; }
-        .f-copyright { color: #333; font-size: 9px; text-transform: uppercase; letter-spacing: 3px; }
-        .f-counter { color: #555; font-size: 9px; margin-top: 10px; letter-spacing: 1px; font-family: monospace; }
-        .f-counter span { color: var(--accent-color); font-weight: bold; }
+        /* --- FOOTER --- */
+        .pro-footer { background: #000; padding: 30px 20px; margin-top: 60px; border-top: 1px solid #111; text-align: center; }
+        .f-wrap { color: #333; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
 
         /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
-        .vis-btn { flex: 1; padding: 12px; border: none; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; }
-        .btn-live-on-active { background: #76b86d !important; color: #fff !important; }
-        .btn-live-off-active { background: #d9534f !important; color: #fff !important; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px; margin-bottom: 8px; border: 1px solid #222; border-radius: 8px; font-size: 11px; }
-        .edit-item div { display: flex; gap: 5px; }
         .edit-item button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 10px; }
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
@@ -70,9 +74,17 @@
     <nav class="top-nav">
         <div class="nav-content">
             <a href="#" class="brand"><div class="logo-circle">F</div><div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div></a>
-            <div class="main-menu">
-                <a href="#">Home</a><a href="#schedule">Schedule</a><a href="#residents">Residents</a><a href="#archive">Archive</a>
-                <span onclick="openAdmin()" class="admin-btn" style="margin-left: 20px;">Manager Access</span>
+            
+            <div class="ham-menu" id="ham-trigger" onclick="toggleNav()">
+                <span></span><span></span><span></span>
+            </div>
+
+            <div class="nav-overlay" id="side-nav">
+                <a href="#" onclick="toggleNav()">Home</a>
+                <a href="#schedule" onclick="toggleNav()">Schedule</a>
+                <a href="#residents" onclick="toggleNav()">Residents</a>
+                <a href="#archive" onclick="toggleNav()">Archive</a>
+                <span onclick="openAdmin()" class="admin-btn">MANAGER ACCESS</span>
             </div>
         </div>
     </nav>
@@ -119,17 +131,20 @@
     </div>
 
     <footer class="pro-footer">
-        <div class="f-copyright">Copyright 2026 ©. All rights reserved.</div>
-        <div class="f-counter">VISITORS: <span id="visit-count">0000</span></div>
+        <div class="f-wrap">
+            <div>Copyright 2026 ©. All rights reserved.</div>
+            <div>|</div>
+            <div>Visitors: <span id="visit-count">0000</span></div>
+        </div>
     </footer>
 
     <div id="dashboard">
         <div class="dash-container">
             <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button id="adm-btn-on" onclick="setLive(true)" class="vis-btn">LIVE ON</button>
-                <button id="adm-btn-off" onclick="setLive(false)" class="vis-btn">LIVE OFF</button>
-                <button onclick="load()" class="vis-btn" style="background:#7bc3e2; color:#fff;">REFRESH</button>
-                <button onclick="location.reload()" class="vis-btn" style="background:#333; color:#fff;">EXIT</button>
+                <button id="adm-btn-on" onclick="setLive(true)" class="vis-btn" style="flex:1; padding:12px; font-weight:bold; cursor:pointer;">LIVE ON</button>
+                <button id="adm-btn-off" onclick="setLive(false)" class="vis-btn" style="flex:1; padding:12px; font-weight:bold; cursor:pointer;">LIVE OFF</button>
+                <button onclick="load()" class="vis-btn" style="background:#7bc3e2; color:#fff; flex:1; padding:12px; font-weight:bold; cursor:pointer;">REFRESH</button>
+                <button onclick="location.reload()" class="vis-btn" style="background:#333; color:#fff; flex:1; padding:12px; font-weight:bold; cursor:pointer;">EXIT</button>
             </div>
             <div class="dash-section">
                 <h3>PLAYLIST MANAGER</h3>
@@ -159,7 +174,11 @@
         let showMore = { sch: false, djs: false, vids: false };
         let fullData = { sch: [], djs: [], vids: [] };
 
-        // --- CONTADOR DE VISITAS ---
+        function toggleNav() {
+            document.getElementById('side-nav').classList.toggle('active');
+            document.getElementById('ham-trigger').classList.toggle('active');
+        }
+
         async function updateCounter() {
             const r = await fetch(DB + "visits.json");
             let count = await r.json() || 0;
@@ -168,7 +187,7 @@
             document.getElementById('visit-count').innerText = count.toString().padStart(4, '0');
         }
 
-        function openAdmin() { document.getElementById('login-overlay').style.display='flex'; }
+        function openAdmin() { toggleNav(); document.getElementById('login-overlay').style.display='flex'; }
         function forceRefreshPlayer() { if(stationIsLive) { document.getElementById('kick-iframe').src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); document.getElementById('play-trigger').style.display = 'none'; } }
         async function setLive(s) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: s }) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display='none'; document.getElementById('dashboard').style.display='block'; } }
@@ -209,8 +228,8 @@
             const data = await r.json() || {};
             stationIsLive = data.is_live;
             document.getElementById('visit-count').innerText = (data.visits || 0).toString().padStart(4, '0');
-            document.getElementById('adm-btn-on').className = stationIsLive ? 'vis-btn btn-live-on-active' : 'vis-btn btn-live-idle';
-            document.getElementById('adm-btn-off').className = !stationIsLive ? 'vis-btn btn-live-off-active' : 'vis-btn btn-live-idle';
+            document.getElementById('adm-btn-on').className = stationIsLive ? 'btn-live-on-active' : '';
+            document.getElementById('adm-btn-off').className = !stationIsLive ? 'btn-live-off-active' : '';
             document.getElementById('live-badge').innerText = stationIsLive ? "LIVE NOW" : "STATION OFFLINE";
             document.getElementById('live-badge').style.background = stationIsLive ? '#28a745' : '#333';
             document.getElementById('play-trigger').style.display = stationIsLive ? 'flex' : 'none';
@@ -251,7 +270,6 @@
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
         
-        // Inicia contador e carrega dados
         updateCounter();
         load(); 
         setInterval(load, 30000);
