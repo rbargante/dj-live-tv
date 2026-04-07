@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V114</title>
+    <title>FLASHMIX.TV | PRO STATION V115</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -35,12 +35,13 @@
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
-        .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; text-align: center; }
-
-        /* --- VIDEO LIBRARY GRID --- */
+        
         .vid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .vid-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
-        .vid-info { padding: 15px; font-size: 11px; text-align: center; font-weight: bold; }
+
+        /* --- VIEW MORE BUTTON --- */
+        .view-toggle-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 10px; display: block; margin: 20px auto; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+        .view-toggle-btn:hover { background: var(--accent-color); color: #fff; }
 
         /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
@@ -50,15 +51,10 @@
         .btn-live-on-active { background: #76b86d !important; color: #fff !important; box-shadow: 0 0 20px #76b86d; }
         .btn-live-off-active { background: #d9534f !important; color: #fff !important; box-shadow: 0 0 20px #d9534f; }
         .btn-live-idle { background: #333 !important; color: #777 !important; }
-        .vis-on { background: #fff !important; color: #000 !important; }
-        .vis-off { background: #333 !important; color: #777 !important; }
-
+        
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 5px; }
-        
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px; margin-bottom: 8px; border: 1px solid #222; border-radius: 8px; font-size: 11px; }
-        .edit-item div { display: flex; gap: 5px; }
-        .edit-item button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; }
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; }
@@ -88,35 +84,38 @@
         </div>
     </div>
 
-    <div id="live-badge" class="status-badge" style="margin: 0 auto 15px; width:fit-content; padding:8px 20px; border-radius:20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:bold; background:#333; color:#888;">STATION OFFLINE</div>
+    <div id="live-badge" style="margin: 0 auto 15px; width:fit-content; padding:8px 20px; border-radius:20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:bold; background:#333; color:#888;">STATION OFFLINE</div>
 
     <div class="player-stage">
-        <div id="offline-msg" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#111; font-size:40px; font-weight:900; letter-spacing:10px;">OFFLINE</div>
         <div id="play-trigger" onclick="forceRefreshPlayer()" style="position:absolute; inset:0; z-index:100; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.8); cursor:pointer; flex-direction:column;">
-            <div class="play-btn-circle">▶</div>
-            <div style="font-size:12px; letter-spacing:2px; font-weight:bold;">TAP TO UNMUTE & START</div>
+            <div class="play-btn-circle" style="width:85px; height:85px; background:var(--live-green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px;">▶</div>
+            <div style="font-size:12px; letter-spacing:2px; font-weight:bold; color:#fff; margin-top:10px;">TAP TO UNMUTE & START</div>
         </div>
         <iframe id="kick-iframe" allowfullscreen></iframe>
     </div>
 
     <div class="container">
-        <div id="uk-clock" style="text-align:right; font-size:11px; color:#444; margin-bottom:10px;">UK TIME SYNC: --:--</div>
-        
         <div id="sec-sch" class="site-section">
             <div id="studio-cam-msg" style="width:100%; background:var(--neon-red); color:#fff; text-align:center; padding:12px; font-size:11px; font-weight:900; letter-spacing:2px; border-radius:8px; margin-bottom:15px; display:none; animation: statusBlink 1s infinite alternate;">🔴 LIVE STREAMING | BROADCASTING FROM THE STUDIO</div>
             <div id="schedule" class="row-title">Weekly Schedule</div>
             <div id="pub-sch" class="sch-box"></div>
+            <button id="toggle-sch" class="view-toggle-btn" style="display:none;" onclick="toggleList('sch')">VIEW MORE</button>
         </div>
 
-        <div id="sec-djs" class="site-section"><div id="residents" class="row-title">Flashmix Residents</div><div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div></div>
+        <div id="sec-djs" class="site-section">
+            <div id="residents" class="row-title">Flashmix Residents</div>
+            <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
+            <button id="toggle-djs" class="view-toggle-btn" style="display:none;" onclick="toggleList('djs')">VIEW MORE</button>
+        </div>
         
         <div id="sec-vid" class="site-section">
             <div id="archive" class="row-title">Video Playlist</div>
             <div id="pub-archive" class="vid-grid"></div>
+            <button id="toggle-vids" class="view-toggle-btn" style="display:none;" onclick="toggleList('vids')">VIEW MORE</button>
         </div>
     </div>
 
-    <footer><div class="footer-logo" style="font-size:20px; font-weight:900;">FLASHMIX.TV</div></footer>
+    <footer><div style="font-size:20px; font-weight:900; color:var(--accent-color);">FLASHMIX.TV</div></footer>
 
     <div id="dashboard">
         <div class="dash-container">
@@ -126,37 +125,18 @@
                 <button onclick="load()" class="vis-btn" style="background:#7bc3e2; color:#fff;">REFRESH</button>
                 <button onclick="location.reload()" class="vis-btn" style="background:#333; color:#fff;">EXIT</button>
             </div>
-            
-            <div class="dash-section">
-                <h4 style="margin:0 0 10px; font-size:10px; color:#555;">SECTION VISIBILITY</h4>
-                <div style="display:flex; gap:5px;">
-                    <button id="v-sch" onclick="setVis('sch')" class="vis-btn">SCHEDULE</button>
-                    <button id="v-djs" onclick="setVis('djs')" class="vis-btn">RESIDENTS</button>
-                    <button id="v-vid" onclick="setVis('vid')" class="vis-btn">ARCHIVE</button>
-                </div>
-            </div>
-
             <div class="dash-section">
                 <h3>VÍDEO PLAYLIST MANAGER</h3>
-                <input type="text" id="v-tit" placeholder="Título do Vídeo">
-                <input type="text" id="v-lnk" placeholder="Link do BitChute">
+                <input type="text" id="v-tit" placeholder="Título do Vídeo"><input type="text" id="v-lnk" placeholder="Link BitChute">
                 <button id="btn-vid-action" onclick="saveVideo()" class="action-btn">ADICIONAR À PLAYLIST</button>
                 <div id="adm-list-vids" style="margin-top:15px;"></div>
             </div>
-
-            <div class="dash-section">
-                <h3>STATION NEWS / ABOUT</h3>
-                <textarea id="adm-news" rows="2"></textarea>
-                <button class="action-btn" onclick="saveNews()">SAVE NEWS</button>
-            </div>
-
             <div class="dash-section">
                 <h3>DJs DATABASE</h3>
                 <input type="text" id="dj-n" placeholder="DJ Name"><input type="text" id="dj-s" placeholder="Style"><input type="text" id="dj-i" placeholder="Photo URL">
                 <button id="btn-dj-action" onclick="saveDJ()" class="action-btn">ADD TO DATABASE</button>
                 <div id="adm-list-djs" style="margin-top:15px;"></div>
             </div>
-
             <div class="dash-section">
                 <h3>SCHEDULE MANAGER</h3>
                 <select id="sch-t-drop"></select><select id="sch-j-drop"></select><input type="text" id="sch-style" placeholder="Style Name">
@@ -169,59 +149,50 @@
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
         const KICK_URL = "https://player.kick.com/djlivetv";
-        let stationIsLive = false, visSettings = { sch: true, djs: true, vid: true }, editId = null;
+        let stationIsLive = false, editId = null;
+        let showMore = { sch: false, djs: false, vids: false };
+        let fullData = { sch: [], djs: [], vids: [] };
 
         function openAdmin() { document.getElementById('login-overlay').style.display='flex'; }
         function forceRefreshPlayer() { if(stationIsLive) { document.getElementById('kick-iframe').src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); document.getElementById('play-trigger').style.display = 'none'; } }
         async function setLive(s) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: s }) }); load(); }
-        async function setVis(t) { visSettings[t] = !visSettings[t]; await fetch(DB + "visibility.json", { method: "PUT", body: JSON.stringify(visSettings) }); load(); }
-        async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display='none'; document.getElementById('dashboard').style.display='block'; } }
 
-        // --- FUNÇÕES DE SALVAR (POST OU PATCH) ---
+        function toggleList(type) {
+            showMore[type] = !showMore[type];
+            renderLists();
+        }
+
         async function saveVideo() {
             const title = document.getElementById('v-tit').value;
             const link = document.getElementById('v-lnk').value;
             if(!title || !link) return;
             let bitId = link.includes('/video/') ? link.split('/video/')[1].split('/')[0] : link;
             const method = editId ? "PATCH" : "POST";
-            const url = editId ? `${DB}playlist/${editId}.json` : `${DB}playlist.json`;
-            await fetch(url, { method, body: JSON.stringify({ title, bitId }) });
+            await fetch(editId ? `${DB}playlist/${editId}.json` : `${DB}playlist.json`, { method, body: JSON.stringify({ title, bitId }) });
             resetForms(); load();
         }
 
         async function saveDJ() {
             const item = { name: document.getElementById('dj-n').value, style: document.getElementById('dj-s').value, img: document.getElementById('dj-i').value };
-            const method = editId ? "PATCH" : "POST";
-            const url = editId ? `${DB}djs/${editId}.json` : `${DB}djs.json`;
-            await fetch(url, { method, body: JSON.stringify(item) });
+            await fetch(editId ? `${DB}djs/${editId}.json` : `${DB}djs.json`, { method: editId ? "PATCH" : "POST", body: JSON.stringify(item) });
             resetForms(); load();
         }
 
         async function saveSch() {
             const item = { day: "EVERY DAY", time: document.getElementById('sch-t-drop').value, info: document.getElementById('sch-j-drop').value, style: document.getElementById('sch-style').value };
-            const method = editId ? "PATCH" : "POST";
-            const url = editId ? `${DB}schedule/${editId}.json` : `${DB}schedule.json`;
-            await fetch(url, { method, body: JSON.stringify(item) });
+            await fetch(editId ? `${DB}schedule/${editId}.json` : `${DB}schedule.json`, { method: editId ? "PATCH" : "POST", body: JSON.stringify(item) });
             resetForms(); load();
         }
 
+        function resetForms() { editId = null; document.querySelectorAll('input').forEach(i => i.value = ""); document.querySelectorAll('.action-btn').forEach(b => b.innerText = b.id.includes('vid') ? "ADICIONAR À PLAYLIST" : (b.id.includes('dj') ? "ADD TO DATABASE" : "ADD TO SCHEDULE")); }
+        async function delItem(path, id) { if(confirm("Delete?")) { await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" }); load(); } }
         function startEdit(type, id, data) {
             editId = id;
             if(type==='vid') { document.getElementById('v-tit').value = data.title; document.getElementById('v-lnk').value = data.bitId; document.getElementById('btn-vid-action').innerText = "UPDATE VIDEO"; }
             if(type==='djs') { document.getElementById('dj-n').value = data.name; document.getElementById('dj-s').value = data.style; document.getElementById('dj-i').value = data.img; document.getElementById('btn-dj-action').innerText = "UPDATE DJ"; }
             if(type==='sch') { document.getElementById('sch-t-drop').value = data.time; document.getElementById('sch-j-drop').value = data.info; document.getElementById('sch-style').value = data.style || ''; document.getElementById('btn-sch-action').innerText = "UPDATE SCHEDULE"; }
         }
-
-        function resetForms() {
-            editId = null;
-            document.getElementById('btn-vid-action').innerText = "ADICIONAR À PLAYLIST";
-            document.getElementById('btn-dj-action').innerText = "ADD TO DATABASE";
-            document.getElementById('btn-sch-action').innerText = "ADD TO SCHEDULE";
-            document.querySelectorAll('input').forEach(i => i.value = "");
-        }
-
-        async function delItem(path, id) { if(confirm("Delete?")) { await fetch(`${DB}${path}/${id}.json`, { method: "DELETE" }); load(); } }
 
         async function load() {
             const r = await fetch(DB + ".json?t=" + Date.now());
@@ -236,42 +207,47 @@
             document.getElementById('play-trigger').style.display = stationIsLive ? 'flex' : 'none';
             if(!stationIsLive) document.getElementById('kick-iframe').src = "about:blank";
 
-            visSettings = data.visibility || { sch: true, djs: true, vid: true };
-            Object.keys(visSettings).forEach(k => {
-                const sec = document.getElementById('sec-' + k), btn = document.getElementById('v-' + k);
-                if(sec) sec.classList.toggle('hidden', !visSettings[k]);
-                if(btn) btn.className = visSettings[k] ? 'vis-btn vis-on' : 'vis-btn vis-off';
-            });
+            fullData.djs = Object.entries(data.djs || {});
+            fullData.sch = Object.entries(data.schedule || {}).sort((a,b) => a[1].time.localeCompare(b[1].time));
+            fullData.vids = Object.entries(data.playlist || {}).reverse();
 
-            const djsStore = data.djs || {};
-            const djsArr = Object.entries(djsStore);
-            document.getElementById('sch-j-drop').innerHTML = djsArr.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
-            document.getElementById('pub-djs').innerHTML = djsArr.slice(0,5).map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; text-align:center; border:1px solid #1a1a1a;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold; margin-top:10px;">${d.name}</div></div>`).join('');
+            document.getElementById('sch-j-drop').innerHTML = fullData.djs.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
+            
+            renderLists();
+        }
 
-            let schArr = data.schedule ? Object.entries(data.schedule).map(([id, s]) => ({id, ...s})) : [];
-            schArr.sort((a,b) => a.time.localeCompare(b.time));
-            document.getElementById('pub-sch').innerHTML = schArr.slice(0,5).map((s, i) => {
-                const dj = Object.values(djsStore).find(d => d.name === s.info);
+        function renderLists() {
+            // Render DJs
+            const djsShow = showMore.djs ? fullData.djs : fullData.djs.slice(0, 6);
+            document.getElementById('pub-djs').innerHTML = djsShow.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; text-align:center; border:1px solid #1a1a1a;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold; margin-top:10px;">${d.name}</div></div>`).join('');
+            document.getElementById('toggle-djs').style.display = fullData.djs.length > 6 ? 'block' : 'none';
+            document.getElementById('toggle-djs').innerText = showMore.djs ? "VIEW LESS" : "VIEW MORE";
+
+            // Render Schedule
+            const schShow = showMore.sch ? fullData.sch : fullData.sch.slice(0, 6);
+            document.getElementById('pub-sch').innerHTML = schShow.map(([id, s], i) => {
+                const dj = fullData.djs.find(d => d[1].name === s.info);
                 let tag = (i === 0 && stationIsLive) ? '<div class="tag-paused">PAUSED</div>' : (i === 0 ? '<div class="tag-live-now">LIVE NOW</div>' : '');
-                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj.img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div>${s.info} <span style="opacity:0.2">|</span> ${s.style || ''}</div><div>${s.time}</div><div>${tag}</div></div>`;
+                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj[1].img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div>${s.info} <span style="opacity:0.2">|</span> ${s.style || ''}</div><div>${s.time}</div><div>${tag}</div></div>`;
             }).join('');
+            document.getElementById('toggle-sch').style.display = fullData.sch.length > 6 ? 'block' : 'none';
+            document.getElementById('toggle-sch').innerText = showMore.sch ? "VIEW LESS" : "VIEW MORE";
 
-            const playlist = data.playlist ? Object.entries(data.playlist).reverse() : [];
-            document.getElementById('pub-archive').innerHTML = playlist.map(([id, v]) => `
-                <div class="vid-card">
-                    <iframe width="100%" height="200" src="https://www.bitchute.com/embed/${v.bitId}/" frameborder="0" allowfullscreen></iframe>
-                    <div class="vid-info">${v.title}</div>
-                </div>`).join('');
+            // Render Videos
+            const vidsShow = showMore.vids ? fullData.vids : fullData.vids.slice(0, 6);
+            document.getElementById('pub-archive').innerHTML = vidsShow.map(([id, v]) => `<div class="vid-card"><iframe width="100%" height="200" src="https://www.bitchute.com/embed/${v.bitId}/" frameborder="0" allowfullscreen></iframe><div style="padding:15px; font-size:11px; text-align:center;">${v.title}</div></div>`).join('');
+            document.getElementById('toggle-vids').style.display = fullData.vids.length > 6 ? 'block' : 'none';
+            document.getElementById('toggle-vids').innerText = showMore.vids ? "VIEW LESS" : "VIEW MORE";
 
-            // LISTAS ADMIN COM BOTÃO EDIT (AZUL) E DEL (VERMELHO)
-            document.getElementById('adm-list-vids').innerHTML = playlist.map(([id, v]) => `<div class="edit-item"><span>${v.title}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("vid","${id}",${JSON.stringify(v)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("playlist","${id}")'>DEL</button></div></div>`).join('');
-            document.getElementById('adm-list-djs').innerHTML = djsArr.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("djs","${id}",${JSON.stringify(d)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
-            document.getElementById('adm-list-sch').innerHTML = schArr.map(s => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("sch","${s.id}",${JSON.stringify(s)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("schedule","${s.id}")'>DEL</button></div></div>`).join('');
+            // Listas Admin (Sempre completas para editar)
+            document.getElementById('adm-list-vids').innerHTML = fullData.vids.map(([id, v]) => `<div class="edit-item"><span>${v.title}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("vid","${id}",${JSON.stringify(v)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("playlist","${id}")'>DEL</button></div></div>`).join('');
+            document.getElementById('adm-list-djs').innerHTML = fullData.djs.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("djs","${id}",${JSON.stringify(d)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
+            document.getElementById('adm-list-sch').innerHTML = fullData.sch.map(([id, s]) => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button style="background:blue; color:#fff;" onclick='startEdit("sch","${id}",${JSON.stringify(s)})'>EDIT</button><button style="background:red; color:#fff;" onclick='delItem("schedule","${id}")'>DEL</button></div></div>`).join('');
         }
 
         let opt = ""; for(let i=0; i<24; i++) { let hh = i<10?'0'+i:i; opt+=`<option value="${hh}:00">${hh}:00</option><option value="${hh}:30">${hh}:30</option>`; }
         document.getElementById('sch-t-drop').innerHTML = opt;
-        load(); setInterval(load, 20000);
+        load(); setInterval(load, 30000);
     </script>
 </body>
 </html>
