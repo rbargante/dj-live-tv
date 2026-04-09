@@ -37,7 +37,6 @@
         
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         
-        /* Animação para o sinal LIVE vermelho */
         @keyframes liveBlink {
             0% { opacity: 1; box-shadow: 0 0 5px var(--neon-red); }
             100% { opacity: 0.8; box-shadow: 0 0 15px var(--neon-red); }
@@ -51,11 +50,14 @@
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
-        .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; text-align: center; }
+        .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; text-align: center; animation: liveBlink 1s infinite alternate; }
         .vid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .vid-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
         .view-toggle-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 10px; display: block; margin: 20px auto; text-transform: uppercase; letter-spacing: 2px; transition: 0.5s; }
         .site-section.hidden { display: none !important; }
+
+        /* BARRA DE AVISO EMISSÃO */
+        .live-alert-bar { background: var(--neon-red); color: #fff; padding: 10px; font-size: 11px; text-align: center; letter-spacing: 2px; font-weight: bold; border-radius: 8px; margin-bottom: 15px; display: none; }
 
         /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
@@ -128,6 +130,7 @@
 
     <div class="container">
         <div id="sec-sch" class="site-section">
+            <div id="live-alert" class="live-alert-bar">⚠ IMPORTANTE: EMISSÃO ESPECIAL AO VIVO AGORA!</div>
             <div id="schedule" class="row-title">Weekly Schedule</div>
             <div id="pub-sch" class="sch-box"></div>
             <button id="toggle-sch" class="view-toggle-btn" style="display:none;" onclick="toggleList('sch')">VIEW MORE</button>
@@ -256,17 +259,17 @@
             stationIsLive = data.is_live;
             modules = data.visibility || { sch: true, djs: true, vids: true };
 
-            // Visibilidade de Seções
             document.getElementById('sec-sch').classList.toggle('hidden', !modules.sch);
             document.getElementById('sec-djs').classList.toggle('hidden', !modules.djs);
             document.getElementById('sec-vid').classList.toggle('hidden', !modules.vids);
 
-            // Informações Estação
+            // Alerta de emissão importante
+            document.getElementById('live-alert').style.display = stationIsLive ? 'block' : 'none';
+
             document.getElementById('visit-count').innerText = (data.visits || 0).toString().padStart(4, '0');
             document.getElementById('our-purpose-text').innerText = data.news || "";
             document.getElementById('adm-news').value = data.news || "";
 
-            // LÓGICA DO BADGE (Vermelho e a piscar se LIVE)
             const lb = document.getElementById('live-badge');
             lb.innerText = stationIsLive ? "LIVE NOW" : "STATION OFFLINE";
             if (stationIsLive) {
@@ -279,7 +282,6 @@
                 lb.style.animation = 'none';
             }
 
-            // LÓGICA DO PLAYER
             if(stationIsLive) {
                 document.getElementById('play-trigger').style.display = 'flex';
                 document.getElementById('offline-msg').style.display = 'none';
@@ -291,7 +293,6 @@
                 document.body.classList.remove('is-live');
             }
 
-            // Resto do carregamento de dados
             fullData.djs = Object.entries(data.djs || {});
             fullData.sch = Object.entries(data.schedule || {}).sort((a,b) => a[1].time.localeCompare(b[1].time));
             fullData.vids = Object.entries(data.playlist || {}).reverse();
@@ -313,8 +314,13 @@
             const schShow = showMore.sch ? fullData.sch : fullData.sch.slice(0, 6);
             document.getElementById('pub-sch').innerHTML = schShow.map(([id, s], i) => {
                 const dj = fullData.djs.find(d => d[1].name === s.info);
+                
+                // Se estiver live, o primeiro da lista (que é o atual) mostra ON AIR em vez do horário
                 let tag = (i === 0 && stationIsLive) ? '<div class="tag-live-now">LIVE NOW</div>' : '';
-                return `<div class="sch-row"><div class="sch-photo" style="background-image:url('${dj ? dj[1].img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div>${s.info} <span style="opacity:0.2">|</span> ${s.style || ''}</div><div>${s.time}</div><div>${tag}</div></div>`;
+                let timeDisplay = (i === 0 && stationIsLive) ? '<span style="color:var(--neon-red); font-weight:900;">ON AIR</span>' : s.time;
+                let opacity = (i !== 0 && stationIsLive) ? '0.3' : '1';
+
+                return `<div class="sch-row" style="opacity:${opacity}"><div class="sch-photo" style="background-image:url('${dj ? dj[1].img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div>${s.info} <span style="opacity:0.2">|</span> ${s.style || ''}</div><div>${timeDisplay}</div><div>${tag}</div></div>`;
             }).join('');
             document.getElementById('toggle-sch').style.display = fullData.sch.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-sch').innerText = showMore.sch ? "VIEW LESS" : "VIEW MORE";
