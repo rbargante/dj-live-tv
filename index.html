@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V131</title>
+    <title>FLASHMIX.TV | PRO STATION V132</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -33,7 +33,7 @@
         .nav-overlay a { color: #fff; text-decoration: none; font-size: 14px; text-transform: uppercase; margin: 12px 0; letter-spacing: 2px; font-weight: 900; }
         .nav-overlay .admin-btn { margin-top: 30px; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px; border-radius: 4px; text-align: center; font-size: 11px; cursor: pointer; }
 
-        /* --- STAGE & BARS --- */
+        /* --- PLAYER STAGE --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -49,15 +49,14 @@
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; text-align: center; }
-        
         .vid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .vid-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
         .view-toggle-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 10px; display: block; margin: 20px auto; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* --- BASIC PRO FOOTER --- */
-        .basic-footer { background: #000; padding: 40px 20px; border-top: 1px solid #111; margin-top: 60px; text-align: center; }
-        .f-txt { color: #333; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; }
-        .f-txt span { color: var(--accent-color); font-weight: bold; margin-left: 5px; }
+        /* --- IMPROVED VISIBLE FOOTER --- */
+        .basic-footer { background: #000; padding: 50px 20px; border-top: 1px solid #222; margin-top: 60px; text-align: center; }
+        .f-txt { color: #aaa; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
+        .f-txt span { color: var(--accent-color); font-weight: 900; margin-left: 10px; text-shadow: 0 0 5px var(--accent-color); }
 
         /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
