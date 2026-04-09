@@ -104,6 +104,13 @@
             <div style="width:85px; height:85px; background:var(--live-green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px;">▶</div>
             <div style="font-size:12px; letter-spacing:2px; font-weight:bold; color:#fff; margin-top:10px;">TAP TO UNMUTE & START</div>
         </div>
+
+        <div id="offline-msg" style="position:absolute; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; background:#050505; flex-direction:column; text-align:center; padding:20px;">
+            <div style="font-size:40px; margin-bottom:10px; opacity:0.3;">📡</div>
+            <div style="font-size:14px; letter-spacing:4px; color:var(--accent-color); font-weight:900; text-transform:uppercase;">Station Offline</div>
+            <div style="font-size:11px; color:#444; margin-top:10px; font-family:Arial;">CHECK THE SCHEDULE BELOW FOR UPCOMING SHOWS</div>
+        </div>
+
         <iframe id="kick-iframe" allowfullscreen></iframe>
     </div>
 
@@ -196,7 +203,14 @@
         async function toggleModule(m) { modules[m] = !modules[m]; await fetch(DB + "visibility.json", { method: "PATCH", body: JSON.stringify(modules) }); load(); }
         async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function openAdmin() { toggleNav(); document.getElementById('login-overlay').style.display='flex'; }
-        function forceRefreshPlayer() { if(stationIsLive) { document.getElementById('kick-iframe').src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); document.getElementById('play-trigger').style.display = 'none'; } }
+        
+        function forceRefreshPlayer() { 
+            if(stationIsLive) { 
+                document.getElementById('kick-iframe').src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); 
+                document.getElementById('play-trigger').style.display = 'none'; 
+            } 
+        }
+
         async function setLive(s) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: s }) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display='none'; document.getElementById('dashboard').style.display='block'; } }
         function toggleList(type) { showMore[type] = !showMore[type]; renderLists(); }
@@ -234,33 +248,43 @@
             stationIsLive = data.is_live;
             modules = data.visibility || { sch: true, djs: true, vids: true };
 
+            // Dashboard UI
             document.getElementById('adm-btn-on').className = stationIsLive ? 'vis-btn btn-live-on-active' : 'vis-btn';
             document.getElementById('adm-btn-off').className = !stationIsLive ? 'vis-btn btn-live-off-active' : 'vis-btn';
             document.getElementById('btn-vis-sch').className = modules.sch ? 'vis-btn btn-mod-on' : 'vis-btn btn-mod-off';
-            document.getElementById('btn-vis-sch').innerText = modules.sch ? 'ON' : 'OFF';
             document.getElementById('btn-vis-djs').className = modules.djs ? 'vis-btn btn-mod-on' : 'vis-btn btn-mod-off';
-            document.getElementById('btn-vis-djs').innerText = modules.djs ? 'ON' : 'OFF';
             document.getElementById('btn-vis-vids').className = modules.vids ? 'vis-btn btn-mod-on' : 'vis-btn btn-mod-off';
-            document.getElementById('btn-vis-vids').innerText = modules.vids ? 'ON' : 'OFF';
 
+            // Visibilidade de Seções
             document.getElementById('sec-sch').classList.toggle('hidden', !modules.sch);
             document.getElementById('sec-djs').classList.toggle('hidden', !modules.djs);
             document.getElementById('sec-vid').classList.toggle('hidden', !modules.vids);
 
+            // Informações Estação
             document.getElementById('visit-count').innerText = (data.visits || 0).toString().padStart(4, '0');
             document.getElementById('our-purpose-text').innerText = data.news || "";
             document.getElementById('adm-news').value = data.news || "";
             document.getElementById('live-badge').innerText = stationIsLive ? "LIVE NOW" : "STATION OFFLINE";
             document.getElementById('live-badge').style.background = stationIsLive ? '#28a745' : '#333';
-            document.getElementById('play-trigger').style.display = stationIsLive ? 'flex' : 'none';
-            if(stationIsLive) document.body.classList.add('is-live'); else document.body.classList.remove('is-live');
-            if(!stationIsLive) document.getElementById('kick-iframe').src = "about:blank";
 
+            // LÓGICA DO PLAYER (OFFLINE / ONLINE)
+            if(stationIsLive) {
+                document.getElementById('play-trigger').style.display = 'flex';
+                document.getElementById('offline-msg').style.display = 'none';
+                document.body.classList.add('is-live');
+            } else {
+                document.getElementById('play-trigger').style.display = 'none';
+                document.getElementById('offline-msg').style.display = 'flex';
+                document.getElementById('kick-iframe').src = "about:blank"; 
+                document.body.classList.remove('is-live');
+            }
+
+            // Dados das Listas
             fullData.djs = Object.entries(data.djs || {});
             fullData.sch = Object.entries(data.schedule || {}).sort((a,b) => a[1].time.localeCompare(b[1].time));
             fullData.vids = Object.entries(data.playlist || {}).reverse();
-            document.getElementById('sch-j-drop').innerHTML = fullData.djs.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             
+            document.getElementById('sch-j-drop').innerHTML = fullData.djs.map(([id, d]) => `<option value="${d.name}">${d.name}</option>`).join('');
             document.getElementById('adm-list-vids').innerHTML = fullData.vids.map(([id, v]) => `<div class="edit-item"><span>${v.title}</span><div><button style="background:blue;color:#fff;" onclick='startEdit("vid","${id}",${JSON.stringify(v)})'>EDIT</button><button style="background:red;color:#fff;" onclick='delItem("playlist","${id}")'>DEL</button></div></div>`).join('');
             document.getElementById('adm-list-djs').innerHTML = fullData.djs.map(([id, d]) => `<div class="edit-item"><span>${d.name}</span><div><button style="background:blue;color:#fff;" onclick='startEdit("djs","${id}",${JSON.stringify(d)})'>EDIT</button><button style="background:red;color:#fff;" onclick='delItem("djs","${id}")'>DEL</button></div></div>`).join('');
             document.getElementById('adm-list-sch').innerHTML = fullData.sch.map(([id, s]) => `<div class="edit-item"><span>${s.time} - ${s.info}</span><div><button style="background:blue;color:#fff;" onclick='startEdit("sch","${id}",${JSON.stringify(s)})'>EDIT</button><button style="background:red;color:#fff;" onclick='delItem("schedule","${id}")'>DEL</button></div></div>`).join('');
