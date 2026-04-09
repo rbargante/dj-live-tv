@@ -36,11 +36,7 @@
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
-        
-        @keyframes liveBlink {
-            0% { opacity: 1; box-shadow: 0 0 5px var(--neon-red); }
-            100% { opacity: 0.8; box-shadow: 0 0 15px var(--neon-red); }
-        }
+        @keyframes liveBlink { 0% { opacity: 1; box-shadow: 0 0 5px var(--neon-red); } 100% { opacity: 0.8; box-shadow: 0 0 15px var(--neon-red); } }
 
         iframe { width: 100%; height: 100%; border: 0; }
         .purpose-section { width: 95%; max-width: 1200px; margin: 0 auto 40px; padding: 40px; background: #080808; border: 2px solid var(--accent-color); border-radius: 15px; text-align: center; transition: border-color 0.5s; }
@@ -51,7 +47,9 @@
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; transition: 0.5s; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
         
-        /* BARRA DE AVISO EMISSÃO ESPECIAL */
+        .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; text-align: center; animation: liveBlink 1s infinite alternate; }
+        .tag-next { background: #444; color: #eee; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; text-align: center; border: 1px solid #555; }
+
         .live-alert-bar { background: var(--neon-red); color: #fff; padding: 15px; font-size: 12px; text-align: center; letter-spacing: 3px; font-weight: 900; border-radius: 8px; margin-bottom: 15px; display: none; border: 1px solid rgba(255,255,255,0.2); animation: liveBlink 1s infinite alternate; }
 
         .vid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -263,9 +261,7 @@
             document.getElementById('sec-djs').classList.toggle('hidden', !modules.djs);
             document.getElementById('sec-vid').classList.toggle('hidden', !modules.vids);
 
-            // Barra de aviso
             document.getElementById('live-alert').style.display = stationIsLive ? 'block' : 'none';
-
             document.getElementById('visit-count').innerText = (data.visits || 0).toString().padStart(4, '0');
             document.getElementById('our-purpose-text').innerText = data.news || "";
             document.getElementById('adm-news').value = data.news || "";
@@ -311,16 +307,39 @@
             document.getElementById('toggle-djs').style.display = fullData.djs.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-djs').innerText = showMore.djs ? "VIEW LESS" : "VIEW MORE";
 
-            const schShow = showMore.sch ? fullData.sch : fullData.sch.slice(0, 6);
-            document.getElementById('pub-sch').innerHTML = schShow.map(([id, s]) => {
-                const dj = fullData.djs.find(d => d[1].name === s.info);
-                
-                // Se estiver live, toda a lista do schedule fica em PAUSE (baça)
-                let rowOpacity = stationIsLive ? '0.2' : '1';
-                let timeText = stationIsLive ? '<span style="letter-spacing:2px; font-weight:bold; opacity:0.5;">|| PAUSED</span>' : s.time;
+            const now = new Date();
+            const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
-                return `<div class="sch-row" style="opacity:${rowOpacity}"><div class="sch-photo" style="background-image:url('${dj ? dj[1].img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div>${s.info} <span style="opacity:0.2">|</span> ${s.style || ''}</div><div>${timeText}</div><div></div></div>`;
+            const schShow = showMore.sch ? fullData.sch : fullData.sch.slice(0, 6);
+            
+            // Encontrar quem está "Live" no horário agora
+            let currentIndex = -1;
+            for(let i = 0; i < fullData.sch.length; i++) {
+                if(fullData.sch[i][1].time <= currentTimeStr) currentIndex = i;
+            }
+
+            document.getElementById('pub-sch').innerHTML = schShow.map(([id, s], i) => {
+                const dj = fullData.djs.find(d => d[1].name === s.info);
+                let badge = "";
+                let rowStyle = "";
+                let timeDisplay = s.time;
+
+                if (stationIsLive) {
+                    rowStyle = "opacity: 0.2;";
+                    timeDisplay = "|| PAUSED";
+                } else {
+                    const globalIdx = fullData.sch.findIndex(item => item[0] === id);
+                    if (globalIdx === currentIndex) {
+                        badge = '<div class="tag-live-now">LIVE NOW</div>';
+                        rowStyle = "background: rgba(245, 42, 31, 0.05);";
+                    } else if (globalIdx === currentIndex + 1) {
+                        badge = '<div class="tag-next">NEXT</div>';
+                    }
+                }
+
+                return `<div class="sch-row" style="${rowStyle}"><div class="sch-photo" style="background-image:url('${dj ? dj[1].img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div>${s.info} <span style="opacity:0.2">|</span> ${s.style || ''}</div><div>${timeDisplay}</div><div>${badge}</div></div>`;
             }).join('');
+            
             document.getElementById('toggle-sch').style.display = fullData.sch.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-sch').innerText = showMore.sch ? "VIEW LESS" : "VIEW MORE";
 
