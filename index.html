@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V136</title>
+    <title>FLASHMIX.TV | PRO STATION V137</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -33,7 +33,7 @@
         .nav-overlay a { color: #fff; text-decoration: none; font-size: 14px; text-transform: uppercase; margin: 12px 0; letter-spacing: 2px; font-weight: 900; }
         .nav-overlay .admin-btn { margin-top: 30px; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px; border-radius: 4px; text-align: center; font-size: 11px; cursor: pointer; transition: 0.5s; }
 
-        /* --- STAGE --- */
+        /* --- PLAYER STAGE --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 30px; overflow: hidden; position: relative; transition: border-color 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
@@ -48,23 +48,24 @@
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
         .tag-live-now { background: var(--neon-red); color: #fff; padding: 5px 10px; font-size: 9px; font-weight: bold; border-radius: 4px; text-align: center; }
+        
+        .vid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .vid-card { background: #080808; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
+
+        /* --- BUTTONS RESTORED --- */
         .view-toggle-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 10px; display: block; margin: 20px auto; text-transform: uppercase; letter-spacing: 2px; transition: 0.5s; }
 
         /* --- FOOTER --- */
         .basic-footer { background: #000; padding: 50px 20px; border-top: 1px solid #222; margin-top: 60px; text-align: center; }
         .f-txt { color: #aaa; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
 
-        /* --- DASHBOARD & BUTTONS --- */
+        /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
-        
         .vis-btn { flex: 1; padding: 15px; font-weight: bold; cursor: pointer; background: #333; color: #fff; border: none; transition: 0.3s; text-transform: uppercase; font-size: 12px; }
-        /* Cores de Ativo */
-        .btn-live-on-active { background: var(--live-green) !important; color: #fff !important; box-shadow: 0 0 15px var(--live-green); }
-        .btn-live-off-active { background: var(--neon-red) !important; color: #fff !important; box-shadow: 0 0 15px var(--neon-red); }
-
-        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 5px; }
+        .btn-live-on-active { background: var(--live-green) !important; color: #fff !important; }
+        .btn-live-off-active { background: var(--neon-red) !important; color: #fff !important; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
         .edit-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px; margin-bottom: 8px; border: 1px solid #222; border-radius: 8px; font-size: 11px; }
 
@@ -119,13 +120,17 @@
             <button id="toggle-sch" class="view-toggle-btn" style="display:none;" onclick="toggleList('sch')">VIEW MORE</button>
         </div>
 
-        <div id="residents" class="row-title">Flashmix Residents</div>
-        <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
-        <button id="toggle-djs" class="view-toggle-btn" style="display:none;" onclick="toggleList('djs')">VIEW MORE</button>
+        <div id="sec-djs" class="site-section">
+            <div id="residents" class="row-title">Flashmix Residents</div>
+            <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
+            <button id="toggle-djs" class="view-toggle-btn" style="display:none;" onclick="toggleList('djs')">VIEW MORE</button>
+        </div>
         
-        <div id="archive" class="row-title">Video Playlist</div>
-        <div id="pub-archive" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;"></div>
-        <button id="toggle-vids" class="view-toggle-btn" style="display:none;" onclick="toggleList('vids')">VIEW MORE</button>
+        <div id="sec-vid" class="site-section">
+            <div id="archive" class="row-title">Video Playlist</div>
+            <div id="pub-archive" class="vid-grid"></div>
+            <button id="toggle-vids" class="view-toggle-btn" style="display:none;" onclick="toggleList('vids')">VIEW MORE</button>
+        </div>
     </div>
 
     <footer class="basic-footer">
@@ -178,8 +183,7 @@
         function updateTimeStyles() {
             const hr = new Date().getHours();
             const isDay = hr >= 7 && hr < 19;
-            if(isDay) { document.body.classList.add('day-mode'); }
-            else { document.body.classList.remove('day-mode'); }
+            if(isDay) document.body.classList.add('day-mode'); else document.body.classList.remove('day-mode');
         }
 
         async function updateCounter() {
@@ -192,12 +196,7 @@
         async function saveNews() { const t = document.getElementById('adm-news').value; await fetch(DB + "news.json", { method: "PUT", body: JSON.stringify(t) }); load(); }
         function openAdmin() { toggleNav(); document.getElementById('login-overlay').style.display='flex'; }
         function forceRefreshPlayer() { if(stationIsLive) { document.getElementById('kick-iframe').src = KICK_URL + "?muted=false&autoplay=true&t=" + Date.now(); document.getElementById('play-trigger').style.display = 'none'; } }
-        
-        async function setLive(s) { 
-            await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: s }) }); 
-            load(); 
-        }
-
+        async function setLive(s) { await fetch(DB + ".json", { method: "PATCH", body: JSON.stringify({ is_live: s }) }); load(); }
         function checkLogin() { if(document.getElementById('user-f').value === "admin" && document.getElementById('pass-f').value === "1234") { document.getElementById('login-overlay').style.display='none'; document.getElementById('dashboard').style.display='block'; } }
 
         function toggleList(type) { showMore[type] = !showMore[type]; renderLists(); }
@@ -236,19 +235,14 @@
             const data = await r.json() || {};
             stationIsLive = data.is_live;
 
-            // --- Lógica de cores dos botões de controle ---
             const btnOn = document.getElementById('adm-btn-on');
             const btnOff = document.getElementById('adm-btn-off');
-            if(stationIsLive) {
-                btnOn.classList.add('btn-live-on-active');
-                btnOff.classList.remove('btn-live-off-active');
-            } else {
-                btnOff.classList.add('btn-live-off-active');
-                btnOn.classList.remove('btn-live-on-active');
-            }
+            if(stationIsLive) { btnOn.classList.add('btn-live-on-active'); btnOff.classList.remove('btn-live-off-active'); } 
+            else { btnOff.classList.add('btn-live-off-active'); btnOn.classList.remove('btn-live-on-active'); }
 
             document.getElementById('visit-count').innerText = (data.visits || 0).toString().padStart(4, '0');
             document.getElementById('our-purpose-text').innerText = data.news || "Defina o propósito da rádio no dashboard.";
+            document.getElementById('adm-news').value = data.news || "";
             document.getElementById('live-badge').innerText = stationIsLive ? "LIVE NOW" : "STATION OFFLINE";
             document.getElementById('live-badge').style.background = stationIsLive ? '#28a745' : '#333';
             document.getElementById('play-trigger').style.display = stationIsLive ? 'flex' : 'none';
