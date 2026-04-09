@@ -62,10 +62,12 @@
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
         .vis-btn { flex: 1; padding: 12px; font-weight: bold; cursor: pointer; background: #333; color: #fff; border: none; transition: 0.3s; text-transform: uppercase; font-size: 11px; }
-        .btn-live-on-active { background: var(--live-green) !important; color: #fff !important; }
-        .btn-live-off-active { background: var(--neon-red) !important; color: #fff !important; }
-        .btn-mod-on { background: #28a745 !important; color: #fff; }
-        .btn-mod-off { background: #444 !important; color: #888; }
+        
+        /* Cores de feedback do Dashboard */
+        .btn-live-on-active { background: var(--live-green) !important; color: #fff !important; box-shadow: 0 0 10px var(--live-green); }
+        .btn-live-off-active { background: var(--neon-red) !important; color: #fff !important; box-shadow: 0 0 10px var(--neon-red); }
+        .btn-mod-on { background: var(--live-green) !important; color: #fff !important; }
+        .btn-mod-off { background: #222 !important; color: #555 !important; }
         
         input, textarea, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 5px; }
         .action-btn { width: 100%; padding: 15px; background: var(--neon-red); color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
@@ -162,7 +164,7 @@
 
             <div class="dash-section">
                 <h3 style="margin-top:0;">MODULE VISIBILITY</h3>
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align: center;">
                     <div><p style="font-size:10px;">SCHEDULE</p><button id="btn-vis-sch" onclick="toggleModule('sch')" class="vis-btn">ON</button></div>
                     <div><p style="font-size:10px;">DJs</p><button id="btn-vis-djs" onclick="toggleModule('djs')" class="vis-btn">ON</button></div>
                     <div><p style="font-size:10px;">VIDEOS</p><button id="btn-vis-vids" onclick="toggleModule('vids')" class="vis-btn">ON</button></div>
@@ -257,6 +259,19 @@
             stationIsLive = data.is_live;
             modules = data.visibility || { sch: true, djs: true, vids: true };
 
+            // FEEDBACK VISUAL DOS BOTÕES DO DASHBOARD
+            document.getElementById('adm-btn-on').className = stationIsLive ? 'vis-btn btn-live-on-active' : 'vis-btn';
+            document.getElementById('adm-btn-off').className = !stationIsLive ? 'vis-btn btn-live-off-active' : 'vis-btn';
+            
+            document.getElementById('btn-vis-sch').className = modules.sch ? 'vis-btn btn-mod-on' : 'vis-btn btn-mod-off';
+            document.getElementById('btn-vis-sch').innerText = modules.sch ? 'ON' : 'OFF';
+            
+            document.getElementById('btn-vis-djs').className = modules.djs ? 'vis-btn btn-mod-on' : 'vis-btn btn-mod-off';
+            document.getElementById('btn-vis-djs').innerText = modules.djs ? 'ON' : 'OFF';
+            
+            document.getElementById('btn-vis-vids').className = modules.vids ? 'vis-btn btn-mod-on' : 'vis-btn btn-mod-off';
+            document.getElementById('btn-vis-vids').innerText = modules.vids ? 'ON' : 'OFF';
+
             document.getElementById('sec-sch').classList.toggle('hidden', !modules.sch);
             document.getElementById('sec-djs').classList.toggle('hidden', !modules.djs);
             document.getElementById('sec-vid').classList.toggle('hidden', !modules.vids);
@@ -302,23 +317,19 @@
         }
 
         function renderLists() {
-            // Residents
             const djsShow = showMore.djs ? fullData.djs : fullData.djs.slice(0, 6);
             document.getElementById('pub-djs').innerHTML = djsShow.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; text-align:center; border:1px solid #1a1a1a;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold; margin-top:10px;">${d.name}</div></div>`).join('');
             document.getElementById('toggle-djs').style.display = fullData.djs.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-djs').innerText = showMore.djs ? "VIEW LESS" : "VIEW MORE";
 
-            // Schedule Reorder Logic
             const now = new Date();
             const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
             
-            // 1. Encontrar o índice do DJ atual baseado no tempo
             let currentIndex = -1;
             for(let i = 0; i < fullData.sch.length; i++) {
                 if(fullData.sch[i][1].time <= currentTimeStr) currentIndex = i;
             }
 
-            // 2. Criar a lista ordenada (Atual -> Próximos -> Passados)
             let sortedSch = [];
             if (currentIndex !== -1) {
                 const upcoming = fullData.sch.slice(currentIndex);
@@ -340,7 +351,6 @@
                     rowStyle = "opacity: 0.2;";
                     timeDisplay = "|| PAUSED";
                 } else {
-                    // O primeiro da lista ordenada (sortedSch[0]) é sempre o atual
                     if (i === 0) {
                         badge = '<div class="tag-live-now">LIVE NOW</div>';
                         rowStyle = "background: rgba(245, 42, 31, 0.08); border-left: 3px solid var(--neon-red);";
@@ -355,7 +365,6 @@
             document.getElementById('toggle-sch').style.display = sortedSch.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-sch').innerText = showMore.sch ? "VIEW LESS" : "VIEW MORE";
 
-            // Archive
             const vidsShow = showMore.vids ? fullData.vids : fullData.vids.slice(0, 6);
             document.getElementById('pub-archive').innerHTML = vidsShow.map(([id, v]) => `<div class="vid-card"><iframe width="100%" height="200" src="https://www.bitchute.com/embed/${v.bitId}/" frameborder="0" allowfullscreen></iframe><div style="padding:15px; font-size:11px; text-align:center;">${v.title}</div></div>`).join('');
             document.getElementById('toggle-vids').style.display = fullData.vids.length > 6 ? 'block' : 'none';
