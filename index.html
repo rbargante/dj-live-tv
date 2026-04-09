@@ -163,7 +163,7 @@
 
             <div class="dash-section">
                 <h3 style="margin-top:0;">STREAM SOURCE (URL)</h3>
-                <input type="text" id="adm-stream-url" placeholder="https://player.kick.com/djlivetv">
+                <input type="text" id="adm-stream-url" placeholder="Ex: https://player.kick.com/djlivetv">
                 <button class="action-btn" onclick="saveStreamUrl()">UPDATE STREAM SOURCE</button>
             </div>
 
@@ -207,7 +207,7 @@
 
     <script>
         const DB = "https://dj-live-tv-48162-default-rtdb.europe-west1.firebasedatabase.app/";
-        let currentStreamUrl = "https://player.kick.com/djlivetv"; // Valor default
+        let currentStreamUrl = "";
         let stationIsLive = false, editId = null;
         let showMore = { sch: false, djs: false, vids: false };
         let fullData = { sch: [], djs: [], vids: [] };
