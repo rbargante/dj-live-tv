@@ -302,23 +302,35 @@
         }
 
         function renderLists() {
+            // Residents
             const djsShow = showMore.djs ? fullData.djs : fullData.djs.slice(0, 6);
             document.getElementById('pub-djs').innerHTML = djsShow.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; text-align:center; border:1px solid #1a1a1a;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold; margin-top:10px;">${d.name}</div></div>`).join('');
             document.getElementById('toggle-djs').style.display = fullData.djs.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-djs').innerText = showMore.djs ? "VIEW LESS" : "VIEW MORE";
 
+            // Schedule Reorder Logic
             const now = new Date();
             const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
-            const schShow = showMore.sch ? fullData.sch : fullData.sch.slice(0, 6);
             
-            // Logica para encontrar quem está no horario agora
+            // 1. Encontrar o índice do DJ atual baseado no tempo
             let currentIndex = -1;
             for(let i = 0; i < fullData.sch.length; i++) {
                 if(fullData.sch[i][1].time <= currentTimeStr) currentIndex = i;
             }
 
-            document.getElementById('pub-sch').innerHTML = schShow.map(([id, s]) => {
+            // 2. Criar a lista ordenada (Atual -> Próximos -> Passados)
+            let sortedSch = [];
+            if (currentIndex !== -1) {
+                const upcoming = fullData.sch.slice(currentIndex);
+                const passed = fullData.sch.slice(0, currentIndex);
+                sortedSch = [...upcoming, ...passed];
+            } else {
+                sortedSch = [...fullData.sch];
+            }
+
+            const schShow = showMore.sch ? sortedSch : sortedSch.slice(0, 6);
+            
+            document.getElementById('pub-sch').innerHTML = schShow.map(([id, s], i) => {
                 const dj = fullData.djs.find(d => d[1].name === s.info);
                 let badge = "";
                 let rowStyle = "";
@@ -328,11 +340,11 @@
                     rowStyle = "opacity: 0.2;";
                     timeDisplay = "|| PAUSED";
                 } else {
-                    const globalIdx = fullData.sch.findIndex(item => item[0] === id);
-                    if (globalIdx === currentIndex) {
+                    // O primeiro da lista ordenada (sortedSch[0]) é sempre o atual
+                    if (i === 0) {
                         badge = '<div class="tag-live-now">LIVE NOW</div>';
-                        rowStyle = "background: rgba(245, 42, 31, 0.05);";
-                    } else if (globalIdx === currentIndex + 1) {
+                        rowStyle = "background: rgba(245, 42, 31, 0.08); border-left: 3px solid var(--neon-red);";
+                    } else if (i === 1) {
                         badge = '<div class="tag-next">NEXT</div>';
                     }
                 }
@@ -340,9 +352,10 @@
                 return `<div class="sch-row" style="${rowStyle}"><div class="sch-photo" style="background-image:url('${dj ? dj[1].img : ''}')"></div><div style="color:var(--accent-color); font-weight:bold;">EVERY DAY</div><div>${s.info} <span style="opacity:0.2">|</span> ${s.style || ''}</div><div>${timeDisplay}</div><div>${badge}</div></div>`;
             }).join('');
             
-            document.getElementById('toggle-sch').style.display = fullData.sch.length > 6 ? 'block' : 'none';
+            document.getElementById('toggle-sch').style.display = sortedSch.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-sch').innerText = showMore.sch ? "VIEW LESS" : "VIEW MORE";
 
+            // Archive
             const vidsShow = showMore.vids ? fullData.vids : fullData.vids.slice(0, 6);
             document.getElementById('pub-archive').innerHTML = vidsShow.map(([id, v]) => `<div class="vid-card"><iframe width="100%" height="200" src="https://www.bitchute.com/embed/${v.bitId}/" frameborder="0" allowfullscreen></iframe><div style="padding:15px; font-size:11px; text-align:center;">${v.title}</div></div>`).join('');
             document.getElementById('toggle-vids').style.display = fullData.vids.length > 6 ? 'block' : 'none';
