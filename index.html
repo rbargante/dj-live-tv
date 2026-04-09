@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V134</title>
+    <title>FLASHMIX.TV | PRO STATION V135</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -33,18 +33,17 @@
         .nav-overlay a { color: #fff; text-decoration: none; font-size: 14px; text-transform: uppercase; margin: 12px 0; letter-spacing: 2px; font-weight: 900; }
         .nav-overlay .admin-btn { margin-top: 30px; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px; border-radius: 4px; text-align: center; font-size: 11px; cursor: pointer; transition: 0.5s; }
 
-        /* --- STAGE & BARS --- */
-        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 10px; overflow: hidden; position: relative; transition: border-color 0.5s; }
+        /* --- PLAYER STAGE --- */
+        .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 30px; overflow: hidden; position: relative; transition: border-color 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         @keyframes borderBlink { 0% { box-shadow: 0 0 15px var(--live-green); } 100% { box-shadow: 0 0 40px var(--live-green); } }
         iframe { width: 100%; height: 100%; border: 0; }
-        .msg-bar { width: 95%; max-width: 1200px; margin: 0 auto 20px; padding: 12px; text-align: center; font-size: 10px; font-weight: 900; letter-spacing: 2px; border-radius: 8px; text-transform: uppercase; background: var(--accent-color); color: #fff; transition: background 0.5s; }
 
         /* --- PURPOSE AREA (COLORS SYNCED) --- */
         .purpose-section { width: 95%; max-width: 1200px; margin: 0 auto 40px; padding: 40px; background: #080808; border: 2px solid var(--accent-color); border-radius: 15px; text-align: center; transition: border-color 0.5s; }
         .purpose-text { font-size: 16px; line-height: 1.6; color: var(--accent-color); font-family: 'Arial', sans-serif; font-weight: normal; transition: color 0.5s; opacity: 0.8; }
 
-        /* --- LISTS --- */
+        /* --- LISTS & UI --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
@@ -56,7 +55,6 @@
         /* --- FOOTER --- */
         .basic-footer { background: #000; padding: 50px 20px; border-top: 1px solid #222; margin-top: 60px; text-align: center; }
         .f-txt { color: #aaa; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
-        .f-txt span { color: var(--accent-color); font-weight: 900; margin-left: 10px; transition: color 0.5s; }
 
         /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
@@ -68,7 +66,6 @@
 
         .container { width: 95%; max-width: 1100px; margin: 0 auto; flex: 1; }
         .row-title { font-size: 22px; margin: 40px 0 20px; border-left: 5px solid var(--accent-color); padding-left: 15px; text-transform: uppercase; transition: border-color 0.5s; }
-        .site-section.hidden { display: none !important; }
     </style>
 </head>
 <body id="app">
@@ -107,8 +104,6 @@
         <iframe id="kick-iframe" allowfullscreen></iframe>
     </div>
 
-    <div id="dynamic-msg" class="msg-bar">WELCOME TO FLASHMIX.TV</div>
-
     <div id="sec-news" class="purpose-section site-section">
         <div id="our-purpose-text" class="purpose-text">Loading station info...</div>
     </div>
@@ -135,7 +130,7 @@
 
     <footer class="basic-footer">
         <div class="f-txt">
-            Copyright 2026 ©. All rights reserved. | Visitors: <span id="visit-count">0000</span>
+            Copyright 2026 ©. All rights reserved. | Visitors: <span id="visit-count" style="color:var(--accent-color)">0000</span>
         </div>
     </footer>
 
@@ -185,9 +180,8 @@
         function updateTimeStyles() {
             const hr = new Date().getHours();
             const isDay = hr >= 7 && hr < 19;
-            const msg = document.getElementById('dynamic-msg');
-            if(isDay) { document.body.classList.add('day-mode'); msg.innerText = "GOOD DAY! YOU ARE LISTENING TO FLASHMIX.TV"; }
-            else { document.body.classList.remove('day-mode'); msg.innerText = "GOOD NIGHT! THE BEST MIXES ARE ON FLASHMIX.TV"; }
+            if(isDay) { document.body.classList.add('day-mode'); }
+            else { document.body.classList.remove('day-mode'); }
         }
 
         async function updateCounter() {
