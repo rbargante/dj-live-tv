@@ -312,13 +312,13 @@
 
             const schShow = showMore.sch ? fullData.sch : fullData.sch.slice(0, 6);
             
-            // Encontrar quem está "Live" no horário agora
+            // Logica para encontrar quem está no horario agora
             let currentIndex = -1;
             for(let i = 0; i < fullData.sch.length; i++) {
                 if(fullData.sch[i][1].time <= currentTimeStr) currentIndex = i;
             }
 
-            document.getElementById('pub-sch').innerHTML = schShow.map(([id, s], i) => {
+            document.getElementById('pub-sch').innerHTML = schShow.map(([id, s]) => {
                 const dj = fullData.djs.find(d => d[1].name === s.info);
                 let badge = "";
                 let rowStyle = "";
