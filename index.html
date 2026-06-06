@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHMIX.TV | PRO STATION V140</title>
+    <title>DJ LIVE TV | Electronic Music Television</title>
     <style>
         :root { 
             --neon-red: #f52a1f; 
@@ -16,7 +16,6 @@
         * { box-sizing: border-box; scroll-behavior: smooth; }
         body { margin: 0; background: var(--bg-color); color: #fff; font-family: 'Arial Black', sans-serif; padding-top: 100px; min-height: 100vh; display: flex; flex-direction: column; transition: background 1s ease; }
 
-        /* --- NAVIGATION --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #1a1a1a; padding: 15px 0; }
         .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; z-index: 1001; }
@@ -31,7 +30,6 @@
         .nav-overlay a { color: #fff; text-decoration: none; font-size: 14px; text-transform: uppercase; margin: 12px 0; letter-spacing: 2px; font-weight: 900; }
         .nav-overlay .admin-btn { margin-top: 30px; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px; border-radius: 4px; text-align: center; font-size: 11px; cursor: pointer; }
 
-        /* --- STAGE & ANIMATIONS --- */
         .player-stage { width: 95%; max-width: 1200px; aspect-ratio: 16/9; background: #050505; border: 5px solid var(--accent-color); margin: 0 auto 30px; overflow: hidden; position: relative; transition: border-color 0.5s; }
         body.is-live .player-stage { border-color: var(--live-green); animation: borderBlink 1.5s infinite alternate; }
         
@@ -42,7 +40,6 @@
         .purpose-section { width: 95%; max-width: 1200px; margin: 0 auto 40px; padding: 40px; background: #080808; border: 2px solid var(--accent-color); border-radius: 15px; text-align: center; transition: border-color 0.5s; }
         .purpose-text { font-size: 16px; line-height: 1.6; color: var(--accent-color); font-family: 'Arial', sans-serif; font-weight: normal; transition: color 0.5s; opacity: 0.8; }
 
-        /* --- UI LISTS --- */
         .sch-box { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; }
         .sch-row { display: grid; grid-template-columns: 70px 110px 1fr 1fr 100px; padding: 18px; border-bottom: 1px solid #1a1a1a; font-size: 12px; align-items: center; transition: 0.5s; }
         .sch-photo { width: 50px; height: 50px; border-radius: 8px; background-size: cover; border: 2px solid #333; }
@@ -57,7 +54,6 @@
         .view-toggle-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 10px; display: block; margin: 20px auto; text-transform: uppercase; letter-spacing: 2px; transition: 0.5s; }
         .site-section.hidden { display: none !important; }
 
-        /* --- SPONSORS SECTION --- */
         .sp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
         .sp-card { background: #080808; border: 1px solid #1a1a1a; border-radius: 15px; overflow: hidden; transition: 0.3s; text-decoration: none; color: inherit; }
         .sp-card:hover { border-color: var(--accent-color); transform: translateY(-5px); }
@@ -66,7 +62,6 @@
         .sp-name { font-size: 14px; color: var(--accent-color); margin-bottom: 5px; }
         .sp-desc { font-size: 11px; color: #777; font-family: Arial; }
 
-        /* --- DASHBOARD --- */
         #dashboard { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 20px; overflow-y: auto; }
         .dash-container { max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid var(--neon-red); padding: 25px; border-radius: 20px; }
         .dash-section { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
@@ -93,7 +88,7 @@
 
     <nav class="top-nav">
         <div class="nav-content">
-            <a href="#" class="brand"><div class="logo-circle">F</div><div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">FLASHMIX.TV</div></a>
+            <a href="#" class="brand"><div class="logo-circle">D</div><div style="font-size: 18px; letter-spacing: 2px; font-weight: 900;">DJ LIVE TV</div></a>
             <div class="ham-menu" id="ham-trigger" onclick="toggleNav()"><span></span><span></span><span></span></div>
             <div class="nav-overlay" id="side-nav">
                 <a href="#" onclick="toggleNav()">Home</a>
@@ -116,7 +111,7 @@
         </div>
     </div>
 
-    <div id="live-badge" style="margin: 0 auto 15px; width:fit-content; padding:8px 20px; border-radius:20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:bold; background:#333; color:#888;">STATION OFFLINE</div>
+    <div id="live-badge" style="margin: 0 auto 15px; width:fit-content; padding:8px 20px; border-radius:20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:bold; background:#333; color:#888;">BROADCAST OFFLINE</div>
 
     <div class="player-stage">
         <div id="play-trigger" onclick="forceRefreshPlayer()" style="position:absolute; inset:0; z-index:100; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.8); cursor:pointer; flex-direction:column;">
@@ -126,15 +121,15 @@
 
         <div id="offline-msg" style="position:absolute; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; background:#050505; flex-direction:column; text-align:center; padding:20px;">
             <div style="font-size:40px; margin-bottom:10px; opacity:0.3;">📡</div>
-            <div style="font-size:14px; letter-spacing:4px; color:var(--accent-color); font-weight:900; text-transform:uppercase;">Station Offline</div>
-            <div style="font-size:11px; color:#444; margin-top:10px; font-family:Arial;">CHECK THE SCHEDULE BELOW FOR UPCOMING SHOWS</div>
+            <div style="font-size:14px; letter-spacing:4px; color:var(--accent-color); font-weight:900; text-transform:uppercase;">Broadcast Offline</div>
+            <div style="font-size:11px; color:#444; margin-top:10px; font-family:Arial;">CHECK THE SCHEDULE BELOW FOR UPCOMING LIVE SHOWS AND DJ SETS</div>
         </div>
 
         <iframe id="kick-iframe" allowfullscreen></iframe>
     </div>
 
     <div id="sec-news" class="purpose-section site-section">
-        <div id="our-purpose-text" class="purpose-text">Loading station info...</div>
+        <div id="our-purpose-text" class="purpose-text">Welcome to DJ LIVE TV, your home for electronic music culture 24/7. From timeless club classics and legendary DJ sets to underground sounds and future beats, we connect generations through music.</div>
     </div>
 
     <div class="container">
@@ -144,27 +139,27 @@
         </div>
 
         <div id="sec-sch" class="site-section">
-            <div id="live-alert" class="live-alert-bar">URGENT: SPECIAL LIVE BROADCAST IN PROGRESS</div>
+            <div id="live-alert" class="live-alert-bar">LIVE BROADCAST IN PROGRESS</div>
             <div id="schedule" class="row-title">Weekly Schedule</div>
             <div id="pub-sch" class="sch-box"></div>
             <button id="toggle-sch" class="view-toggle-btn" style="display:none;" onclick="toggleList('sch')">VIEW MORE</button>
         </div>
 
         <div id="sec-djs" class="site-section">
-            <div id="residents" class="row-title">Flashmix Residents</div>
+            <div id="residents" class="row-title">Resident DJs</div>
             <div id="pub-djs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;"></div>
             <button id="toggle-djs" class="view-toggle-btn" style="display:none;" onclick="toggleList('djs')">VIEW MORE</button>
         </div>
         
         <div id="sec-vid" class="site-section">
-            <div id="archive" class="row-title">Video Playlist</div>
+            <div id="archive" class="row-title">Video Archive</div>
             <div id="pub-archive" class="vid-grid"></div>
             <button id="toggle-vids" class="view-toggle-btn" style="display:none;" onclick="toggleList('vids')">VIEW MORE</button>
         </div>
     </div>
 
     <footer class="basic-footer">
-        <div class="f-txt">Copyright 2026 ©. All rights reserved. | Visitors: <span id="visit-count" style="color:var(--accent-color)">0000</span></div>
+        <div class="f-txt">DJ LIVE TV © 2026. All rights reserved. | Visitors: <span id="visit-count" style="color:var(--accent-color)">0000</span></div>
     </footer>
 
     <div id="dashboard">
@@ -194,30 +189,30 @@
 
             <div class="dash-section">
                 <h3>SPONSORS MANAGER</h3>
-                <input type="text" id="sp-n" placeholder="Nome da Empresa">
-                <input type="text" id="sp-i" placeholder="URL da Logo/Foto">
-                <input type="text" id="sp-u" placeholder="URL do Site (Link Clicável)">
-                <textarea id="sp-d" placeholder="Pequena descrição ou slogan"></textarea>
+                <input type="text" id="sp-n" placeholder="Company name">
+                <input type="text" id="sp-i" placeholder="Logo / image URL">
+                <input type="text" id="sp-u" placeholder="Website URL">
+                <textarea id="sp-d" placeholder="Short description or slogan"></textarea>
                 <button onclick="saveSponsor()" class="action-btn">ADD PARTNER</button>
                 <div id="adm-list-sp" style="margin-top:15px;"></div>
             </div>
 
             <div class="dash-section">
-                <h3>STATION PURPOSE / NEWS</h3>
+                <h3>STATION INTRO / NEWS</h3>
                 <textarea id="adm-news" rows="4"></textarea>
-                <button class="action-btn" onclick="saveNews()">SAVE PURPOSE</button>
+                <button class="action-btn" onclick="saveNews()">SAVE INTRO</button>
             </div>
 
             <div class="dash-section">
-                <h3>PLAYLIST MANAGER</h3>
-                <input type="text" id="v-tit" placeholder="Título"><input type="text" id="v-lnk" placeholder="Link BitChute">
+                <h3>VIDEO ARCHIVE MANAGER</h3>
+                <input type="text" id="v-tit" placeholder="Title"><input type="text" id="v-lnk" placeholder="BitChute link">
                 <button onclick="saveVideo()" class="action-btn">ADD VIDEO</button>
                 <div id="adm-list-vids" style="margin-top:15px;"></div>
             </div>
 
             <div class="dash-section">
                 <h3>DJs DATABASE</h3>
-                <input type="text" id="dj-n" placeholder="DJ Name"><input type="text" id="dj-s" placeholder="Style"><input type="text" id="dj-i" placeholder="Photo URL">
+                <input type="text" id="dj-n" placeholder="DJ name"><input type="text" id="dj-s" placeholder="Style"><input type="text" id="dj-i" placeholder="Photo URL">
                 <button onclick="saveDJ()" class="action-btn">ADD DJ</button>
                 <div id="adm-list-djs" style="margin-top:15px;"></div>
             </div>
@@ -330,11 +325,13 @@
 
             document.getElementById('live-alert').style.display = stationIsLive ? 'block' : 'none';
             document.getElementById('visit-count').innerText = (data.visits || 0).toString().padStart(4, '0');
-            document.getElementById('our-purpose-text').innerText = data.news || "";
-            document.getElementById('adm-news').value = data.news || "";
+
+            const defaultIntro = "Welcome to DJ LIVE TV, your home for electronic music culture 24/7. From timeless club classics and legendary DJ sets to underground sounds and future beats, we connect generations through music. Watch live broadcasts, discover resident DJs, explore exclusive archives, and experience the soundtrack of electronic music, anytime, anywhere.";
+            document.getElementById('our-purpose-text').innerText = data.news || defaultIntro;
+            document.getElementById('adm-news').value = data.news || defaultIntro;
 
             const lb = document.getElementById('live-badge');
-            lb.innerText = stationIsLive ? "LIVE NOW" : "STATION OFFLINE";
+            lb.innerText = stationIsLive ? "LIVE NOW" : "BROADCAST OFFLINE";
             if (stationIsLive) {
                 lb.style.background = 'var(--neon-red)';
                 lb.style.color = '#fff';
@@ -368,7 +365,6 @@
         }
 
         function renderLists() {
-            // Patrocinadores
             document.getElementById('pub-sp').innerHTML = fullData.sp.map(([id, s]) => `
                 <a href="${s.url || '#'}" target="_blank" class="sp-card">
                     <div class="sp-img" style="background-image:url('${s.img}')"></div>
@@ -378,13 +374,11 @@
                     </div>
                 </a>`).join('');
 
-            // DJs
             const djsShow = showMore.djs ? fullData.djs : fullData.djs.slice(0, 6);
             document.getElementById('pub-djs').innerHTML = djsShow.map(([id, d]) => `<div style="background:#080808; padding:20px; border-radius:15px; text-align:center; border:1px solid #1a1a1a;"><img src="${d.img}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:2px solid #333;"><div style="font-size:13px; font-weight:bold; margin-top:10px;">${d.name}</div></div>`).join('');
             document.getElementById('toggle-djs').style.display = fullData.djs.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-djs').innerText = showMore.djs ? "VIEW LESS" : "VIEW MORE";
 
-            // Horario
             const now = new Date();
             const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
             let currentIndex = -1;
@@ -402,7 +396,6 @@
             document.getElementById('toggle-sch').style.display = sortedSch.length > 6 ? 'block' : 'none';
             document.getElementById('toggle-sch').innerText = showMore.sch ? "VIEW LESS" : "VIEW MORE";
 
-            // Videos
             const vidsShow = showMore.vids ? fullData.vids : fullData.vids.slice(0, 6);
             document.getElementById('pub-archive').innerHTML = vidsShow.map(([id, v]) => `<div class="vid-card"><iframe width="100%" height="200" src="https://www.bitchute.com/embed/${v.bitId}/" frameborder="0" allowfullscreen></iframe><div style="padding:15px; font-size:11px; text-align:center;">${v.title}</div></div>`).join('');
             document.getElementById('toggle-vids').style.display = fullData.vids.length > 6 ? 'block' : 'none';
